@@ -46,7 +46,15 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
 .detail-image-wrap img{width:100%;height:320px;object-fit:contain}
 .detail-copy h2{font-size:24px;line-height:1.35;margin:10px 0}
 .detail-copy small{color:#777}.detail-price{font-size:24px;font-weight:900;color:#171717}
-.detail-description{white-space:pre-wrap;line-height:1.7;color:#555;font-size:14px}
+.detail-description{white-space:normal;line-height:1.65;color:#444;font-size:13px;margin-top:14px}
+.detail-description .spec-heading{font-size:16px;font-weight:800;color:#171717;margin:18px 0 10px;padding-bottom:8px;border-bottom:2px solid #f5c400}
+.detail-description .spec-intro{font-size:13px;color:#555;line-height:1.7;margin:0 0 12px}
+.detail-description .spec-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 14px}
+.detail-description .spec-item{background:#f7f7f7;border:1px solid #eee;border-radius:6px;padding:9px 10px;min-width:0}
+.detail-description .spec-item b{display:block;color:#171717;font-size:11px;margin-bottom:4px}
+.detail-description .spec-item span{display:block;color:#555;font-size:12px;overflow-wrap:anywhere}
+.detail-description .spec-note{background:#fff9df;border-left:3px solid #f5c400;padding:10px 12px;border-radius:3px;margin:12px 0;color:#555;font-size:12px}
+@media(max-width:650px){.detail-description .spec-list{grid-template-columns:1fr}.detail-description .spec-heading{font-size:15px}}
 @media(max-width:650px){.detail-panel{padding:18px 14px}.detail-grid{grid-template-columns:1fr;gap:15px}.detail-image-wrap{min-height:200px}.detail-image-wrap img{height:220px}.detail-copy h2{font-size:20px}}
 
 </style>
@@ -258,6 +266,21 @@ function updateCart(){let count=Object.values(cart).reduce((a,b)=>a+b,0);documen
 function openCart(){document.getElementById('cartBackdrop').classList.add('show');updateCart();}function closeCart(){document.getElementById('cartBackdrop').classList.remove('show');}
 function toggleWish(id){if(wishlist.has(id))wishlist.delete(id);else wishlist.add(id);document.getElementById('wishCount').textContent=wishlist.size;}
 function showWishlist(){const items=allProducts.filter(p=>wishlist.has(String(p.id)));if(!items.length){alert('Wishlist এখন খালি।');return;}alert('Wishlist: '+items.map(p=>p.name).join(', '));}
+function renderDetailDescription(value){
+ const box=document.getElementById('detailDescription');
+ const lines=String(value||'').split(/\\r?\\n/).map(x=>x.trim()).filter(Boolean);
+ let html='',items=[];
+ const flush=()=>{if(items.length){html+='<div class="spec-list">'+items.map(([k,v])=>'<div class="spec-item"><b>'+escapeHtml(k)+'</b><span>'+escapeHtml(v)+'</span></div>').join('')+'</div>';items=[];}};
+ for(const line of lines){
+  if(/^(বিস্তারিত স্পেসিফিকেশন|ল্যাপটপ স্পেসিফিকেশন|গেমিং ল্যাপটপ স্পেসিফিকেশন|তথ্য ও স্পেসিফিকেশন|স্পেসিফিকেশন)$/i.test(line)){flush();html+='<div class="spec-heading">'+escapeHtml(line)+'</div>';continue;}
+  const idx=line.indexOf(':');
+  if(idx>0&&idx<45){items.push([line.slice(0,idx),line.slice(idx+1).trim()]);continue;}
+  flush();
+  if(/^(গুরুত্বপূর্ণ|নোট|সতর্কতা):/.test(line)){html+='<div class="spec-note">'+escapeHtml(line)+'</div>';continue;}
+  html+='<p class="spec-intro">'+escapeHtml(line)+'</p>';
+ }
+ flush();box.innerHTML=html||'<p class="spec-intro">বিস্তারিত তথ্য পাওয়া যায়নি।</p>';
+}
 function showProductDetails(id){
  const p=allProducts.find(x=>String(x.id)===String(id));if(!p)return;
  const image=document.getElementById('detailImage');image.src=p.image_url||'';image.alt=p.name||'Product';
@@ -265,7 +288,7 @@ function showProductDetails(id){
  document.getElementById('detailName').textContent=p.name||'Unnamed product';
  document.getElementById('detailPrice').textContent=money(p.price);
  document.getElementById('detailStock').textContent=Number(p.stock||0)>0?'স্টকে আছে: '+Number(p.stock):'স্টকে নেই';
- document.getElementById('detailDescription').textContent=p.full_description||p.description||'এই পণ্যের বিস্তারিত বিবরণ এখনো যোগ করা হয়নি।';
+ renderDetailDescription(p.full_description||p.description||'এই পণ্যের বিস্তারিত বিবরণ এখনো যোগ করা হয়নি।');
  const button=document.getElementById('detailAddCart');button.disabled=Number(p.stock||0)<=0;button.onclick=()=>{addToCart(String(p.id));closeProductDetails();};
  document.getElementById('productDetailBackdrop').classList.add('show');
 }
