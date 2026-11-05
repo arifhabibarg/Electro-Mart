@@ -122,7 +122,7 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
       <div class="admin-field"><label for="apPrice">দাম (৳) *</label><input id="apPrice" type="number" min="0" step="0.01" required></div>
       <div class="admin-field"><label for="apStock">স্টক *</label><input id="apStock" type="number" min="0" step="1" required value="1"></div>
       <div class="admin-field"><label for="apCategory">ক্যাটাগরি *</label><select id="apCategory" required onchange="updateProductSubcategories()"><option value="">বাছাই করুন</option><option>Smartphones</option><option>Laptops</option><option>Tablets</option><option>Audio</option><option>Smartwatches</option><option>Cameras</option><option>Accessories</option><option>Gaming</option><option>TV</option><option>Home Appliances</option><option>Deals</option></select></div><div class="admin-field"><label for="apSubcategory">সাব-ক্যাটাগরি *</label><select id="apSubcategory" required><option value="">আগে ক্যাটাগরি বাছাই করুন</option></select></div><div class="admin-field"><label for="apBrand">ব্র্যান্ড *</label><select id="apBrand" required><option value="">আগে ক্যাটাগরি বাছাই করুন</option></select></div>
-      <div class="admin-field"><label for="apImage">প্রোডাক্টের ছবি *</label><input id="apImage" type="file" accept="image/jpeg,image/png,image/webp" multiple><small class="admin-help">প্রতি পণ্যে ৩–৫টি ছবি দিন। সর্বোচ্চ ৫টি ছবি, প্রতিটি ৫ MB-এর মধ্যে।</div>
+      <div class="admin-field"><label for="apImage">প্রোডাক্টের ছবি *</label><input id="apImage" type="file" accept="image/jpeg,image/png,image/webp" multiple><small class="admin-help">প্রতি পণ্যে মোট ৩–৫টি ছবি রাখুন। এডিট করার সময় বাকি ছবি যোগ করুন; সর্বোচ্চ ৫টি, প্রতিটি ৫ MB-এর মধ্যে।</small></div>
       <div class="admin-field full"><label for="apDescription">সংক্ষিপ্ত বিবরণ</label><textarea id="apDescription" maxlength="1000" placeholder="পণ্যের সংক্ষিপ্ত পরিচিতি"></textarea></div>
       <div class="admin-field full"><label for="apFullDescription">সম্পূর্ণ বিবরণ</label><textarea id="apFullDescription" maxlength="10000" placeholder="পণ্যের বিস্তারিত ফিচার, ব্যবহার, সামঞ্জস্য ও প্রয়োজনীয় তথ্য লিখুন"></textarea></div>
       <div class="admin-field"><label for="apActive">স্টোরে দেখাবে?</label><select id="apActive"><option value="true">হ্যাঁ, সক্রিয়</option><option value="false">না, লুকানো</option></select></div>
@@ -321,8 +321,8 @@ async function saveAdminProduct(event){
   if(editingProductId){const {data:oldProduct,error:oldError}=await supabaseClient.from('products').select('image_url,image_urls').eq('id',editingProductId).single();if(oldError)throw oldError;gallery=Array.isArray(oldProduct.image_urls)&&oldProduct.image_urls.length?oldProduct.image_urls:(oldProduct.image_url?[oldProduct.image_url]:[]);}
   for(const file of files){const ext=file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg';const path=`${Date.now()}-${crypto.randomUUID()}.${ext}`;const {error:uploadError}=await supabaseClient.storage.from('product-images').upload(path,file,{contentType:file.type,upsert:false});if(uploadError)throw uploadError;const {data:urlData}=supabaseClient.storage.from('product-images').getPublicUrl(path);gallery.push(urlData.publicUrl);}
   gallery=[...new Set(gallery)].slice(0,5);
-  if(gallery.length){payload.image_urls=gallery;payload.image_url=gallery[0];}
-  else if(!editingProductId)throw new Error('নতুন প্রোডাক্টের জন্য অন্তত একটি ছবি বেছে নিন।');
+  if(gallery.length<3)throw new Error('প্রতি প্রোডাক্টে কমপক্ষে ৩টি এবং সর্বোচ্চ ৫টি ছবি থাকতে হবে। এডিট করে বাকি ছবি যোগ করুন।');
+  payload.image_urls=gallery;payload.image_url=gallery[0];
   let result;
   if(editingProductId)result=await supabaseClient.from('products').update(payload).eq('id',editingProductId);
   else result=await supabaseClient.from('products').insert(payload);
