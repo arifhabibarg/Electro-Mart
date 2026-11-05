@@ -268,7 +268,7 @@ function toggleWish(id){if(wishlist.has(id))wishlist.delete(id);else wishlist.ad
 function showWishlist(){const items=allProducts.filter(p=>wishlist.has(String(p.id)));if(!items.length){alert('Wishlist এখন খালি।');return;}alert('Wishlist: '+items.map(p=>p.name).join(', '));}
 function renderDetailDescription(value){
  const box=document.getElementById('detailDescription');
- const lines=String(value||'').split(/\\r?\\n/).map(x=>x.trim()).filter(Boolean);
+ const lines=String(value||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
  let html='',items=[];
  const flush=()=>{if(items.length){html+='<div class="spec-list">'+items.map(([k,v])=>'<div class="spec-item"><b>'+escapeHtml(k)+'</b><span>'+escapeHtml(v)+'</span></div>').join('')+'</div>';items=[];}};
  for(const line of lines){
