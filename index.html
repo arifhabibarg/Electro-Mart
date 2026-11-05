@@ -127,8 +127,8 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
 <div class="drawer-backdrop" id="cartBackdrop" onclick="if(event.target===this)closeCart()"><aside class="drawer"><div class="drawer-head"><h2>Your Cart</h2><button class="close-btn" onclick="closeCart()">✕</button></div><div id="cartItems"><p class="drawer-note">Your cart is empty.</p></div><div class="cart-total"><span>Total</span><span id="cartTotal">৳0</span></div><p class="drawer-note">এটি আপাতত কার্ট প্রিভিউ। বাস্তব অর্ডার/চেকআউট চালু করতে অর্ডার টেবিল ও পেমেন্ট সংযোগ করতে হবে।</p></aside></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL = "https://bkphwlfyhvgvokyfdvrp.supabase.co";
-const SUPABASE_KEY = "sb_publishable_BZIpXMa8NQwgPd1NJaSDhg_qDOk9cTv";
+const SUPABASE_URL = "https://rgitdsirphxssshbkfmf.supabase.co";
+const SUPABASE_KEY = "sb_publishable_WFzBE5haU2xnRv0D2PsxKw_WuH8rhmH";
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const productsContainer=document.getElementById('products'),statusText=document.getElementById('status');
 let authMode='login',currentAuthUser=null;
@@ -149,25 +149,25 @@ async function refreshAdminAccess(){
  nav.classList.remove('show');panel.classList.remove('show');
  document.getElementById('adminPermissionCard').style.display='none';
  if(!currentAuthUser?.email)return;
- const {data,error}=await supabaseClient.from('admin_users').select('role').eq('email',currentAuthUser.email.toLowerCase()).maybeSingle();
+ const {data,error}=await supabaseClient.from('profiles').select('role').eq('id',currentAuthUser.id).maybeSingle();
  if(error){console.warn('Admin permission check:',error.message);return;}
  if(!data)return;
  currentAdminRole=data.role;
- nav.classList.add('show');
- document.getElementById('adminPermissionCard').style.display=currentAdminRole==='owner'?'block':'none';
+ if(currentAdminRole==='admin') nav.classList.add('show');
+ document.getElementById('adminPermissionCard').style.display='none';
 }
 async function toggleAdminPanel(){
  if(!currentAdminRole){alert('এই প্যানেল ব্যবহারের অনুমতি আপনার নেই।');return;}
  const panel=document.getElementById('adminPanel');
  panel.classList.toggle('show');
- if(panel.classList.contains('show')){panel.scrollIntoView({behavior:'smooth',block:'start'});await loadAdminProducts();if(currentAdminRole==='owner')await loadAdminPermissions();}
+ if(panel.classList.contains('show')){panel.scrollIntoView({behavior:'smooth',block:'start'});await loadAdminProducts();}
 }
 async function loadAdminProducts(){
  const box=document.getElementById('adminProductList');box.innerHTML='<p class="admin-help">লোড হচ্ছে...</p>';
- const {data,error}=await supabaseClient.from('products').select('id,product_code,name,price,stock,image_url,is_active,category').order('created_at',{ascending:false}).limit(100);
+ const {data,error}=await supabaseClient.from('products').select('id,name,price,stock,image_url,is_active,category').order('created_at',{ascending:false}).limit(100);
  if(error){box.innerHTML='<p class="admin-help">পণ্য আনা যায়নি: '+escapeHtml(error.message)+'</p>';return;}
  if(!data?.length){box.innerHTML='<p class="admin-help">এখনো কোনো প্রোডাক্ট নেই।</p>';return;}
- box.innerHTML=data.map(p=>`<div class="admin-product-row"><img src="${escapeHtml(p.image_url||'')}" alt=""><div><b>${escapeHtml(p.name)}</b><small>ID: ${escapeHtml(p.product_code||'—')} · ${money(p.price)} · স্টক ${Number(p.stock)} · ${p.is_active?'সক্রিয়':'লুকানো'}</small></div><div class="admin-actions"><button class="admin-secondary" type="button" onclick="editAdminProduct('${escapeHtml(p.id)}')">এডিট</button><button class="admin-danger" type="button" onclick="deleteAdminProduct('${escapeHtml(p.id)}')">ডিলিট</button></div></div>`).join('');
+ box.innerHTML=data.map(p=>`<div class="admin-product-row"><img src="${escapeHtml(p.image_url||'')}" alt=""><div><b>${escapeHtml(p.name)}</b><small>ID: ${escapeHtml(String(p.id||'').slice(0,8))} · ${money(p.price)} · স্টক ${Number(p.stock)} · ${p.is_active?'সক্রিয়':'লুকানো'}</small></div><div class="admin-actions"><button class="admin-secondary" type="button" onclick="editAdminProduct('${escapeHtml(p.id)}')">এডিট</button><button class="admin-danger" type="button" onclick="deleteAdminProduct('${escapeHtml(p.id)}')">ডিলিট</button></div></div>`).join('');
 }
 function resetAdminProductForm(){
  editingProductId=null;document.getElementById('adminProductForm').reset();document.getElementById('apStock').value=1;
@@ -193,7 +193,7 @@ async function saveAdminProduct(event){
  event.preventDefault();const button=document.getElementById('apSave');button.disabled=true;button.textContent='সেভ হচ্ছে...';adminMessage('apMessage','');
  try{
   const name=document.getElementById('apName').value.trim();
-  const payload={name,slug:name.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')+'-'+Date.now().toString(36),
+  const payload={name,
    price:Number(document.getElementById('apPrice').value),stock:Number(document.getElementById('apStock').value),
    category:document.getElementById('apCategory').value,description:document.getElementById('apDescription').value.trim(),
    is_active:document.getElementById('apActive').value==='true'};
@@ -244,8 +244,8 @@ const money=n=>'৳'+Number(n||0).toLocaleString('en-BD');
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function productCategory(p){return String(p.category||p.category_name||'').toLowerCase();}
 function matchesCategory(p,cat){if(!cat)return true;const c=productCategory(p);const map={smartphones:['phone','mobile','smartphone'],laptops:['laptop','computer'],audio:['audio','headphone','earbud','speaker'],smartwatches:['watch','smartwatch'],cameras:['camera'],accessories:['accessor','charger','cable'],gaming:['gaming','game','console'],tv:['tv','television','home theater'],'home appliances':['appliance','home']};return (map[cat.toLowerCase()]||[cat.toLowerCase()]).some(k=>c.includes(k)||String(p.name||'').toLowerCase().includes(k));}
-function renderProducts(items){productsContainer.innerHTML='';if(!items.length){productsContainer.innerHTML='<div class="empty">কোনো পণ্য পাওয়া যায়নি। অন্য ক্যাটাগরি বা সার্চ দিয়ে দেখুন।</div>';return;}items.forEach(p=>{const card=document.createElement('article');card.className='product';card.style.cursor='pointer';card.setAttribute('role','button');card.setAttribute('tabindex','0');const stock=Number(p.stock||0);const img=p.image_url?`<img class="photo" loading="lazy" src="${escapeHtml(p.image_url)}" alt="${escapeHtml(p.name||'Product')}">`:'<div class="placeholder">▧</div>';const id=String(p.id);card.innerHTML=`<div class="product-photo-wrap">${img}<button type="button" aria-label="Wishlist" onclick="event.stopPropagation();toggleWish('${escapeHtml(id)}')" style="position:absolute;right:4px;top:4px;background:#fff;border:1px solid #eee;border-radius:50%;width:29px;height:29px;padding:0;color:#222">♡</button></div><h3>${escapeHtml(p.name||'Unnamed product')}</h3><p class="stock" style="font-size:11px;color:#777;margin:3px 0">Product ID: ${escapeHtml(p.product_code||'—')}</p><p class="price">${money(p.price)}</p><p class="stock">${stock>0?'In Stock: '+stock:'স্টকে নেই'}</p><button class="add-cart" type="button" ${stock<=0?'disabled':''} onclick="event.stopPropagation();addToCart('${escapeHtml(id)}')">${stock>0?'🛒 Add to Cart':'স্টকে নেই'}</button>`;card.addEventListener('click',()=>showProductDetails(id));card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();showProductDetails(id);}});productsContainer.appendChild(card);});}
-function visibleProducts(){let term=document.getElementById('searchInput').value.trim().toLowerCase();let cat=document.getElementById('searchCategory').value;return allProducts.filter(p=>(!activeCategory||matchesCategory(p,activeCategory))&&(!cat||matchesCategory(p,cat))&&(!term||String(p.name||'').toLowerCase().includes(term)||String(p.product_code||'').toLowerCase().includes(term)||String(p.description||'').toLowerCase().includes(term)));}
+function renderProducts(items){productsContainer.innerHTML='';if(!items.length){productsContainer.innerHTML='<div class="empty">কোনো পণ্য পাওয়া যায়নি। অন্য ক্যাটাগরি বা সার্চ দিয়ে দেখুন।</div>';return;}items.forEach(p=>{const card=document.createElement('article');card.className='product';card.style.cursor='pointer';card.setAttribute('role','button');card.setAttribute('tabindex','0');const stock=Number(p.stock||0);const img=p.image_url?`<img class="photo" loading="lazy" src="${escapeHtml(p.image_url)}" alt="${escapeHtml(p.name||'Product')}">`:'<div class="placeholder">▧</div>';const id=String(p.id);card.innerHTML=`<div class="product-photo-wrap">${img}<button type="button" aria-label="Wishlist" onclick="event.stopPropagation();toggleWish('${escapeHtml(id)}')" style="position:absolute;right:4px;top:4px;background:#fff;border:1px solid #eee;border-radius:50%;width:29px;height:29px;padding:0;color:#222">♡</button></div><h3>${escapeHtml(p.name||'Unnamed product')}</h3><p class="stock" style="font-size:11px;color:#777;margin:3px 0">Product ID: ${escapeHtml(String(p.id||'').slice(0,8))}</p><p class="price">${money(p.price)}</p><p class="stock">${stock>0?'In Stock: '+stock:'স্টকে নেই'}</p><button class="add-cart" type="button" ${stock<=0?'disabled':''} onclick="event.stopPropagation();addToCart('${escapeHtml(id)}')">${stock>0?'🛒 Add to Cart':'স্টকে নেই'}</button>`;card.addEventListener('click',()=>showProductDetails(id));card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();showProductDetails(id);}});productsContainer.appendChild(card);});}
+function visibleProducts(){let term=document.getElementById('searchInput').value.trim().toLowerCase();let cat=document.getElementById('searchCategory').value;return allProducts.filter(p=>(!activeCategory||matchesCategory(p,activeCategory))&&(!cat||matchesCategory(p,cat))&&(!term||String(p.name||'').toLowerCase().includes(term)||String(p.id||'').toLowerCase().includes(term)||String(p.description||'').toLowerCase().includes(term)));}
 function refreshProducts(){const items=visibleProducts();statusText.textContent=`${items.length}টি পণ্য দেখানো হচ্ছে`;renderProducts(items);}
 function applySearch(){activeCategory='';refreshProducts();document.getElementById('featured').scrollIntoView({behavior:'smooth'});}
 function filterByCategory(cat){activeCategory=cat;document.getElementById('searchCategory').value='';refreshProducts();document.getElementById('featured').scrollIntoView({behavior:'smooth'});}
@@ -259,7 +259,7 @@ function showWishlist(){const items=allProducts.filter(p=>wishlist.has(String(p.
 function showProductDetails(id){
  const p=allProducts.find(x=>String(x.id)===String(id));if(!p)return;
  const image=document.getElementById('detailImage');image.src=p.image_url||'';image.alt=p.name||'Product';
- document.getElementById('detailCode').textContent='Product ID: '+(p.product_code||'—');
+ document.getElementById('detailCode').textContent='Product ID: '+(String(p.id||'').slice(0,8));
  document.getElementById('detailName').textContent=p.name||'Unnamed product';
  document.getElementById('detailPrice').textContent=money(p.price);
  document.getElementById('detailStock').textContent=Number(p.stock||0)>0?'স্টকে আছে: '+Number(p.stock):'স্টকে নেই';
