@@ -91,7 +91,8 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
       <div class="admin-field"><label for="apStock">স্টক *</label><input id="apStock" type="number" min="0" step="1" required value="1"></div>
       <div class="admin-field"><label for="apCategory">ক্যাটাগরি *</label><select id="apCategory" required><option value="">বাছাই করুন</option><option>Smartphones</option><option>Laptops</option><option>Tablets</option><option>Audio</option><option>Smartwatches</option><option>Cameras</option><option>Accessories</option><option>Gaming</option><option>TV</option><option>Home Appliances</option></select></div>
       <div class="admin-field"><label for="apImage">প্রোডাক্টের ছবি *</label><input id="apImage" type="file" accept="image/jpeg,image/png,image/webp"></div>
-      <div class="admin-field full"><label for="apDescription">বিস্তারিত বিবরণ</label><textarea id="apDescription" maxlength="5000" placeholder="ফিচার, স্পেসিফিকেশন, ওয়ারেন্টি ইত্যাদি লিখুন"></textarea></div>
+      <div class="admin-field full"><label for="apDescription">সংক্ষিপ্ত বিবরণ</label><textarea id="apDescription" maxlength="1000" placeholder="পণ্যের সংক্ষিপ্ত পরিচিতি"></textarea></div>
+      <div class="admin-field full"><label for="apFullDescription">সম্পূর্ণ বিবরণ</label><textarea id="apFullDescription" maxlength="10000" placeholder="পণ্যের বিস্তারিত ফিচার, ব্যবহার, সামঞ্জস্য ও প্রয়োজনীয় তথ্য লিখুন"></textarea></div>
       <div class="admin-field"><label for="apActive">স্টোরে দেখাবে?</label><select id="apActive"><option value="true">হ্যাঁ, সক্রিয়</option><option value="false">না, লুকানো</option></select></div>
      </div>
      <div class="admin-actions"><button class="admin-primary" id="apSave" type="submit">প্রোডাক্ট সেভ করুন</button><button class="admin-secondary" type="button" onclick="resetAdminProductForm()">ফর্ম পরিষ্কার</button></div>
@@ -164,10 +165,10 @@ async function toggleAdminPanel(){
 }
 async function loadAdminProducts(){
  const box=document.getElementById('adminProductList');box.innerHTML='<p class="admin-help">লোড হচ্ছে...</p>';
- const {data,error}=await supabaseClient.from('products').select('id,name,price,stock,image_url,is_active,category').order('created_at',{ascending:false}).limit(100);
+ const {data,error}=await supabaseClient.from('products').select('id,product_code,name,price,stock,image_url,is_active,category').order('created_at',{ascending:false}).limit(100);
  if(error){box.innerHTML='<p class="admin-help">পণ্য আনা যায়নি: '+escapeHtml(error.message)+'</p>';return;}
  if(!data?.length){box.innerHTML='<p class="admin-help">এখনো কোনো প্রোডাক্ট নেই।</p>';return;}
- box.innerHTML=data.map(p=>`<div class="admin-product-row"><img src="${escapeHtml(p.image_url||'')}" alt=""><div><b>${escapeHtml(p.name)}</b><small>ID: ${escapeHtml(String(p.id||'').slice(0,8))} · ${money(p.price)} · স্টক ${Number(p.stock)} · ${p.is_active?'সক্রিয়':'লুকানো'}</small></div><div class="admin-actions"><button class="admin-secondary" type="button" onclick="editAdminProduct('${escapeHtml(p.id)}')">এডিট</button><button class="admin-danger" type="button" onclick="deleteAdminProduct('${escapeHtml(p.id)}')">ডিলিট</button></div></div>`).join('');
+ box.innerHTML=data.map(p=>`<div class="admin-product-row"><img src="${escapeHtml(p.image_url||'')}" alt=""><div><b>${escapeHtml(p.name)}</b><small>পণ্য কোড: ${escapeHtml(p.product_code||'')} · ${money(p.price)} · স্টক ${Number(p.stock)} · ${p.is_active?'সক্রিয়':'লুকানো'}</small></div><div class="admin-actions"><button class="admin-secondary" type="button" onclick="editAdminProduct('${escapeHtml(p.id)}')">এডিট</button><button class="admin-danger" type="button" onclick="deleteAdminProduct('${escapeHtml(p.id)}')">ডিলিট</button></div></div>`).join('');
 }
 function resetAdminProductForm(){
  editingProductId=null;document.getElementById('adminProductForm').reset();document.getElementById('apStock').value=1;
@@ -179,7 +180,7 @@ async function editAdminProduct(id){
  if(error||!data){adminMessage('apMessage','প্রোডাক্ট পাওয়া যায়নি: '+(error?.message||''),'error');return;}
  editingProductId=id;document.getElementById('apName').value=data.name||'';document.getElementById('apPrice').value=data.price??0;
  document.getElementById('apStock').value=data.stock??0;document.getElementById('apCategory').value=data.category||'';
- document.getElementById('apDescription').value=data.description||'';document.getElementById('apActive').value=String(data.is_active);
+ document.getElementById('apDescription').value=data.description||'';document.getElementById('apFullDescription').value=data.full_description||'';document.getElementById('apActive').value=String(data.is_active);
  document.getElementById('apImage').value='';document.getElementById('productFormTitle').textContent='✏️ প্রোডাক্ট এডিট করুন';
  document.getElementById('apSave').textContent='পরিবর্তন সেভ করুন';document.getElementById('apName').scrollIntoView({behavior:'smooth',block:'center'});
 }
@@ -196,6 +197,7 @@ async function saveAdminProduct(event){
   const payload={name,
    price:Number(document.getElementById('apPrice').value),stock:Number(document.getElementById('apStock').value),
    category:document.getElementById('apCategory').value,description:document.getElementById('apDescription').value.trim(),
+   full_description:document.getElementById('apFullDescription').value.trim()||document.getElementById('apDescription').value.trim(),
    is_active:document.getElementById('apActive').value==='true'};
   const file=document.getElementById('apImage').files[0];
   if(file){
@@ -244,8 +246,8 @@ const money=n=>'৳'+Number(n||0).toLocaleString('en-BD');
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function productCategory(p){return String(p.category||p.category_name||'').toLowerCase();}
 function matchesCategory(p,cat){if(!cat)return true;const c=productCategory(p);const map={smartphones:['phone','mobile','smartphone'],laptops:['laptop','computer'],audio:['audio','headphone','earbud','speaker'],smartwatches:['watch','smartwatch'],cameras:['camera'],accessories:['accessor','charger','cable'],gaming:['gaming','game','console'],tv:['tv','television','home theater'],'home appliances':['appliance','home']};return (map[cat.toLowerCase()]||[cat.toLowerCase()]).some(k=>c.includes(k)||String(p.name||'').toLowerCase().includes(k));}
-function renderProducts(items){productsContainer.innerHTML='';if(!items.length){productsContainer.innerHTML='<div class="empty">কোনো পণ্য পাওয়া যায়নি। অন্য ক্যাটাগরি বা সার্চ দিয়ে দেখুন।</div>';return;}items.forEach(p=>{const card=document.createElement('article');card.className='product';card.style.cursor='pointer';card.setAttribute('role','button');card.setAttribute('tabindex','0');const stock=Number(p.stock||0);const img=p.image_url?`<img class="photo" loading="lazy" src="${escapeHtml(p.image_url)}" alt="${escapeHtml(p.name||'Product')}">`:'<div class="placeholder">▧</div>';const id=String(p.id);card.innerHTML=`<div class="product-photo-wrap">${img}<button type="button" aria-label="Wishlist" onclick="event.stopPropagation();toggleWish('${escapeHtml(id)}')" style="position:absolute;right:4px;top:4px;background:#fff;border:1px solid #eee;border-radius:50%;width:29px;height:29px;padding:0;color:#222">♡</button></div><h3>${escapeHtml(p.name||'Unnamed product')}</h3><p class="stock" style="font-size:11px;color:#777;margin:3px 0">Product ID: ${escapeHtml(String(p.id||'').slice(0,8))}</p><p class="price">${money(p.price)}</p><p class="stock">${stock>0?'In Stock: '+stock:'স্টকে নেই'}</p><button class="add-cart" type="button" ${stock<=0?'disabled':''} onclick="event.stopPropagation();addToCart('${escapeHtml(id)}')">${stock>0?'🛒 Add to Cart':'স্টকে নেই'}</button>`;card.addEventListener('click',()=>showProductDetails(id));card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();showProductDetails(id);}});productsContainer.appendChild(card);});}
-function visibleProducts(){let term=document.getElementById('searchInput').value.trim().toLowerCase();let cat=document.getElementById('searchCategory').value;return allProducts.filter(p=>(!activeCategory||matchesCategory(p,activeCategory))&&(!cat||matchesCategory(p,cat))&&(!term||String(p.name||'').toLowerCase().includes(term)||String(p.id||'').toLowerCase().includes(term)||String(p.description||'').toLowerCase().includes(term)));}
+function renderProducts(items){productsContainer.innerHTML='';if(!items.length){productsContainer.innerHTML='<div class="empty">কোনো পণ্য পাওয়া যায়নি। অন্য ক্যাটাগরি বা সার্চ দিয়ে দেখুন।</div>';return;}items.forEach(p=>{const card=document.createElement('article');card.className='product';card.style.cursor='pointer';card.setAttribute('role','button');card.setAttribute('tabindex','0');const stock=Number(p.stock||0);const img=p.image_url?`<img class="photo" loading="lazy" src="${escapeHtml(p.image_url)}" alt="${escapeHtml(p.name||'Product')}">`:'<div class="placeholder">▧</div>';const id=String(p.id);card.innerHTML=`<div class="product-photo-wrap">${img}<button type="button" aria-label="Wishlist" onclick="event.stopPropagation();toggleWish('${escapeHtml(id)}')" style="position:absolute;right:4px;top:4px;background:#fff;border:1px solid #eee;border-radius:50%;width:29px;height:29px;padding:0;color:#222">♡</button></div><h3>${escapeHtml(p.name||'Unnamed product')}</h3><p class="stock" style="font-size:11px;color:#777;margin:3px 0">Product Code: ${escapeHtml(p.product_code||'')}</p><p class="price">${money(p.price)}</p><p class="stock">${stock>0?'In Stock: '+stock:'স্টকে নেই'}</p><button class="add-cart" type="button" ${stock<=0?'disabled':''} onclick="event.stopPropagation();addToCart('${escapeHtml(id)}')">${stock>0?'🛒 Add to Cart':'স্টকে নেই'}</button>`;card.addEventListener('click',()=>showProductDetails(id));card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();showProductDetails(id);}});productsContainer.appendChild(card);});}
+function visibleProducts(){let term=document.getElementById('searchInput').value.trim().toLowerCase();let cat=document.getElementById('searchCategory').value;return allProducts.filter(p=>(!activeCategory||matchesCategory(p,activeCategory))&&(!cat||matchesCategory(p,cat))&&(!term||String(p.name||'').toLowerCase().includes(term)||String(p.id||'').toLowerCase().includes(term)||String(p.product_code||'').toLowerCase().includes(term)||String(p.description||'').toLowerCase().includes(term)||String(p.full_description||'').toLowerCase().includes(term)));}
 function refreshProducts(){const items=visibleProducts();statusText.textContent=`${items.length}টি পণ্য দেখানো হচ্ছে`;renderProducts(items);}
 function applySearch(){activeCategory='';refreshProducts();document.getElementById('featured').scrollIntoView({behavior:'smooth'});}
 function filterByCategory(cat){activeCategory=cat;document.getElementById('searchCategory').value='';refreshProducts();document.getElementById('featured').scrollIntoView({behavior:'smooth'});}
@@ -259,11 +261,11 @@ function showWishlist(){const items=allProducts.filter(p=>wishlist.has(String(p.
 function showProductDetails(id){
  const p=allProducts.find(x=>String(x.id)===String(id));if(!p)return;
  const image=document.getElementById('detailImage');image.src=p.image_url||'';image.alt=p.name||'Product';
- document.getElementById('detailCode').textContent='Product ID: '+(String(p.id||'').slice(0,8));
+ document.getElementById('detailCode').textContent='Product Code: '+(p.product_code||'');
  document.getElementById('detailName').textContent=p.name||'Unnamed product';
  document.getElementById('detailPrice').textContent=money(p.price);
  document.getElementById('detailStock').textContent=Number(p.stock||0)>0?'স্টকে আছে: '+Number(p.stock):'স্টকে নেই';
- document.getElementById('detailDescription').textContent=p.description||'এই পণ্যের বিস্তারিত বিবরণ এখনো যোগ করা হয়নি।';
+ document.getElementById('detailDescription').textContent=p.full_description||p.description||'এই পণ্যের বিস্তারিত বিবরণ এখনো যোগ করা হয়নি।';
  const button=document.getElementById('detailAddCart');button.disabled=Number(p.stock||0)<=0;button.onclick=()=>{addToCart(String(p.id));closeProductDetails();};
  document.getElementById('productDetailBackdrop').classList.add('show');
 }
