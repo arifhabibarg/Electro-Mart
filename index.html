@@ -365,11 +365,14 @@ function renderDetailDescription(value){
  let html='',items=[];
  const flush=()=>{if(items.length){html+='<div class="spec-list">'+items.map(([k,v])=>'<div class="spec-item"><b>'+escapeHtml(k)+'</b><span>'+escapeHtml(v)+'</span></div>').join('')+'</div>';items=[];}};
  for(const line of lines){
-  if(/^(বিস্তারিত স্পেসিফিকেশন|ল্যাপটপ স্পেসিফিকেশন|গেমিং ল্যাপটপ স্পেসিফিকেশন|তথ্য ও স্পেসিফিকেশন|স্পেসিফিকেশন)$/i.test(line)){flush();html+='<div class="spec-heading">'+escapeHtml(line)+'</div>';continue;}
+  if(/^(সংক্ষিপ্ত পরিচিতি|প্যাকেজ পরিচিতি):/.test(line)){flush();html+='<p class="spec-intro">'+escapeHtml(line)+'</p>';continue;}
   const idx=line.indexOf(':');
   if(idx>0&&idx<45){items.push([line.slice(0,idx),line.slice(idx+1).trim()]);continue;}
   flush();
   if(/^(গুরুত্বপূর্ণ|নোট|সতর্কতা):/.test(line)){html+='<div class="spec-note">'+escapeHtml(line)+'</div>';continue;}
+  if(line.length<=58&&!/[.!?।]$/.test(line)&&!line.includes(':')){
+   html+='<div class="spec-heading">'+escapeHtml(line)+'</div>';continue;
+  }
   html+='<p class="spec-intro">'+escapeHtml(line)+'</p>';
  }
  flush();box.innerHTML=html||'<p class="spec-intro">বিস্তারিত তথ্য পাওয়া যায়নি।</p>';
