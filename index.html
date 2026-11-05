@@ -329,10 +329,11 @@ function renderSideCategories(){
  list.innerHTML=Object.keys(SIDE_CATEGORY_META).map(cat=>{
   const meta=SIDE_CATEGORY_META[cat],cfg=PRODUCT_TAXONOMY[cat]||{subs:[],brands:[]};
   const isOpen=expandedSideCategory===cat;
-  const subHtml=(cfg.subs||[]).map(sub=>'<button type="button" class="side-subcategory-button" onclick="filterBySubcategory('+JSON.stringify(cat)+','+JSON.stringify(sub)+')">'+escapeHtml(sub)+'</button>').join('');
-  const brandHtml=(cfg.brands||[]).map(brand=>'<button type="button" class="side-brand-button" onclick="filterByBrand('+JSON.stringify(cat)+','+JSON.stringify(brand)+')">'+escapeHtml(brand)+'</button>').join('');
+  const catArg=escapeHtml(JSON.stringify(cat));
+  const subHtml=(cfg.subs||[]).map(sub=>'<button type="button" class="side-subcategory-button" onclick="filterBySubcategory('+catArg+','+escapeHtml(JSON.stringify(sub))+')">'+escapeHtml(sub)+'</button>').join('');
+  const brandHtml=(cfg.brands||[]).map(brand=>'<button type="button" class="side-brand-button" onclick="filterByBrand('+catArg+','+escapeHtml(JSON.stringify(brand))+')">'+escapeHtml(brand)+'</button>').join('');
   const contents='<div class="side-group-label">পণ্যের ধরন</div>'+subHtml+'<div class="side-group-label side-brand-heading">ব্র্যান্ড</div>'+brandHtml;
-  return '<li class="side-category '+(isOpen?'expanded':'')+'"><button type="button" class="side-category-toggle" aria-expanded="'+isOpen+'" onclick="toggleSideCategory('+JSON.stringify(cat)+')"><span class="cat-emoji">'+meta[0]+'</span> '+meta[1]+' <span class="chev">›</span></button><div class="side-submenu"><div class="side-submenu-inner">'+contents+'</div></div></li>';
+  return '<li class="side-category '+(isOpen?'expanded':'')+'"><button type="button" class="side-category-toggle" aria-expanded="'+isOpen+'" onclick="toggleSideCategory('+catArg+')"><span class="cat-emoji">'+meta[0]+'</span> '+meta[1]+' <span class="chev">›</span></button><div class="side-submenu"><div class="side-submenu-inner">'+contents+'</div></div></li>';
  }).join('');
 }
 function toggleSideCategory(cat){expandedSideCategory=expandedSideCategory===cat?'':cat;renderSideCategories();}
