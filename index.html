@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#111111"><title>ElectroMart | Upgrade Your World</title>
+<style>
+:root{--black:#111;--black2:#202020;--yellow:#f5c400;--ink:#191919;--muted:#777;--line:#ededed;--bg:#f7f7f7}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#fff;color:var(--ink);font-family:Arial,"Noto Sans Bengali",sans-serif}button,input{font:inherit}button{cursor:pointer}
+.sale-strip{height:29px;background:#111;color:#ddd;font-size:11px;display:flex;align-items:center;justify-content:space-between;padding:0 max(4.2%,calc((100% - 1320px)/2));gap:12px}.sale-strip strong{color:var(--yellow)}.sale-links{display:flex;gap:18px}
+.main-header{background:#111;color:#fff}.header-inner{max-width:1320px;margin:auto;min-height:83px;padding:12px 18px;display:grid;grid-template-columns:220px minmax(220px,1fr) 245px;align-items:center;gap:24px}.brand{display:flex;align-items:center;gap:9px;color:white;text-decoration:none;font-size:25px;font-weight:900;letter-spacing:-.7px}.brand-mark{width:38px;height:38px;border:3px solid var(--yellow);border-radius:12px 12px 12px 3px;display:grid;place-items:center;color:var(--yellow);font-size:23px;transform:rotate(-8deg)}.brand span span{color:var(--yellow)}.tagline{font-size:9px;color:#aaa;letter-spacing:.7px;margin-top:3px;font-weight:400}
+.searchbar{height:43px;background:#fff;border-radius:5px;display:flex;overflow:hidden}.searchbar select{max-width:145px;border:0;border-right:1px solid #eee;padding:0 12px;color:#555;background:#f7f7f7;font-size:12px}.searchbar input{min-width:0;flex:1;border:0;outline:0;padding:0 14px;font-size:13px}.searchbar button{width:48px;border:0;background:var(--yellow);font-size:18px}.header-actions{display:flex;justify-content:flex-end;gap:23px}.head-action{color:#fff;text-decoration:none;border:0;background:none;display:flex;align-items:center;gap:7px;font-size:12px;position:relative}.head-action .ico{font-size:23px}.counter{position:absolute;top:-5px;right:-7px;background:var(--yellow);color:#111;width:16px;height:16px;border-radius:50%;font-size:10px;display:grid;place-items:center;font-weight:bold}
+.navbar{background:#242424;color:white}.nav-inner{max-width:1320px;margin:auto;display:flex;align-items:center;min-height:39px;padding:0 18px;gap:0;overflow:auto}.nav-inner a,.nav-inner button{color:white;text-decoration:none;background:none;border:0;padding:12px 17px;font-size:12px;white-space:nowrap}.nav-inner .allcats{background:#191919;margin-right:14px;padding-left:15px;padding-right:28px}.nav-inner a.active{color:var(--yellow);border-bottom:2px solid var(--yellow)}
+main{max-width:1320px;margin:10px auto 0;padding:0 18px}.hero-layout{display:grid;grid-template-columns:245px minmax(0,1fr);gap:14px}.category-sidebar{border:1px solid #eee;background:#fff;align-self:stretch}.side-title{height:43px;background:#f6f6f6;padding:14px 15px;font-size:13px;font-weight:800}.category-list{list-style:none;padding:0;margin:0}.category-list button{width:100%;height:35px;border:0;background:#fff;display:flex;align-items:center;gap:10px;padding:0 14px;text-align:left;color:#444;font-size:12px}.category-list button:hover,.category-list button.selected{background:#fff9df;color:#9b7900}.cat-emoji{width:18px;text-align:center;font-size:15px}.chev{margin-left:auto;color:#aaa}
+.hero{height:310px;border-radius:7px;overflow:hidden;position:relative;background:radial-gradient(ellipse at 75% 55%,#5b4a17 0,#171717 38%,#080808 75%);color:#fff;display:flex;align-items:center;padding:35px 5%;isolation:isolate}.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#090909 0%,#090909ee 38%,#09090920 100%);z-index:-1}.hero-copy{max-width:430px;z-index:1}.eyebrow{color:var(--yellow);font-size:11px;font-weight:800;letter-spacing:1px}.hero h1{font-size:clamp(30px,4vw,48px);line-height:1.08;margin:14px 0 12px;letter-spacing:-1px}.hero p{font-size:14px;line-height:1.6;color:#ccc;max-width:330px}.yellow-btn{display:inline-block;margin-top:12px;padding:12px 23px;background:var(--yellow);color:#111;border:0;border-radius:3px;text-decoration:none;font-size:12px;font-weight:800}.hero-product{position:absolute;right:5%;top:7%;height:88%;width:43%;object-fit:contain;filter:drop-shadow(0 16px 20px #000b);mix-blend-mode:screen}.hero-dots{position:absolute;bottom:13px;left:50%;display:flex;gap:6px}.hero-dots i{width:6px;height:6px;background:#aaa;border-radius:50%}.hero-dots i:first-child{background:var(--yellow);width:18px;border-radius:8px}
+.benefits{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:16px 8px 13px;margin:12px 0 22px;border:1px solid #f3f3f3;box-shadow:0 2px 12px #00000005}.benefit{display:flex;align-items:center;justify-content:center;gap:11px}.benefit .symbol{font-size:24px;color:#444}.benefit b{display:block;font-size:12px}.benefit small{display:block;font-size:10px;color:#888;margin-top:3px}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin:23px 0 12px}.section-head h2{font-size:19px;margin:0}.section-head a{font-size:11px;color:#a18400;text-decoration:none;font-weight:700}.category-cards{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:11px}.category-card{min-width:0;border:1px solid #eee;border-radius:6px;padding:9px 6px 10px;text-align:center;background:#fff;cursor:pointer;transition:.2s}.category-card:hover{border-color:var(--yellow);transform:translateY(-2px)}.category-card img{width:100%;height:82px;object-fit:contain}.category-card span{display:block;font-size:11px;font-weight:700;margin-top:5px}
+.products{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}.product{border:1px solid #eee;border-radius:7px;padding:10px;background:#fff;min-width:0;display:flex;flex-direction:column;position:relative;transition:.2s}.product:hover{box-shadow:0 5px 18px #00000012;transform:translateY(-2px)}.product-photo-wrap{height:145px;display:grid;place-items:center;position:relative;background:#fff}.product .photo{width:100%;height:100%;object-fit:contain}.product .placeholder{font-size:55px;color:#aaa}.product h3{font-size:12px;line-height:1.4;min-height:34px;margin:8px 0 5px;font-weight:600}.product .price{font-size:15px;font-weight:900;margin:0 0 4px;color:#171717}.product .old-price{font-size:10px;color:#999;text-decoration:line-through;margin-left:5px}.product .stock{font-size:10px;color:#16834b;margin:0 0 9px}.add-cart{border:1px solid #e4e4e4;background:#fff;border-radius:3px;padding:8px 5px;font-size:11px;color:#333;margin-top:auto}.add-cart:hover{background:var(--yellow);border-color:var(--yellow)}.add-cart:disabled{background:#eee;color:#888;cursor:not-allowed}.status{font-size:12px;color:#777;margin:8px 0 12px}.empty{grid-column:1/-1;padding:30px;text-align:center;border:1px dashed #ddd;color:#777}.deal-banner{margin:22px 0 30px;background:#111;color:white;border-radius:7px;min-height:105px;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;gap:20px;overflow:hidden}.deal-banner h2{font-size:20px;margin:0 0 5px}.deal-banner p{font-size:12px;color:#ccc;margin:0}.deal-banner strong{color:var(--yellow)}.subscribe{display:flex;max-width:390px;width:100%;height:38px}.subscribe input{min-width:0;flex:1;border:0;padding:0 12px;font-size:12px}.subscribe button{border:0;background:var(--yellow);font-size:11px;font-weight:bold;padding:0 16px}
+footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:11px}footer b{color:var(--yellow)}
+.drawer-backdrop{display:none;position:fixed;inset:0;background:#0008;z-index:20}.drawer-backdrop.show{display:block}.drawer{position:absolute;right:0;top:0;height:100%;width:min(420px,100%);background:#fff;padding:20px;overflow:auto}.drawer-head{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #eee;padding-bottom:12px}.drawer-head h2{font-size:19px;margin:0}.close-btn{border:0;background:#eee;padding:7px 10px;border-radius:4px}.cart-line{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid #eee;padding:13px 0;font-size:13px}.qty{display:flex;align-items:center;gap:9px}.qty button{border:1px solid #ddd;background:#fff;border-radius:4px;padding:3px 9px}.cart-total{display:flex;justify-content:space-between;font-size:17px;font-weight:bold;padding:18px 0}.drawer-note{font-size:11px;color:#777;line-height:1.5}
+@media(max-width:900px){.header-inner{grid-template-columns:190px minmax(180px,1fr);gap:14px}.header-actions{grid-column:1/-1;justify-content:center;padding-bottom:7px}.hero-layout{grid-template-columns:205px minmax(0,1fr)}.category-cards{grid-template-columns:repeat(4,minmax(0,1fr))}.products{grid-template-columns:repeat(3,minmax(0,1fr))}.hero{height:280px}}
+@media(max-width:600px){.sale-strip{padding:0 12px;font-size:9px}.sale-links{display:none}.header-inner{grid-template-columns:1fr;gap:10px;padding:12px}.brand{font-size:22px}.header-actions{grid-column:auto;justify-content:space-around;padding:4px 0 0}.searchbar select{max-width:105px;font-size:10px;padding:0 5px}.nav-inner{padding:0 5px}.nav-inner a,.nav-inner button{padding:12px 11px;font-size:11px}.nav-inner .allcats{margin-right:4px;padding:12px 10px}main{padding:0 10px}.hero-layout{display:block}.category-sidebar{display:none}.hero{height:260px;padding:24px 20px}.hero-copy{max-width:65%}.hero h1{font-size:29px}.hero p{font-size:11px}.hero-product{right:-5%;width:52%;height:80%;top:10%}.benefits{grid-template-columns:repeat(2,1fr);gap:15px;padding:14px 5px}.benefit{justify-content:flex-start;padding-left:8px}.benefit .symbol{font-size:21px}.benefit b{font-size:11px}.benefit small{font-size:9px}.category-cards{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.category-card{padding:7px 4px}.category-card img{height:65px}.category-card span{font-size:10px}.products{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.product{padding:8px}.product-photo-wrap{height:125px}.product h3{font-size:11px}.product .price{font-size:14px}.deal-banner{padding:16px;display:block}.subscribe{margin-top:14px}.section-head h2{font-size:17px}}
+
+.auth-backdrop{display:none;position:fixed;inset:0;background:#0009;z-index:40;align-items:center;justify-content:center;padding:16px}.auth-backdrop.show{display:flex}.auth-panel{width:min(430px,100%);background:#fff;border-radius:10px;padding:22px;box-shadow:0 18px 60px #0005;position:relative}.auth-panel h2{font-size:22px;margin:0 0 6px;color:#171717}.auth-sub{font-size:12px;color:#777;margin:0 0 18px}.auth-close{position:absolute;right:14px;top:12px;border:0;background:#eee;border-radius:50%;width:32px;height:32px;font-size:17px}.auth-tabs{display:flex;background:#f2f2f2;border-radius:6px;padding:4px;margin-bottom:16px}.auth-tabs button{flex:1;border:0;background:transparent;padding:9px;border-radius:4px;font-size:12px;font-weight:700}.auth-tabs button.active{background:var(--yellow);color:#111}.auth-form label{display:block;font-size:12px;font-weight:700;margin:11px 0 6px}.auth-form input{width:100%;height:42px;border:1px solid #ddd;border-radius:5px;padding:0 11px;font-size:13px;outline-color:var(--yellow)}.auth-submit{width:100%;height:43px;margin-top:17px;border:0;border-radius:5px;background:var(--yellow);font-weight:800}.auth-message{font-size:12px;line-height:1.5;margin:12px 0 0;color:#555;min-height:18px}.auth-message.error{color:#b42318}.auth-message.success{color:#16834b}
+
+.admin-nav-btn{display:none!important}.admin-nav-btn.show{display:inline-flex!important}
+.admin-wrap{display:none;max-width:1320px;margin:22px auto;padding:0 18px}.admin-wrap.show{display:block}
+.admin-shell{border:1px solid #e8e8e8;border-radius:10px;overflow:hidden;background:#fff;box-shadow:0 8px 30px #0000000a}
+.admin-top{background:#171717;color:#fff;padding:18px 22px;display:flex;justify-content:space-between;align-items:center;gap:12px}.admin-top h2{margin:0;font-size:20px}.admin-top p{margin:5px 0 0;color:#ccc;font-size:12px}
+.admin-close{border:0;background:#333;color:white;border-radius:5px;padding:9px 12px}
+.admin-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);gap:18px;padding:18px}
+.admin-card{border:1px solid #eee;border-radius:8px;padding:16px;min-width:0}.admin-card h3{margin:0 0 14px;font-size:16px}
+.admin-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.admin-field{display:flex;flex-direction:column;gap:6px}.admin-field.full{grid-column:1/-1}.admin-field label{font-size:12px;font-weight:700;color:#444}.admin-field input,.admin-field textarea,.admin-field select{width:100%;border:1px solid #ddd;border-radius:5px;padding:10px;font:inherit;font-size:13px;min-width:0}.admin-field textarea{min-height:90px;resize:vertical}
+.admin-primary{background:#f5c400;border:0;border-radius:5px;padding:11px 16px;font-weight:800}.admin-secondary{background:#eee;border:0;border-radius:5px;padding:10px 13px;font-weight:700}.admin-danger{background:#fff0ef;color:#b42318;border:1px solid #ffd1cc;border-radius:5px;padding:7px 10px}
+.admin-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.admin-msg{font-size:12px;min-height:18px;margin:10px 0 0;color:#555}.admin-msg.error{color:#b42318}.admin-msg.success{color:#16834b}
+.admin-product-row{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #eee}.admin-product-row img{width:52px;height:52px;object-fit:contain;border:1px solid #eee;border-radius:5px}.admin-product-row b{font-size:12px;display:block}.admin-product-row small{font-size:11px;color:#777}
+.admin-permission-row{display:flex;justify-content:space-between;align-items:center;gap:8px;border-bottom:1px solid #eee;padding:10px 0;font-size:12px}
+.admin-help{font-size:11px;color:#777;line-height:1.5;margin:10px 0 0}
+@media(max-width:760px){.admin-grid{grid-template-columns:1fr;padding:12px}.admin-wrap{padding:0 10px}.admin-top{padding:14px}.admin-form-grid{grid-template-columns:1fr}.admin-field.full{grid-column:auto}}
+
+
+.detail-backdrop{display:none;position:fixed;inset:0;background:#0009;z-index:50;align-items:center;justify-content:center;padding:16px}
+.detail-backdrop.show{display:flex}.detail-panel{position:relative;background:#fff;border-radius:10px;width:min(850px,100%);max-height:90vh;overflow:auto;padding:24px;box-shadow:0 18px 60px #0005}
+.detail-close{position:absolute;right:12px;top:12px;border:0;background:#eee;border-radius:50%;width:34px;height:34px;font-size:18px;z-index:1}
+.detail-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:25px;align-items:center}
+.detail-image-wrap{min-height:300px;display:grid;place-items:center;border:1px solid #eee;border-radius:8px;padding:15px}
+.detail-image-wrap img{width:100%;height:320px;object-fit:contain}
+.detail-copy h2{font-size:24px;line-height:1.35;margin:10px 0}
+.detail-copy small{color:#777}.detail-price{font-size:24px;font-weight:900;color:#171717}
+.detail-description{white-space:pre-wrap;line-height:1.7;color:#555;font-size:14px}
+@media(max-width:650px){.detail-panel{padding:18px 14px}.detail-grid{grid-template-columns:1fr;gap:15px}.detail-image-wrap{min-height:200px}.detail-image-wrap img{height:220px}.detail-copy h2{font-size:20px}}
+
+</style>
+</head>
+<body>
+<div class="sale-strip"><div>✨ <strong>SUMMER SALE!</strong> নির্বাচিত পণ্যে ৩০% পর্যন্ত ছাড়</div><div class="sale-links"><span>Store Locator</span><span>Track Order</span><span>Help & Support</span></div></div>
+<header class="main-header"><div class="header-inner">
+<a class="brand" href="#home"><span class="brand-mark">↗</span><span>Electro<span>Mart</span><div class="tagline">Upgrade Your World</div></span></a>
+<div class="searchbar"><select id="searchCategory" aria-label="ক্যাটাগরি"><option value="">All Categories</option><option>Smartphones</option><option>Laptops</option><option>Audio</option><option>Smartwatches</option><option>Cameras</option></select><input id="searchInput" type="search" placeholder="পণ্যের নাম বা ID দিয়ে খুঁজুন..." aria-label="পণ্য খুঁজুন"><button type="button" aria-label="Search" onclick="applySearch()">⌕</button></div>
+<div class="header-actions"><button class="head-action" type="button" id="authButton" onclick="openAuth()"><span class="ico">♙</span><span id="authButtonText">Login / Signup</span></button><button class="head-action" type="button" onclick="showWishlist()"><span class="ico">♡</span><span class="counter" id="wishCount">0</span><span>Wishlist</span></button><button class="head-action" type="button" onclick="openCart()"><span class="ico">🛒</span><span class="counter" id="cartCount">0</span><span>Cart</span></button></div>
+</div></header>
+<nav class="navbar"><div class="nav-inner"><button class="allcats" type="button" onclick="document.getElementById('shopCategories').scrollIntoView()">☰ &nbsp; All Categories</button><a class="active" href="#home">Home</a><a href="#featured">Shop</a><a href="#deals">Deals</a><a href="#featured">New Arrivals</a><a href="#shopCategories">Brands</a><a href="#footer">Blog</a><a href="#footer">Contact Us</a><button class="admin-nav-btn" id="adminNavBtn" type="button" onclick="toggleAdminPanel()">⚙ Admin Panel</button></div></nav>
+<main id="home">
+<div class="hero-layout"><aside class="category-sidebar"><div class="side-title">☰ &nbsp; All Categories</div><ul class="category-list" id="sideCategories">
+<li><button onclick="filterByCategory('Smartphones')"><span class="cat-emoji">▣</span> Smartphones <span class="chev">›</span></button></li><li><button onclick="filterByCategory('Laptops')"><span class="cat-emoji">▱</span> Laptops & Computers <span class="chev">›</span></button></li><li><button onclick="filterByCategory('Tablets')"><span class="cat-emoji">▣</span> Tablets <span class="chev">›</span></button></li><li><button onclick="filterByCategory('Audio')"><span class="cat-emoji">♫</span> Audio <span class="chev">›</span></button></li><li><button onclick="filterByCategory('Cameras')"><span class="cat-emoji">◎</span> Cameras <span class="chev">›</span></button></li><li><button onclick="filterByCategory('Smartwatches')"><span class="cat-emoji">◷</span> Smartwatches <span class="chev">›</span></button></li><li><button onclick="filterByCategory('Accessories')"><span class="cat-emoji">♡</span> Accessories <span class="chev">›</span></button></li><li><button onclick="filterByCategory('Gaming')"><span class="cat-emoji">♧</span> Gaming <span class="chev">›</span></button></li><li><button onclick="filterByCategory('TV')"><span class="cat-emoji">▣</span> TV & Home Theater <span class="chev">›</span></button></li><li><button onclick="filterByCategory('Home Appliances')"><span class="cat-emoji">▤</span> Home Appliances <span class="chev">›</span></button></li><li><button onclick="filterByCategory('Deals')"><span class="cat-emoji">％</span> Deals & Offers <span class="chev">›</span></button></li>
+</ul></aside>
+<section class="hero"><div class="hero-copy"><div class="eyebrow">NEW LAUNCH</div><h1>Sound That<br>Moves You</h1><p>Experience premium sound quality with our latest wireless headphones.</p><a class="yellow-btn" href="#featured">Shop Now &nbsp; →</a></div><img class="hero-product" src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=85" alt="Premium headphones"><div class="hero-dots"><i></i><i></i><i></i><i></i></div></section></div>
+<section class="benefits"><div class="benefit"><span class="symbol">♧</span><div><b>Free Shipping</b><small>On orders over ৳5,000</small></div></div><div class="benefit"><span class="symbol">♧</span><div><b>Secure Payment</b><small>100% secure checkout</small></div></div><div class="benefit"><span class="symbol">◉</span><div><b>1 Year Warranty</b><small>Get full protection</small></div></div><div class="benefit"><span class="symbol">⟳</span><div><b>Easy Returns</b><small>7 days return policy</small></div></div></section>
+<section id="shopCategories"><div class="section-head"><h2>Shop by Category</h2><a href="#featured">View All Categories →</a></div><div class="category-cards">
+<button class="category-card" onclick="filterByCategory('Smartphones')"><img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=300&q=75" alt=""><span>Smartphones</span></button>
+<button class="category-card" onclick="filterByCategory('Laptops')"><img src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=300&q=75" alt=""><span>Laptops</span></button>
+<button class="category-card" onclick="filterByCategory('Audio')"><img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=300&q=75" alt=""><span>Audio</span></button>
+<button class="category-card" onclick="filterByCategory('Smartwatches')"><img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=300&q=75" alt=""><span>Smartwatches</span></button>
+<button class="category-card" onclick="filterByCategory('Cameras')"><img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=300&q=75" alt=""><span>Cameras</span></button>
+<button class="category-card" onclick="filterByCategory('Accessories')"><img src="https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=300&q=75" alt=""><span>Accessories</span></button>
+<button class="category-card" onclick="filterByCategory('Gaming')"><img src="https://images.unsplash.com/photo-1593305841991-05c297ba4575?auto=format&fit=crop&w=300&q=75" alt=""><span>Gaming</span></button>
+<button class="category-card" onclick="filterByCategory('TV')"><img src="https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=300&q=75" alt=""><span>TV & Video</span></button>
+</div></section>
+<section id="featured"><div class="section-head"><h2>Featured Products</h2><a href="#featured" onclick="clearCategory()">View All →</a></div><p class="status" id="status">পণ্য লোড হচ্ছে...</p><div class="products" id="products"></div></section>
+<section class="deal-banner" id="deals"><div><h2>◆ &nbsp; Exclusive Deals<br>Just for You!</h2><p>Sign up and get <strong>10% off</strong> on your first order.</p></div><form class="subscribe" onsubmit="event.preventDefault();alert('ধন্যবাদ! Newsletter সাবস্ক্রিপশন পরবর্তী ধাপে চালু হবে।')"><input type="email" placeholder="Enter your email" required><button type="submit">Subscribe</button></form></section>
+</main>
+<section class="admin-wrap" id="adminPanel">
+ <div class="admin-shell">
+  <div class="admin-top"><div><h2>ElectroMart Admin Panel</h2><p>শুধু অনুমতিপ্রাপ্ত অ্যাডমিনরা পণ্য ও অ্যাক্সেস পরিচালনা করতে পারবেন</p></div><button class="admin-close" type="button" onclick="toggleAdminPanel()">বন্ধ করুন ✕</button></div>
+  <div class="admin-grid">
+   <section class="admin-card">
+    <h3 id="productFormTitle">➕ নতুন প্রোডাক্ট যোগ করুন</h3>
+    <form id="adminProductForm">
+     <div class="admin-form-grid">
+      <div class="admin-field full"><label for="apName">প্রোডাক্টের নাম *</label><input id="apName" required maxlength="150" placeholder="যেমন: Samsung Galaxy A55"></div>
+      <div class="admin-field"><label for="apPrice">দাম (৳) *</label><input id="apPrice" type="number" min="0" step="0.01" required></div>
+      <div class="admin-field"><label for="apStock">স্টক *</label><input id="apStock" type="number" min="0" step="1" required value="1"></div>
+      <div class="admin-field"><label for="apCategory">ক্যাটাগরি *</label><select id="apCategory" required><option value="">বাছাই করুন</option><option>Smartphones</option><option>Laptops</option><option>Tablets</option><option>Audio</option><option>Smartwatches</option><option>Cameras</option><option>Accessories</option><option>Gaming</option><option>TV</option><option>Home Appliances</option></select></div>
+      <div class="admin-field"><label for="apImage">প্রোডাক্টের ছবি *</label><input id="apImage" type="file" accept="image/jpeg,image/png,image/webp"></div>
+      <div class="admin-field full"><label for="apDescription">বিস্তারিত বিবরণ</label><textarea id="apDescription" maxlength="5000" placeholder="ফিচার, স্পেসিফিকেশন, ওয়ারেন্টি ইত্যাদি লিখুন"></textarea></div>
+      <div class="admin-field"><label for="apActive">স্টোরে দেখাবে?</label><select id="apActive"><option value="true">হ্যাঁ, সক্রিয়</option><option value="false">না, লুকানো</option></select></div>
+     </div>
+     <div class="admin-actions"><button class="admin-primary" id="apSave" type="submit">প্রোডাক্ট সেভ করুন</button><button class="admin-secondary" type="button" onclick="resetAdminProductForm()">ফর্ম পরিষ্কার</button></div>
+     <p class="admin-msg" id="apMessage" aria-live="polite"></p>
+    </form>
+   </section>
+   <div>
+    <section class="admin-card"><h3>📦 প্রোডাক্ট ম্যানেজ করুন</h3><div id="adminProductList"><p class="admin-help">লোড হচ্ছে...</p></div></section>
+    <section class="admin-card" id="adminPermissionCard" style="margin-top:16px;display:none"><h3>👥 অ্যাডমিন পারমিশন</h3><form id="adminPermissionForm"><div class="admin-field"><label for="newAdminEmail">যাকে অনুমতি দেবেন তার অ্যাকাউন্টের ইমেইল</label><input id="newAdminEmail" type="email" required placeholder="staff@example.com"></div><div class="admin-actions"><button class="admin-primary" type="submit">অ্যাডমিন যোগ করুন</button></div><p class="admin-msg" id="permissionMessage"></p></form><div id="adminPermissionList"></div><p class="admin-help">শুধু Owner অন্য অ্যাডমিন যোগ বা বাদ দিতে পারবেন। যাকে যোগ করবেন, তাকে আগে ElectroMart-এ একই ইমেইল দিয়ে অ্যাকাউন্ট খুলতে হবে।</p></section>
+   </div>
+  </div>
+ </div>
+</section>
+
+
+<div class="detail-backdrop" id="productDetailBackdrop" onclick="if(event.target===this)closeProductDetails()">
+ <section class="detail-panel" role="dialog" aria-modal="true" aria-labelledby="detailName">
+  <button class="detail-close" type="button" onclick="closeProductDetails()" aria-label="Close">✕</button>
+  <div class="detail-grid">
+   <div class="detail-image-wrap"><img id="detailImage" src="" alt=""></div>
+   <div class="detail-copy">
+    <small id="detailCode"></small><h2 id="detailName"></h2><p class="detail-price" id="detailPrice"></p>
+    <p id="detailStock"></p><p class="detail-description" id="detailDescription"></p>
+    <button class="yellow-btn" id="detailAddCart" type="button">🛒 Add to Cart</button>
+   </div>
+  </div>
+ </section>
+</div>
+
+<footer id="footer">© 2026 <b>ElectroMart</b> · Upgrade Your World · সারা বাংলাদেশে ডেলিভারি</footer>
+
+<div class="auth-backdrop" id="authBackdrop" onclick="if(event.target===this)closeAuth()"><section class="auth-panel" role="dialog" aria-modal="true" aria-labelledby="authTitle"><button class="auth-close" type="button" onclick="closeAuth()" aria-label="Close">✕</button><h2 id="authTitle">Welcome to ElectroMart</h2><p class="auth-sub">অ্যাকাউন্ট তৈরি করুন অথবা আপনার অ্যাকাউন্টে লগইন করুন।</p><div class="auth-tabs"><button type="button" class="active" id="loginTab" onclick="setAuthMode('login')">লগইন</button><button type="button" id="signupTab" onclick="setAuthMode('signup')">সাইন আপ</button></div><form class="auth-form" id="authForm" onsubmit="submitAuth(event)"><div id="nameField" hidden><label for="authName">আপনার নাম</label><input id="authName" type="text" autocomplete="name" placeholder="নাম লিখুন"></div><label for="authEmail">ইমেইল</label><input id="authEmail" type="email" autocomplete="email" placeholder="name@example.com" required><label for="authPassword">পাসওয়ার্ড</label><input id="authPassword" type="password" autocomplete="current-password" minlength="6" placeholder="কমপক্ষে ৬ অক্ষর" required><button class="auth-submit" id="authSubmit" type="submit">লগইন করুন</button><p class="auth-message" id="authMessage" aria-live="polite"></p></form></section></div>
+<div class="drawer-backdrop" id="cartBackdrop" onclick="if(event.target===this)closeCart()"><aside class="drawer"><div class="drawer-head"><h2>Your Cart</h2><button class="close-btn" onclick="closeCart()">✕</button></div><div id="cartItems"><p class="drawer-note">Your cart is empty.</p></div><div class="cart-total"><span>Total</span><span id="cartTotal">৳0</span></div><p class="drawer-note">এটি আপাতত কার্ট প্রিভিউ। বাস্তব অর্ডার/চেকআউট চালু করতে অর্ডার টেবিল ও পেমেন্ট সংযোগ করতে হবে।</p></aside></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://bkphwlfyhvgvokyfdvrp.supabase.co";
+const SUPABASE_KEY = "sb_publishable_BZIpXMa8NQwgPd1NJaSDhg_qDOk9cTv";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const productsContainer=document.getElementById('products'),statusText=document.getElementById('status');
+let authMode='login',currentAuthUser=null;
+function openAuth(){document.getElementById('authBackdrop').classList.add('show');document.getElementById('authMessage').textContent='';}
+function closeAuth(){document.getElementById('authBackdrop').classList.remove('show');}
+function setAuthMode(mode){authMode=mode;const signup=mode==='signup';document.getElementById('loginTab').classList.toggle('active',!signup);document.getElementById('signupTab').classList.toggle('active',signup);document.getElementById('nameField').hidden=!signup;document.getElementById('authName').required=signup;document.getElementById('authPassword').autocomplete=signup?'new-password':'current-password';document.getElementById('authSubmit').textContent=signup?'অ্যাকাউন্ট তৈরি করুন':'লগইন করুন';document.getElementById('authTitle').textContent=signup?'Create your ElectroMart account':'Welcome back!';document.getElementById('authMessage').textContent='';}
+function authMessage(message,type=''){const el=document.getElementById('authMessage');el.textContent=message;el.className='auth-message '+type;}
+async function submitAuth(event){event.preventDefault();const email=document.getElementById('authEmail').value.trim(),password=document.getElementById('authPassword').value,button=document.getElementById('authSubmit');button.disabled=true;button.textContent='অপেক্ষা করুন...';authMessage('');try{if(authMode==='signup'){const fullName=document.getElementById('authName').value.trim();const {data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{full_name:fullName}}});if(error)throw error;if(data.session){authMessage('সাইন আপ সফল! আপনি লগইন করেছেন।','success');updateAuthUI(data.user);setTimeout(closeAuth,900);}else{authMessage('সাইন আপ হয়েছে। ইমেইলে পাঠানো confirmation link-এ ক্লিক করে অ্যাকাউন্ট চালু করুন।','success');}}else{const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});if(error)throw error;authMessage('লগইন সফল হয়েছে!','success');updateAuthUI(data.user);setTimeout(closeAuth,700);}}catch(error){authMessage(error.message||'সমস্যা হয়েছে। আবার চেষ্টা করুন।','error');}finally{button.disabled=false;button.textContent=authMode==='signup'?'অ্যাকাউন্ট তৈরি করুন':'লগইন করুন';}}
+function updateAuthUI(user){currentAuthUser=user||null;const label=user?(user.user_metadata?.full_name||user.email||'আমার অ্যাকাউন্ট'):'Login / Signup';document.getElementById('authButtonText').textContent=label.length>18?label.slice(0,16)+'…':label;document.getElementById('authButton').onclick=user?handleAccountClick:openAuth;refreshAdminAccess();}
+async function handleAccountClick(){if(confirm('আপনি কি লগআউট করতে চান?')){const {error}=await supabaseClient.auth.signOut();if(error){alert('লগআউট হয়নি: '+error.message);return;}updateAuthUI(null);alert('আপনি লগআউট হয়েছেন।');}}
+
+let currentAdminRole=null,editingProductId=null;
+function adminMessage(id,message,type=''){const el=document.getElementById(id);if(el){el.textContent=message;el.className='admin-msg '+type;}}
+async function refreshAdminAccess(){
+ currentAdminRole=null;
+ const nav=document.getElementById('adminNavBtn');
+ const panel=document.getElementById('adminPanel');
+ nav.classList.remove('show');panel.classList.remove('show');
+ document.getElementById('adminPermissionCard').style.display='none';
+ if(!currentAuthUser?.email)return;
+ const {data,error}=await supabaseClient.from('admin_users').select('role').eq('email',currentAuthUser.email.toLowerCase()).maybeSingle();
+ if(error){console.warn('Admin permission check:',error.message);return;}
+ if(!data)return;
+ currentAdminRole=data.role;
+ nav.classList.add('show');
+ document.getElementById('adminPermissionCard').style.display=currentAdminRole==='owner'?'block':'none';
+}
+async function toggleAdminPanel(){
+ if(!currentAdminRole){alert('এই প্যানেল ব্যবহারের অনুমতি আপনার নেই।');return;}
+ const panel=document.getElementById('adminPanel');
+ panel.classList.toggle('show');
+ if(panel.classList.contains('show')){panel.scrollIntoView({behavior:'smooth',block:'start'});await loadAdminProducts();if(currentAdminRole==='owner')await loadAdminPermissions();}
+}
+async function loadAdminProducts(){
+ const box=document.getElementById('adminProductList');box.innerHTML='<p class="admin-help">লোড হচ্ছে...</p>';
+ const {data,error}=await supabaseClient.from('products').select('id,product_code,name,price,stock,image_url,is_active,category').order('created_at',{ascending:false}).limit(100);
+ if(error){box.innerHTML='<p class="admin-help">পণ্য আনা যায়নি: '+escapeHtml(error.message)+'</p>';return;}
+ if(!data?.length){box.innerHTML='<p class="admin-help">এখনো কোনো প্রোডাক্ট নেই।</p>';return;}
+ box.innerHTML=data.map(p=>`<div class="admin-product-row"><img src="${escapeHtml(p.image_url||'')}" alt=""><div><b>${escapeHtml(p.name)}</b><small>ID: ${escapeHtml(p.product_code||'—')} · ${money(p.price)} · স্টক ${Number(p.stock)} · ${p.is_active?'সক্রিয়':'লুকানো'}</small></div><div class="admin-actions"><button class="admin-secondary" type="button" onclick="editAdminProduct('${escapeHtml(p.id)}')">এডিট</button><button class="admin-danger" type="button" onclick="deleteAdminProduct('${escapeHtml(p.id)}')">ডিলিট</button></div></div>`).join('');
+}
+function resetAdminProductForm(){
+ editingProductId=null;document.getElementById('adminProductForm').reset();document.getElementById('apStock').value=1;
+ document.getElementById('productFormTitle').textContent='➕ নতুন প্রোডাক্ট যোগ করুন';
+ document.getElementById('apSave').textContent='প্রোডাক্ট সেভ করুন';adminMessage('apMessage','');
+}
+async function editAdminProduct(id){
+ const {data,error}=await supabaseClient.from('products').select('*').eq('id',id).single();
+ if(error||!data){adminMessage('apMessage','প্রোডাক্ট পাওয়া যায়নি: '+(error?.message||''),'error');return;}
+ editingProductId=id;document.getElementById('apName').value=data.name||'';document.getElementById('apPrice').value=data.price??0;
+ document.getElementById('apStock').value=data.stock??0;document.getElementById('apCategory').value=data.category||'';
+ document.getElementById('apDescription').value=data.description||'';document.getElementById('apActive').value=String(data.is_active);
+ document.getElementById('apImage').value='';document.getElementById('productFormTitle').textContent='✏️ প্রোডাক্ট এডিট করুন';
+ document.getElementById('apSave').textContent='পরিবর্তন সেভ করুন';document.getElementById('apName').scrollIntoView({behavior:'smooth',block:'center'});
+}
+async function deleteAdminProduct(id){
+ if(!confirm('এই প্রোডাক্টটি ডিলিট করতে চান?'))return;
+ const {error}=await supabaseClient.from('products').delete().eq('id',id);
+ if(error){alert('ডিলিট হয়নি: '+error.message);return;}
+ await loadAdminProducts();await loadProducts();
+}
+async function saveAdminProduct(event){
+ event.preventDefault();const button=document.getElementById('apSave');button.disabled=true;button.textContent='সেভ হচ্ছে...';adminMessage('apMessage','');
+ try{
+  const name=document.getElementById('apName').value.trim();
+  const payload={name,slug:name.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')+'-'+Date.now().toString(36),
+   price:Number(document.getElementById('apPrice').value),stock:Number(document.getElementById('apStock').value),
+   category:document.getElementById('apCategory').value,description:document.getElementById('apDescription').value.trim(),
+   is_active:document.getElementById('apActive').value==='true'};
+  const file=document.getElementById('apImage').files[0];
+  if(file){
+   if(!['image/jpeg','image/png','image/webp'].includes(file.type))throw new Error('শুধু JPG, PNG বা WebP ছবি আপলোড করুন।');
+   if(file.size>5*1024*1024)throw new Error('ছবির সাইজ ৫ MB-এর মধ্যে রাখুন।');
+   const ext=file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg';
+   const path=`${Date.now()}-${crypto.randomUUID()}.${ext}`;
+   const {error:uploadError}=await supabaseClient.storage.from('product-images').upload(path,file,{contentType:file.type,upsert:false});
+   if(uploadError)throw uploadError;
+   const {data:urlData}=supabaseClient.storage.from('product-images').getPublicUrl(path);
+   payload.image_url=urlData.publicUrl;
+  }else if(!editingProductId){throw new Error('নতুন প্রোডাক্টের জন্য একটি ছবি বেছে নিন।');}
+  let result;
+  if(editingProductId)result=await supabaseClient.from('products').update(payload).eq('id',editingProductId);
+  else result=await supabaseClient.from('products').insert(payload);
+  if(result.error)throw result.error;
+  adminMessage('apMessage',editingProductId?'প্রোডাক্ট আপডেট হয়েছে।':'নতুন প্রোডাক্ট যোগ হয়েছে।','success');
+  resetAdminProductForm();await loadAdminProducts();await loadProducts();
+ }catch(error){adminMessage('apMessage',error.message||'প্রোডাক্ট সেভ হয়নি।','error');}
+ finally{button.disabled=false;button.textContent=editingProductId?'পরিবর্তন সেভ করুন':'প্রোডাক্ট সেভ করুন';}
+}
+async function loadAdminPermissions(){
+ const box=document.getElementById('adminPermissionList');box.innerHTML='<p class="admin-help">লোড হচ্ছে...</p>';
+ const {data,error}=await supabaseClient.from('admin_users').select('email,role,created_at').order('created_at');
+ if(error){box.innerHTML='<p class="admin-help">পারমিশন আনা যায়নি: '+escapeHtml(error.message)+'</p>';return;}
+ box.innerHTML=(data||[]).map(a=>`<div class="admin-permission-row"><span><b>${escapeHtml(a.email)}</b><br><small>${a.role==='owner'?'প্রধান Owner':'Admin'}</small></span>${a.role==='admin'?`<button class="admin-danger" type="button" onclick="removeAdminPermission('${escapeHtml(a.email)}')">অনুমতি বাতিল</button>`:''}</div>`).join('')||'<p class="admin-help">কোনো অ্যাডমিন যোগ করা হয়নি।</p>';
+}
+async function addAdminPermission(event){
+ event.preventDefault();const email=document.getElementById('newAdminEmail').value.trim().toLowerCase();
+ const {error}=await supabaseClient.from('admin_users').insert({email,role:'admin'});
+ if(error){adminMessage('permissionMessage','যোগ করা যায়নি: '+error.message,'error');return;}
+ document.getElementById('adminPermissionForm').reset();adminMessage('permissionMessage','অ্যাডমিন পারমিশন দেওয়া হয়েছে।','success');await loadAdminPermissions();
+}
+async function removeAdminPermission(email){
+ if(!confirm(email+' এর অ্যাডমিন অনুমতি বাতিল করবেন?'))return;
+ const {error}=await supabaseClient.from('admin_users').delete().eq('email',email).eq('role','admin');
+ if(error){alert('অনুমতি বাতিল হয়নি: '+error.message);return;}await loadAdminPermissions();
+}
+document.getElementById('adminProductForm').addEventListener('submit',saveAdminProduct);
+document.getElementById('adminPermissionForm').addEventListener('submit',addAdminPermission);
+
+async function initAuth(){const {data}=await supabaseClient.auth.getSession();updateAuthUI(data.session?.user||null);supabaseClient.auth.onAuthStateChange((_event,session)=>updateAuthUI(session?.user||null));}
+
+let allProducts=[],activeCategory='',cart={},wishlist=new Set();
+const money=n=>'৳'+Number(n||0).toLocaleString('en-BD');
+function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function productCategory(p){return String(p.category||p.category_name||'').toLowerCase();}
+function matchesCategory(p,cat){if(!cat)return true;const c=productCategory(p);const map={smartphones:['phone','mobile','smartphone'],laptops:['laptop','computer'],audio:['audio','headphone','earbud','speaker'],smartwatches:['watch','smartwatch'],cameras:['camera'],accessories:['accessor','charger','cable'],gaming:['gaming','game','console'],tv:['tv','television','home theater'],'home appliances':['appliance','home']};return (map[cat.toLowerCase()]||[cat.toLowerCase()]).some(k=>c.includes(k)||String(p.name||'').toLowerCase().includes(k));}
+function renderProducts(items){productsContainer.innerHTML='';if(!items.length){productsContainer.innerHTML='<div class="empty">কোনো পণ্য পাওয়া যায়নি। অন্য ক্যাটাগরি বা সার্চ দিয়ে দেখুন।</div>';return;}items.forEach(p=>{const card=document.createElement('article');card.className='product';card.style.cursor='pointer';card.setAttribute('role','button');card.setAttribute('tabindex','0');const stock=Number(p.stock||0);const img=p.image_url?`<img class="photo" loading="lazy" src="${escapeHtml(p.image_url)}" alt="${escapeHtml(p.name||'Product')}">`:'<div class="placeholder">▧</div>';const id=String(p.id);card.innerHTML=`<div class="product-photo-wrap">${img}<button type="button" aria-label="Wishlist" onclick="event.stopPropagation();toggleWish('${escapeHtml(id)}')" style="position:absolute;right:4px;top:4px;background:#fff;border:1px solid #eee;border-radius:50%;width:29px;height:29px;padding:0;color:#222">♡</button></div><h3>${escapeHtml(p.name||'Unnamed product')}</h3><p class="stock" style="font-size:11px;color:#777;margin:3px 0">Product ID: ${escapeHtml(p.product_code||'—')}</p><p class="price">${money(p.price)}</p><p class="stock">${stock>0?'In Stock: '+stock:'স্টকে নেই'}</p><button class="add-cart" type="button" ${stock<=0?'disabled':''} onclick="event.stopPropagation();addToCart('${escapeHtml(id)}')">${stock>0?'🛒 Add to Cart':'স্টকে নেই'}</button>`;card.addEventListener('click',()=>showProductDetails(id));card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();showProductDetails(id);}});productsContainer.appendChild(card);});}
+function visibleProducts(){let term=document.getElementById('searchInput').value.trim().toLowerCase();let cat=document.getElementById('searchCategory').value;return allProducts.filter(p=>(!activeCategory||matchesCategory(p,activeCategory))&&(!cat||matchesCategory(p,cat))&&(!term||String(p.name||'').toLowerCase().includes(term)||String(p.product_code||'').toLowerCase().includes(term)||String(p.description||'').toLowerCase().includes(term)));}
+function refreshProducts(){const items=visibleProducts();statusText.textContent=`${items.length}টি পণ্য দেখানো হচ্ছে`;renderProducts(items);}
+function applySearch(){activeCategory='';refreshProducts();document.getElementById('featured').scrollIntoView({behavior:'smooth'});}
+function filterByCategory(cat){activeCategory=cat;document.getElementById('searchCategory').value='';refreshProducts();document.getElementById('featured').scrollIntoView({behavior:'smooth'});}
+function clearCategory(){activeCategory='';document.getElementById('searchCategory').value='';document.getElementById('searchInput').value='';refreshProducts();}
+function addToCart(id){const p=allProducts.find(x=>String(x.id)===String(id));if(!p)return;cart[id]=(cart[id]||0)+1;updateCart();}
+function changeQty(id,n){cart[id]=(cart[id]||0)+n;if(cart[id]<=0)delete cart[id];updateCart();}
+function updateCart(){let count=Object.values(cart).reduce((a,b)=>a+b,0);document.getElementById('cartCount').textContent=count;let rows=Object.entries(cart);document.getElementById('cartItems').innerHTML=rows.length?rows.map(([id,q])=>{let p=allProducts.find(x=>String(x.id)===id);if(!p)return '';return `<div class="cart-line"><div><b>${escapeHtml(p.name)}</b><br><small>${money(p.price)} × ${q}</small></div><div class="qty"><button onclick="changeQty('${escapeHtml(id)}',-1)">−</button>${q}<button onclick="changeQty('${escapeHtml(id)}',1)">+</button></div></div>`;}).join(''):'<p class="drawer-note">Your cart is empty.</p>';let total=rows.reduce((s,[id,q])=>s+Number(allProducts.find(p=>String(p.id)===id)?.price||0)*q,0);document.getElementById('cartTotal').textContent=money(total);}
+function openCart(){document.getElementById('cartBackdrop').classList.add('show');updateCart();}function closeCart(){document.getElementById('cartBackdrop').classList.remove('show');}
+function toggleWish(id){if(wishlist.has(id))wishlist.delete(id);else wishlist.add(id);document.getElementById('wishCount').textContent=wishlist.size;}
+function showWishlist(){const items=allProducts.filter(p=>wishlist.has(String(p.id)));if(!items.length){alert('Wishlist এখন খালি।');return;}alert('Wishlist: '+items.map(p=>p.name).join(', '));}
+function showProductDetails(id){
+ const p=allProducts.find(x=>String(x.id)===String(id));if(!p)return;
+ const image=document.getElementById('detailImage');image.src=p.image_url||'';image.alt=p.name||'Product';
+ document.getElementById('detailCode').textContent='Product ID: '+(p.product_code||'—');
+ document.getElementById('detailName').textContent=p.name||'Unnamed product';
+ document.getElementById('detailPrice').textContent=money(p.price);
+ document.getElementById('detailStock').textContent=Number(p.stock||0)>0?'স্টকে আছে: '+Number(p.stock):'স্টকে নেই';
+ document.getElementById('detailDescription').textContent=p.description||'এই পণ্যের বিস্তারিত বিবরণ এখনো যোগ করা হয়নি।';
+ const button=document.getElementById('detailAddCart');button.disabled=Number(p.stock||0)<=0;button.onclick=()=>{addToCart(String(p.id));closeProductDetails();};
+ document.getElementById('productDetailBackdrop').classList.add('show');
+}
+function closeProductDetails(){document.getElementById('productDetailBackdrop').classList.remove('show');}
+async function loadProducts(){statusText.textContent='পণ্য লোড হচ্ছে...';const {data,error}=await supabaseClient.from('products').select('*').eq('is_active',true).order('created_at',{ascending:false});if(error){statusText.textContent='পণ্য লোড হয়নি: '+error.message;console.error('Supabase error:',error);return;}allProducts=data||[];statusText.textContent=`${allProducts.length}টি পণ্য পাওয়া গেছে`;refreshProducts();}
+document.getElementById('searchInput').addEventListener('input',()=>{activeCategory='';refreshProducts();});document.getElementById('searchCategory').addEventListener('change',()=>{activeCategory='';refreshProducts();});initAuth();loadProducts();
+</script>
+</body></html>
