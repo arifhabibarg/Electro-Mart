@@ -128,6 +128,7 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
    <div>
     <section class="admin-card"><h3>📦 প্রোডাক্ট ম্যানেজ করুন</h3><div id="adminProductList"><p class="admin-help">লোড হচ্ছে...</p></div></section>
     <section class="admin-card" id="adminPermissionCard" style="margin-top:16px;display:none"><h3>👥 অ্যাডমিন পারমিশন</h3><form id="adminPermissionForm"><div class="admin-field"><label for="newAdminEmail">যাকে অনুমতি দেবেন তার অ্যাকাউন্টের ইমেইল</label><input id="newAdminEmail" type="email" required placeholder="staff@example.com"></div><div class="admin-actions"><button class="admin-primary" type="submit">অ্যাডমিন যোগ করুন</button></div><p class="admin-msg" id="permissionMessage"></p></form><div id="adminPermissionList"></div><p class="admin-help">শুধু Owner অন্য অ্যাডমিন যোগ বা বাদ দিতে পারবেন। যাকে যোগ করবেন, তাকে আগে ElectroMart-এ একই ইমেইল দিয়ে অ্যাকাউন্ট খুলতে হবে।</p></section>
+    <section class="admin-card" style="margin-top:16px"><h3>🧾 অর্ডার ম্যানেজমেন্ট</h3><div id="adminOrdersList"><p class="admin-help">অর্ডার লোড হচ্ছে...</p></div></section>
    </div>
   </div>
  </div>
@@ -207,7 +208,21 @@ async function toggleAdminPanel(){
  if(!currentAdminRole){alert('এই প্যানেল ব্যবহারের অনুমতি আপনার নেই।');return;}
  const panel=document.getElementById('adminPanel');
  panel.classList.toggle('show');
- if(panel.classList.contains('show')){panel.scrollIntoView({behavior:'smooth',block:'start'});await loadAdminProducts();}
+ if(panel.classList.contains('show')){panel.scrollIntoView({behavior:'smooth',block:'start'});await Promise.all([loadAdminProducts(),loadAdminOrders()]);}
+}
+async function loadAdminOrders(){
+ const box=document.getElementById('adminOrdersList');if(!box)return;box.innerHTML='<p class="admin-help">অর্ডার লোড হচ্ছে...</p>';
+ const {data,error}=await supabaseClient.from('orders').select('id,customer_name,phone,delivery_address,payment_method,payment_status,order_status,total_amount,created_at,order_items(product_name,quantity,unit_price)').order('created_at',{ascending:false}).limit(50);
+ if(error){box.innerHTML='<p class="admin-help">অর্ডার আনা যায়নি: '+escapeHtml(error.message)+'</p>';return;}
+ if(!data?.length){box.innerHTML='<p class="admin-help">এখনো কোনো অর্ডার আসেনি।</p>';return;}
+ const labels={pending:'অপেক্ষমাণ',confirmed:'নিশ্চিত',shipped:'পাঠানো হয়েছে',delivered:'ডেলিভারি সম্পন্ন',cancelled:'বাতিল'};
+ box.innerHTML=data.map(o=>'<article class="admin-order-card" style="border:1px solid #eee;border-radius:7px;padding:12px;margin:10px 0"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>অর্ডার '+escapeHtml(o.id.slice(0,8))+'</b><b>'+money(o.total_amount)+'</b></div><p class="admin-help">'+escapeHtml(o.customer_name)+' · '+escapeHtml(o.phone)+'</p><p class="admin-help">'+escapeHtml(o.delivery_address)+'</p><div class="admin-help">'+(o.order_items||[]).map(i=>escapeHtml(i.product_name)+' × '+Number(i.quantity)+' ('+money(i.unit_price)+')').join('<br>')+'</div><p class="admin-help">পেমেন্ট: '+(o.payment_method==='cod'?'ক্যাশ অন ডেলিভারি':'bKash')+' · '+(o.payment_status==='paid'?'পরিশোধিত':'বাকি')+' · '+escapeHtml(new Date(o.created_at).toLocaleString('bn-BD'))+'</p><label style="font-size:12px;font-weight:700">অর্ডারের অবস্থা </label><select onchange="updateOrderStatus(\''+escapeHtml(o.id)+'\',this.value)" style="padding:8px;border:1px solid #ddd;border-radius:5px">'+['pending','confirmed','shipped','delivered','cancelled'].map(s=>'<option value="'+s+'" '+(o.order_status===s?'selected':'')+'>'+labels[s]+'</option>').join('')+'</select></article>').join('');
+}
+async function updateOrderStatus(id,status){
+ if(!['pending','confirmed','shipped','delivered','cancelled'].includes(status))return;
+ const {error}=await supabaseClient.from('orders').update({order_status:status}).eq('id',id);
+ if(error){alert('অর্ডারের অবস্থা আপডেট হয়নি: '+error.message);await loadAdminOrders();return;}
+ await loadAdminOrders();
 }
 async function loadAdminProducts(){
  const box=document.getElementById('adminProductList');box.innerHTML='<p class="admin-help">লোড হচ্ছে...</p>';
