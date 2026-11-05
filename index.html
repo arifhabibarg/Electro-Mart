@@ -33,6 +33,10 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
 .admin-primary{background:#f5c400;border:0;border-radius:5px;padding:11px 16px;font-weight:800}.admin-secondary{background:#eee;border:0;border-radius:5px;padding:10px 13px;font-weight:700}.admin-danger{background:#fff0ef;color:#b42318;border:1px solid #ffd1cc;border-radius:5px;padding:7px 10px}
 .admin-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.admin-msg{font-size:12px;min-height:18px;margin:10px 0 0;color:#555}.admin-msg.error{color:#b42318}.admin-msg.success{color:#16834b}
 
+
+.admin-category-inner,.admin-subcategory-inner{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .48s cubic-bezier(.22,1,.36,1),opacity .35s ease}.admin-category-group[open]>.admin-category-inner,.admin-subcategory-group[open]>.admin-subcategory-inner{grid-template-rows:1fr;opacity:1}.admin-category-content,.admin-subcategory-content{min-height:0;overflow:hidden;padding:0 10px}.admin-subcategory-group{border:1px solid #f0f0f0;border-radius:7px;margin:9px 0;overflow:hidden}.admin-subcategory-title{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#fcfcfc;font-size:12px;font-weight:700;cursor:pointer;list-style:none}.admin-subcategory-title::-webkit-details-marker{display:none}.admin-subcategory-title:after{content:'＋';color:#999;transition:transform .3s}.admin-subcategory-group[open]>.admin-subcategory-title:after{content:'−';transform:rotate(180deg)}.admin-category-title:after{transition:transform .35s ease}.admin-category-group[open]>.admin-category-title:after{transform:rotate(180deg)}
+@media(prefers-reduced-motion:reduce){.admin-category-inner,.admin-subcategory-inner,.admin-category-title:after,.admin-subcategory-title:after{transition:none}}
+
 .admin-category-group{border:1px solid #eee;border-radius:8px;margin:10px 0;overflow:hidden;background:#fff}
 .admin-category-title{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 12px;background:#f7f7f7;font-size:13px;font-weight:800;color:#222;list-style:none;cursor:pointer}
 .admin-category-title::-webkit-details-marker{display:none}
@@ -108,7 +112,7 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
       <div class="admin-field full"><label for="apName">প্রোডাক্টের নাম *</label><input id="apName" required maxlength="150" placeholder="যেমন: Samsung Galaxy A55"></div>
       <div class="admin-field"><label for="apPrice">দাম (৳) *</label><input id="apPrice" type="number" min="0" step="0.01" required></div>
       <div class="admin-field"><label for="apStock">স্টক *</label><input id="apStock" type="number" min="0" step="1" required value="1"></div>
-      <div class="admin-field"><label for="apCategory">ক্যাটাগরি *</label><select id="apCategory" required><option value="">বাছাই করুন</option><option>Smartphones</option><option>Laptops</option><option>Tablets</option><option>Audio</option><option>Smartwatches</option><option>Cameras</option><option>Accessories</option><option>Gaming</option><option>TV</option><option>Home Appliances</option></select></div>
+      <div class="admin-field"><label for="apCategory">ক্যাটাগরি *</label><select id="apCategory" required onchange="updateProductSubcategories()"><option value="">বাছাই করুন</option><option>Smartphones</option><option>Laptops</option><option>Tablets</option><option>Audio</option><option>Smartwatches</option><option>Cameras</option><option>Accessories</option><option>Gaming</option><option>TV</option><option>Home Appliances</option><option>Deals</option></select></div><div class="admin-field"><label for="apSubcategory">সাব-ক্যাটাগরি *</label><select id="apSubcategory" required><option value="">আগে ক্যাটাগরি বাছাই করুন</option></select></div><div class="admin-field"><label for="apBrand">ব্র্যান্ড *</label><select id="apBrand" required><option value="">আগে ক্যাটাগরি বাছাই করুন</option></select></div>
       <div class="admin-field"><label for="apImage">প্রোডাক্টের ছবি *</label><input id="apImage" type="file" accept="image/jpeg,image/png,image/webp"></div>
       <div class="admin-field full"><label for="apDescription">সংক্ষিপ্ত বিবরণ</label><textarea id="apDescription" maxlength="1000" placeholder="পণ্যের সংক্ষিপ্ত পরিচিতি"></textarea></div>
       <div class="admin-field full"><label for="apFullDescription">সম্পূর্ণ বিবরণ</label><textarea id="apFullDescription" maxlength="10000" placeholder="পণ্যের বিস্তারিত ফিচার, ব্যবহার, সামঞ্জস্য ও প্রয়োজনীয় তথ্য লিখুন"></textarea></div>
@@ -161,6 +165,10 @@ function updateAuthUI(user){currentAuthUser=user||null;const label=user?(user.us
 async function handleAccountClick(){if(confirm('আপনি কি লগআউট করতে চান?')){const {error}=await supabaseClient.auth.signOut();if(error){alert('লগআউট হয়নি: '+error.message);return;}updateAuthUI(null);alert('আপনি লগআউট হয়েছেন।');}}
 
 let currentAdminRole=null,editingProductId=null;
+const PRODUCT_TAXONOMY={"Smartphones":{"subs":["Android Phones","iPhone","Gaming Phones","Foldable Phones","Feature Phones"],"brands":["Apple","Samsung","Xiaomi","Redmi","POCO","OnePlus","OPPO","vivo","realme","Infinix","TECNO","Motorola","Google Pixel","Nokia","Nothing","HONOR","Huawei","ASUS","Sony"]},"Laptops":{"subs":["Business Laptops","Student Laptops","Ultrabooks","Gaming Laptops","Workstations","2-in-1 Laptops","MacBook","Desktop PCs","Mini PCs","Monitors"],"brands":["Apple","Dell","HP","Lenovo","ASUS","Acer","MSI","Gigabyte","Microsoft Surface","Samsung","Huawei","LG","Razer","Chuwi","Walton"]},"Tablets":{"subs":["Android Tablets","iPad","Windows Tablets","Kids Tablets","Drawing Tablets","E-readers"],"brands":["Apple","Samsung","Xiaomi","Lenovo","Huawei","HONOR","Microsoft","Amazon","Wacom","XP-Pen","Huion","Realme"]},"Audio":{"subs":["Headphones","Wireless Earbuds","Neckbands","Bluetooth Speakers","Soundbars","Microphones","Home Audio"],"brands":["Sony","JBL","Bose","Sennheiser","Anker Soundcore","Apple","Samsung","Nothing","Xiaomi","Redmi","OnePlus","OPPO","Realme","Havit","Fantech","Edifier","Audio-Technica","Marshall"]},"Smartwatches":{"subs":["Smart Watches","Fitness Bands","Kids Watches","Sports Watches"],"brands":["Apple","Samsung","Huawei","Xiaomi","Redmi","Amazfit","Garmin","Google","Fitbit","OnePlus","OPPO","realme","Noise","Haylou","CMF"]},"Cameras":{"subs":["DSLR Cameras","Mirrorless Cameras","Action Cameras","Instant Cameras","Security Cameras","Lenses","Camera Accessories"],"brands":["Canon","Nikon","Sony","Fujifilm","Panasonic","GoPro","DJI","Insta360","Hikvision","Dahua","TP-Link","Logitech"]},"Accessories":{"subs":["Chargers & Adapters","Cables","Power Banks","Phone Cases","Screen Protectors","Keyboards & Mice","Storage & Memory","Hubs & Docks","Laptop Bags","Networking"],"brands":["Anker","Baseus","UGREEN","Belkin","Aukey","Xiaomi","Samsung","Apple","SanDisk","Kingston","Transcend","Logitech","TP-Link","Rapoo","Havit","WiWU","Orico"]},"Gaming":{"subs":["Gaming Consoles","Gaming Laptops","Gaming Monitors","Controllers","Gaming Headsets","Gaming Keyboards","Gaming Mice","Gaming Chairs","Streaming Gear"],"brands":["Sony PlayStation","Microsoft Xbox","Nintendo","ASUS ROG","MSI","Acer Predator","Lenovo Legion","Razer","Logitech G","SteelSeries","Corsair","HyperX","Fantech","Redragon","Havit","8BitDo"]},"TV":{"subs":["Smart TVs","LED TVs","QLED TVs","OLED TVs","Projectors","Streaming Devices","Home Theater"],"brands":["Samsung","LG","Sony","TCL","Xiaomi","Hisense","Philips","Haier","Walton","JBL","Anker Nebula","Epson","BenQ"]},"Home Appliances":{"subs":["Refrigerators","Air Conditioners","Washing Machines","Microwave Ovens","Air Fryers","Rice Cookers","Blenders","Vacuum Cleaners","Fans","Water Purifiers"],"brands":["Walton","Samsung","LG","Singer","Whirlpool","Haier","Hitachi","Panasonic","Sharp","Philips","Midea","Gree","Daikin","Vision","Jamuna"]},"Deals":{"subs":["Today's Deals","Flash Sale","Bundle Offers","Clearance Sale","Refurbished & Open Box"],"brands":["All Brands","Apple","Samsung","Xiaomi","Dell","HP","Lenovo","Sony","JBL","Walton","Other"]}};
+function fillSelect(id,items,placeholder){const el=document.getElementById(id);if(!el)return;const old=el.value;el.innerHTML='<option value="">'+placeholder+'</option>'+items.map(x=>'<option value="'+escapeHtml(x)+'">'+escapeHtml(x)+'</option>').join('');if(items.includes(old))el.value=old;}
+function updateProductSubcategories(sub='',brand=''){const cat=document.getElementById('apCategory').value,cfg=PRODUCT_TAXONOMY[cat]||{subs:[],brands:[]};fillSelect('apSubcategory',cfg.subs,'সাব-ক্যাটাগরি বাছাই করুন');fillSelect('apBrand',cfg.brands,'ব্র্যান্ড বাছাই করুন');if(sub)document.getElementById('apSubcategory').value=sub;if(brand)document.getElementById('apBrand').value=brand;}
+
 function adminMessage(id,message,type=''){const el=document.getElementById(id);if(el){el.textContent=message;el.className='admin-msg '+type;}}
 async function refreshAdminAccess(){
  currentAdminRole=null;
@@ -184,21 +192,15 @@ async function toggleAdminPanel(){
 }
 async function loadAdminProducts(){
  const box=document.getElementById('adminProductList');box.innerHTML='<p class="admin-help">লোড হচ্ছে...</p>';
- const {data,error}=await supabaseClient.from('products').select('id,product_code,name,price,stock,image_url,is_active,category').order('created_at',{ascending:false}).limit(200);
+ const {data,error}=await supabaseClient.from('products').select('id,product_code,name,price,stock,image_url,is_active,category,subcategory,brand').order('created_at',{ascending:false}).limit(300);
  if(error){box.innerHTML='<p class="admin-help">পণ্য আনা যায়নি: '+escapeHtml(error.message)+'</p>';return;}
  if(!data?.length){box.innerHTML='<p class="admin-help">এখনো কোনো প্রোডাক্ট নেই।</p>';return;}
- const groups=new Map();
- data.forEach(p=>{const key=String(p.category||'অন্যান্য').trim()||'অন্যান্য';if(!groups.has(key))groups.set(key,[]);groups.get(key).push(p);});
- const preferred=['Smartphones','Laptops','Tablets','Audio','Smartwatches','Cameras','Accessories','Gaming','TV','Home Appliances','অন্যান্য'];
- const keys=[...groups.keys()].sort((a,b)=>{const ai=preferred.findIndex(x=>x.toLowerCase()===a.toLowerCase()),bi=preferred.findIndex(x=>x.toLowerCase()===b.toLowerCase());return (ai<0?999:ai)-(bi<0?999:bi)||a.localeCompare(b);});
- box.innerHTML='<p class="admin-help">মোট '+data.length+'টি পণ্য · ক্যাটাগরি অনুযায়ী সাজানো</p>'+keys.map((key,index)=>{
-  const products=groups.get(key);
-  const rows=products.map(p=>`<div class="admin-product-row"><img src="${escapeHtml(p.image_url||'')}" alt=""><div><b>${escapeHtml(p.name)}</b><small>পণ্য কোড: ${escapeHtml(p.product_code||'')} · ${money(p.price)} · স্টক ${Number(p.stock)} · ${p.is_active?'সক্রিয়':'লুকানো'}</small></div><div class="admin-actions"><button class="admin-secondary" type="button" onclick="editAdminProduct('${escapeHtml(p.id)}')">এডিট</button><button class="admin-danger" type="button" onclick="deleteAdminProduct('${escapeHtml(p.id)}')">ডিলিট</button></div></div>`).join('');
-  return `<details class="admin-category-group" ${index===0?'open':''}><summary class="admin-category-title"><span>${escapeHtml(key)}</span><span class="admin-category-count">${products.length}টি পণ্য</span></summary><div class="admin-category-items">${rows}</div></details>`;
- }).join('');
+ const groups=new Map();data.forEach(p=>{const cat=String(p.category||'অন্যান্য').trim()||'অন্যান্য';if(!groups.has(cat))groups.set(cat,new Map());const sub=String(p.subcategory||'অন্যান্য').trim()||'অন্যান্য';if(!groups.get(cat).has(sub))groups.get(cat).set(sub,[]);groups.get(cat).get(sub).push(p);});
+ const order=Object.keys(PRODUCT_TAXONOMY).concat('অন্যান্য'),keys=[...groups.keys()].sort((x,y)=>order.indexOf(x)-order.indexOf(y));
+ box.innerHTML='<p class="admin-help">মোট '+data.length+'টি পণ্য · মূল ক্যাটাগরি → সাব-ক্যাটাগরি → ব্র্যান্ড অনুযায়ী সাজানো</p>'+keys.map(key=>{const subs=groups.get(key),count=[...subs.values()].reduce((n,arr)=>n+arr.length,0);const nested=[...subs.entries()].map(([sub,products])=>{const rows=products.map(p=>`<div class="admin-product-row"><img src="${escapeHtml(p.image_url||'')}" alt=""><div><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.brand||'ব্র্যান্ড নেই')} · ${escapeHtml(p.product_code||'')} · ${money(p.price)} · স্টক ${Number(p.stock)} · ${p.is_active?'সক্রিয়':'লুকানো'}</small></div><div class="admin-actions"><button class="admin-secondary" type="button" onclick="editAdminProduct('${escapeHtml(p.id)}')">এডিট</button><button class="admin-danger" type="button" onclick="deleteAdminProduct('${escapeHtml(p.id)}')">ডিলিট</button></div></div>`).join('');return `<details class="admin-subcategory-group"><summary class="admin-subcategory-title"><span>${escapeHtml(sub)}</span><span class="admin-category-count">${products.length}টি পণ্য</span></summary><div class="admin-subcategory-inner"><div class="admin-subcategory-content">${rows}</div></div></details>`;}).join('');return `<details class="admin-category-group"><summary class="admin-category-title"><span>${escapeHtml(key)}</span><span class="admin-category-count">${count}টি পণ্য · ${subs.size} সাব-ক্যাটাগরি</span></summary><div class="admin-category-inner"><div class="admin-category-content">${nested}</div></div></details>`;}).join('');
 }
 function resetAdminProductForm(){
- editingProductId=null;document.getElementById('adminProductForm').reset();document.getElementById('apStock').value=1;
+ editingProductId=null;document.getElementById('adminProductForm').reset();document.getElementById('apStock').value=1;document.getElementById('apSubcategory').innerHTML='<option value="">আগে ক্যাটাগরি বাছাই করুন</option>';document.getElementById('apBrand').innerHTML='<option value="">আগে ক্যাটাগরি বাছাই করুন</option>';
  document.getElementById('productFormTitle').textContent='➕ নতুন প্রোডাক্ট যোগ করুন';
  document.getElementById('apSave').textContent='প্রোডাক্ট সেভ করুন';adminMessage('apMessage','');
 }
@@ -206,7 +208,7 @@ async function editAdminProduct(id){
  const {data,error}=await supabaseClient.from('products').select('*').eq('id',id).single();
  if(error||!data){adminMessage('apMessage','প্রোডাক্ট পাওয়া যায়নি: '+(error?.message||''),'error');return;}
  editingProductId=id;document.getElementById('apName').value=data.name||'';document.getElementById('apPrice').value=data.price??0;
- document.getElementById('apStock').value=data.stock??0;document.getElementById('apCategory').value=data.category||'';
+ document.getElementById('apStock').value=data.stock??0;document.getElementById('apCategory').value=data.category||'';updateProductSubcategories(data.subcategory||'',data.brand||'');
  document.getElementById('apDescription').value=data.description||'';document.getElementById('apFullDescription').value=data.full_description||'';document.getElementById('apActive').value=String(data.is_active);
  document.getElementById('apImage').value='';document.getElementById('productFormTitle').textContent='✏️ প্রোডাক্ট এডিট করুন';
  document.getElementById('apSave').textContent='পরিবর্তন সেভ করুন';document.getElementById('apName').scrollIntoView({behavior:'smooth',block:'center'});
@@ -223,7 +225,7 @@ async function saveAdminProduct(event){
   const name=document.getElementById('apName').value.trim();
   const payload={name,
    price:Number(document.getElementById('apPrice').value),stock:Number(document.getElementById('apStock').value),
-   category:document.getElementById('apCategory').value,description:document.getElementById('apDescription').value.trim(),
+   category:document.getElementById('apCategory').value,subcategory:document.getElementById('apSubcategory').value,brand:document.getElementById('apBrand').value,description:document.getElementById('apDescription').value.trim(),
    full_description:document.getElementById('apFullDescription').value.trim()||document.getElementById('apDescription').value.trim(),
    is_active:document.getElementById('apActive').value==='true'};
   const file=document.getElementById('apImage').files[0];
@@ -263,6 +265,7 @@ async function removeAdminPermission(email){
  const {error}=await supabaseClient.from('admin_users').delete().eq('email',email).eq('role','admin');
  if(error){alert('অনুমতি বাতিল হয়নি: '+error.message);return;}await loadAdminPermissions();
 }
+document.getElementById('apCategory').addEventListener('change',()=>updateProductSubcategories());
 document.getElementById('adminProductForm').addEventListener('submit',saveAdminProduct);
 document.getElementById('adminPermissionForm').addEventListener('submit',addAdminPermission);
 
