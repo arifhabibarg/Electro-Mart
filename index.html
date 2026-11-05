@@ -400,20 +400,40 @@ function closeWishlist(){document.getElementById('wishlistBackdrop').classList.r
 function renderDetailDescription(value){
  const box=document.getElementById('detailDescription');
  let lines=String(value||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
- // Imported product descriptions often arrive as one long paragraph. Break them
- // into a short introduction and readable feature points without changing facts.
- if(lines.length===1&&lines[0].length>220&&!/\n/.test(String(value||''))){
-  const parts=lines[0].split(/(?<=[।!?])\s+|(?<=\.)\s+(?=[A-Zঅ-হ])/u).filter(Boolean);
-  if(parts.length>=3)lines=[parts[0],'__FEATURES__',...parts.slice(1)];
+ // Long imported one-paragraph descriptions are grouped into readable sections.
+ // Keep every original sentence intact; this only changes presentation.
+ if(lines.length===1&&lines[0].length>220){
+  const sentences=lines[0].split(/(?<=[।!?])\s+|(?<=\.)\s+(?=[A-Zঅ-হ])/u).map(x=>x.trim()).filter(Boolean);
+  if(sentences.length>=3){
+   const groups=[
+    {title:'ডিসপ্লে ও ভিজ্যুয়াল',test:/display|screen|resolution|refresh rate|hz\b|hdr|color gamut|viewing angle|ডিসপ্লে|স্ক্রিন|রেজোলিউশন|রিফ্রেশ/i,items:[]},
+    {title:'প্রসেসর ও পারফরম্যান্স',test:/processor|chipset|cpu|gpu|cuda|core|clock speed|performance|প্রসেসর|চিপসেট|পারফরম্যান্স/i,items:[]},
+    {title:'মেমোরি ও স্টোরেজ',test:/\bram\b|\brom\b|storage|ssd|memory|nand|capacity|স্টোরেজ|মেমোরি/i,items:[]},
+    {title:'ক্যামেরা ও অডিও',test:/camera|megapixel|\bmp\b|lens|microphone|speaker|audio|ক্যামেরা|লেন্স|স্পিকার|মাইক্রোফোন/i,items:[]},
+    {title:'কানেক্টিভিটি ও পোর্ট',test:/bluetooth|wi-?fi|usb|type-c|hdmi|displayport|pcie|gps|nfc|port|সংযোগ|কানেক্টিভিটি/i,items:[]},
+    {title:'ব্যাটারি ও পাওয়ার',test:/battery|mah\b|charging|charger|watt|\bpsu\b|power input|ব্যাটারি|চার্জ|পাওয়ার/i,items:[]},
+    {title:'ডিজাইন ও সুরক্ষা',test:/weight|weighs|dimension|\bmm\b|\bkg\b|\bg\b|water resistance|dust|ip\d|vesa|form factor|ওজন|মাত্রা|সুরক্ষা/i,items:[]},
+    {title:'দাম ও ওয়ারেন্টি',test:/price|৳|warranty|দাম|মূল্য|ওয়ারেন্টি/i,items:[]},
+    {title:'ব্যবহার ও সামঞ্জস্য',test:/compatible|compatibility|suitable|use\b|install|support|যাচাই|ব্যবহার|সামঞ্জস্য/i,items:[]}
+   ];
+   const intro=sentences.shift();
+   const other=[];
+   for(const sentence of sentences){
+    const group=groups.find(g=>g.test.test(sentence));
+    (group?group.items:other).push(sentence);
+   }
+   let html='<p class="spec-intro">'+escapeHtml(intro)+'</p>';
+   for(const group of groups){
+    if(!group.items.length)continue;
+    html+='<div class="spec-heading">'+group.title+'</div><div class="spec-list">'+group.items.map(x=>'<div class="spec-item"><b>বিস্তারিত</b><span>'+escapeHtml(x)+'</span></div>').join('')+'</div>';
+   }
+   if(other.length)html+='<div class="spec-heading">অন্যান্য তথ্য</div><div class="detail-feature-list">'+other.map(x=>'<div class="detail-feature-item"><span>✓</span><p>'+escapeHtml(x)+'</p></div>').join('')+'</div>';
+   box.innerHTML=html;return;
+  }
  }
  let html='',items=[];
  const flush=()=>{if(items.length){html+='<div class="spec-list">'+items.map(([k,v])=>'<div class="spec-item"><b>'+escapeHtml(k)+'</b><span>'+escapeHtml(v)+'</span></div>').join('')+'</div>';items=[];}};
- let featureMode=false,featureItems=[];
- const flushFeatures=()=>{if(featureItems.length){html+='<div class="detail-feature-list">'+featureItems.map(x=>'<div class="detail-feature-item"><span>✓</span><p>'+escapeHtml(x)+'</p></div>').join('')+'</div>';featureItems=[];}};
  for(const line of lines){
-  if(line==='__FEATURES__'){flush();html+='<div class="spec-heading">বিস্তারিত তথ্য ও বৈশিষ্ট্য</div>';featureMode=true;continue;}
-  if(featureMode&&!line.includes(':')&&line.length>35){featureItems.push(line);continue;}
-  if(featureMode){flushFeatures();featureMode=false;}
   if(/^(সংক্ষিপ্ত পরিচিতি|প্যাকেজ পরিচিতি):/.test(line)){flush();html+='<p class="spec-intro">'+escapeHtml(line)+'</p>';continue;}
   const idx=line.indexOf(':');
   if(idx>0&&idx<45){items.push([line.slice(0,idx),line.slice(idx+1).trim()]);continue;}
@@ -424,7 +444,7 @@ function renderDetailDescription(value){
   }
   html+='<p class="spec-intro">'+escapeHtml(line)+'</p>';
  }
- flush();flushFeatures();box.innerHTML=html||'<p class="spec-intro">বিস্তারিত তথ্য পাওয়া যায়নি।</p>';
+ flush();box.innerHTML=html||'<p class="spec-intro">বিস্তারিত তথ্য পাওয়া যায়নি।</p>';
 }
 function showProductDetails(id){
  const p=allProducts.find(x=>String(x.id)===String(id));if(!p)return;
