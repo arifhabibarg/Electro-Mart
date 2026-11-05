@@ -34,7 +34,7 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
 .admin-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.admin-msg{font-size:12px;min-height:18px;margin:10px 0 0;color:#555}.admin-msg.error{color:#b42318}.admin-msg.success{color:#16834b}
 
 
-.admin-category-inner,.admin-subcategory-inner{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .48s cubic-bezier(.22,1,.36,1),opacity .35s ease}.admin-category-group[open]>.admin-category-inner,.admin-subcategory-group[open]>.admin-subcategory-inner{grid-template-rows:1fr;opacity:1}.admin-category-content,.admin-subcategory-content{min-height:0;overflow:hidden;padding:0 10px}.admin-subcategory-group{border:1px solid #f0f0f0;border-radius:7px;margin:9px 0;overflow:hidden}.admin-subcategory-title{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#fcfcfc;font-size:12px;font-weight:700;cursor:pointer;list-style:none}.admin-subcategory-title::-webkit-details-marker{display:none}.admin-subcategory-title:after{content:'＋';color:#999;transition:transform .3s}.admin-subcategory-group[open]>.admin-subcategory-title:after{content:'−';transform:rotate(180deg)}.admin-category-title:after{transition:transform .35s ease}.admin-category-group[open]>.admin-category-title:after{transform:rotate(180deg)}
+.admin-brand-group{border:1px solid #f2f2f2;border-radius:7px;margin:8px 0;overflow:hidden;background:#fff}.admin-brand-title{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 12px;background:#fff;font-size:12px;font-weight:700;cursor:pointer;list-style:none}.admin-brand-title::-webkit-details-marker{display:none}.admin-brand-title:after{content:'＋';color:#999}.admin-brand-group[open]>.admin-brand-title:after{content:'−'}.admin-brand-inner{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .48s cubic-bezier(.22,1,.36,1),opacity .35s ease}.admin-brand-group[open]>.admin-brand-inner{grid-template-rows:1fr;opacity:1}.admin-brand-content{min-height:0;overflow:hidden;padding:0 10px}.admin-brand-group.is-closing>.admin-brand-inner,.admin-subcategory-group.is-closing>.admin-subcategory-inner,.admin-category-group.is-closing>.admin-category-inner{grid-template-rows:0fr!important;opacity:0!important}.admin-empty-sub{font-size:11px;color:#888;padding:8px 4px;line-height:1.6}.admin-brand-title:after{transition:transform .3s ease}.admin-brand-group[open]>.admin-brand-title:after{transform:rotate(180deg)}@media(prefers-reduced-motion:reduce){.admin-brand-inner{transition:none}}.admin-category-inner,.admin-subcategory-inner{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .48s cubic-bezier(.22,1,.36,1),opacity .35s ease}.admin-category-group[open]>.admin-category-inner,.admin-subcategory-group[open]>.admin-subcategory-inner{grid-template-rows:1fr;opacity:1}.admin-category-content,.admin-subcategory-content{min-height:0;overflow:hidden;padding:0 10px}.admin-subcategory-group{border:1px solid #f0f0f0;border-radius:7px;margin:9px 0;overflow:hidden}.admin-subcategory-title{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#fcfcfc;font-size:12px;font-weight:700;cursor:pointer;list-style:none}.admin-subcategory-title::-webkit-details-marker{display:none}.admin-subcategory-title:after{content:'＋';color:#999;transition:transform .3s}.admin-subcategory-group[open]>.admin-subcategory-title:after{content:'−';transform:rotate(180deg)}.admin-category-title:after{transition:transform .35s ease}.admin-category-group[open]>.admin-category-title:after{transform:rotate(180deg)}
 @media(prefers-reduced-motion:reduce){.admin-category-inner,.admin-subcategory-inner,.admin-category-title:after,.admin-subcategory-title:after{transition:none}}
 
 .admin-category-group{border:1px solid #eee;border-radius:8px;margin:10px 0;overflow:hidden;background:#fff}
@@ -192,12 +192,49 @@ async function toggleAdminPanel(){
 }
 async function loadAdminProducts(){
  const box=document.getElementById('adminProductList');box.innerHTML='<p class="admin-help">লোড হচ্ছে...</p>';
- const {data,error}=await supabaseClient.from('products').select('id,product_code,name,price,stock,image_url,is_active,category,subcategory,brand').order('created_at',{ascending:false}).limit(300);
+ const {data,error}=await supabaseClient.from('products').select('id,product_code,name,price,stock,image_url,is_active,category,subcategory,brand').order('created_at',{ascending:false}).limit(500);
  if(error){box.innerHTML='<p class="admin-help">পণ্য আনা যায়নি: '+escapeHtml(error.message)+'</p>';return;}
- if(!data?.length){box.innerHTML='<p class="admin-help">এখনো কোনো প্রোডাক্ট নেই।</p>';return;}
- const groups=new Map();data.forEach(p=>{const cat=String(p.category||'অন্যান্য').trim()||'অন্যান্য';if(!groups.has(cat))groups.set(cat,new Map());const sub=String(p.subcategory||'অন্যান্য').trim()||'অন্যান্য';if(!groups.get(cat).has(sub))groups.get(cat).set(sub,[]);groups.get(cat).get(sub).push(p);});
- const order=Object.keys(PRODUCT_TAXONOMY).concat('অন্যান্য'),keys=[...groups.keys()].sort((x,y)=>order.indexOf(x)-order.indexOf(y));
- box.innerHTML='<p class="admin-help">মোট '+data.length+'টি পণ্য · মূল ক্যাটাগরি → সাব-ক্যাটাগরি → ব্র্যান্ড অনুযায়ী সাজানো</p>'+keys.map(key=>{const subs=groups.get(key),count=[...subs.values()].reduce((n,arr)=>n+arr.length,0);const nested=[...subs.entries()].map(([sub,products])=>{const rows=products.map(p=>`<div class="admin-product-row"><img src="${escapeHtml(p.image_url||'')}" alt=""><div><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.brand||'ব্র্যান্ড নেই')} · ${escapeHtml(p.product_code||'')} · ${money(p.price)} · স্টক ${Number(p.stock)} · ${p.is_active?'সক্রিয়':'লুকানো'}</small></div><div class="admin-actions"><button class="admin-secondary" type="button" onclick="editAdminProduct('${escapeHtml(p.id)}')">এডিট</button><button class="admin-danger" type="button" onclick="deleteAdminProduct('${escapeHtml(p.id)}')">ডিলিট</button></div></div>`).join('');return `<details class="admin-subcategory-group"><summary class="admin-subcategory-title"><span>${escapeHtml(sub)}</span><span class="admin-category-count">${products.length}টি পণ্য</span></summary><div class="admin-subcategory-inner"><div class="admin-subcategory-content">${rows}</div></div></details>`;}).join('');return `<details class="admin-category-group"><summary class="admin-category-title"><span>${escapeHtml(key)}</span><span class="admin-category-count">${count}টি পণ্য · ${subs.size} সাব-ক্যাটাগরি</span></summary><div class="admin-category-inner"><div class="admin-category-content">${nested}</div></div></details>`;}).join('');
+ const rows=data||[],groups=new Map();
+ rows.forEach(p=>{
+  const cat=String(p.category||'অন্যান্য').trim()||'অন্যান্য';
+  if(!groups.has(cat))groups.set(cat,new Map());
+  const sub=String(p.subcategory||'অন্যান্য').trim()||'অন্যান্য';
+  if(!groups.get(cat).has(sub))groups.get(cat).set(sub,new Map());
+  const brand=String(p.brand||'ব্র্যান্ড নেই').trim()||'ব্র্যান্ড নেই';
+  if(!groups.get(cat).get(sub).has(brand))groups.get(cat).get(sub).set(brand,[]);
+  groups.get(cat).get(sub).get(brand).push(p);
+ });
+ const categoryKeys=[...Object.keys(PRODUCT_TAXONOMY),...([...groups.keys()].filter(k=>!PRODUCT_TAXONOMY[k]))];
+ const productRow=p=>`<div class="admin-product-row"><img src="${escapeHtml(p.image_url||'')}" alt=""><div><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.product_code||'')} · ${money(p.price)} · স্টক ${Number(p.stock)} · ${p.is_active?'সক্রিয়':'লুকানো'}</small></div><div class="admin-actions"><button class="admin-secondary" type="button" onclick="editAdminProduct('${escapeHtml(p.id)}')">এডিট</button><button class="admin-danger" type="button" onclick="deleteAdminProduct('${escapeHtml(p.id)}')">ডিলিট</button></div></div>`;
+ const categoryHtml=categoryKeys.map(key=>{
+  const subMap=groups.get(key)||new Map(),configured=PRODUCT_TAXONOMY[key]?.subs||[];
+  const subKeys=[...new Set([...configured,...subMap.keys()])];
+  const count=[...subMap.values()].reduce((n,brands)=>n+[...brands.values()].reduce((a,list)=>a+list.length,0),0);
+  const subHtml=subKeys.map(sub=>{
+   const brandMap=subMap.get(sub)||new Map();
+   const subCount=[...brandMap.values()].reduce((n,list)=>n+list.length,0);
+   const brandHtml=brandMap.size?[...brandMap.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([brand,products])=>`<details class="admin-brand-group"><summary class="admin-brand-title"><span>${escapeHtml(brand)}</span><span class="admin-category-count">${products.length}টি পণ্য</span></summary><div class="admin-brand-inner"><div class="admin-brand-content">${products.map(productRow).join('')}</div></div></details>`).join(''):'<p class="admin-empty-sub">এই সাব-ক্যাটাগরিতে এখনো পণ্য নেই। নতুন পণ্য যোগ করার সময় এই সাব-ক্যাটাগরি ও ব্র্যান্ড বেছে নিন।</p>';
+   return `<details class="admin-subcategory-group"><summary class="admin-subcategory-title"><span>${escapeHtml(sub)}</span><span class="admin-category-count">${subCount}টি পণ্য · ${brandMap.size} ব্র্যান্ড</span></summary><div class="admin-subcategory-inner"><div class="admin-subcategory-content">${brandHtml}</div></div></details>`;
+  }).join('');
+  return `<details class="admin-category-group"><summary class="admin-category-title"><span>${escapeHtml(key)}</span><span class="admin-category-count">${count}টি পণ্য · ${subKeys.length} সাব-ক্যাটাগরি</span></summary><div class="admin-category-inner"><div class="admin-category-content">${subHtml}</div></div></details>`;
+ }).join('');
+ box.innerHTML='<p class="admin-help">মোট '+rows.length+'টি পণ্য · মূল ক্যাটাগরি → সাব-ক্যাটাগরি → ব্র্যান্ড → পণ্য। সব বিভাগ বন্ধ থাকবে; প্রয়োজনমতো খুলুন।</p>'+categoryHtml;
+ if(!box.dataset.animationBound){
+  box.addEventListener('click',event=>{
+   const summary=event.target.closest('summary');
+   if(!summary||!box.contains(summary))return;
+   const group=summary.parentElement;
+   if(!group||group.tagName!=='DETAILS')return;
+   event.preventDefault();
+   if(group.open){
+    group.classList.add('is-closing');
+    window.setTimeout(()=>{group.open=false;group.classList.remove('is-closing');},480);
+   }else{
+    group.classList.remove('is-closing');group.open=true;
+   }
+  });
+  box.dataset.animationBound='true';
+ }
 }
 function resetAdminProductForm(){
  editingProductId=null;document.getElementById('adminProductForm').reset();document.getElementById('apStock').value=1;document.getElementById('apSubcategory').innerHTML='<option value="">আগে ক্যাটাগরি বাছাই করুন</option>';document.getElementById('apBrand').innerHTML='<option value="">আগে ক্যাটাগরি বাছাই করুন</option>';
