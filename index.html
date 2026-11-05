@@ -129,8 +129,8 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
    </section>
    <div>
     <section class="admin-card"><h3>📦 প্রোডাক্ট ম্যানেজ করুন</h3><div id="adminProductList"><p class="admin-help">লোড হচ্ছে...</p></div></section>
-    <section class="admin-card" id="adminPermissionCard" style="margin-top:16px;display:none"><h3>👥 অ্যাডমিন পারমিশন</h3><form id="adminPermissionForm"><div class="admin-field"><label for="newAdminEmail">যাকে অনুমতি দেবেন তার অ্যাকাউন্টের ইমেইল</label><input id="newAdminEmail" type="email" required placeholder="staff@example.com"></div><div class="admin-actions"><button class="admin-primary" type="submit">অ্যাডমিন যোগ করুন</button></div><p class="admin-msg" id="permissionMessage"></p></form><div id="adminPermissionList"></div><p class="admin-help">শুধু Owner অন্য অ্যাডমিন যোগ বা বাদ দিতে পারবেন। যাকে যোগ করবেন, তাকে আগে ElectroMart-এ একই ইমেইল দিয়ে অ্যাকাউন্ট খুলতে হবে।</p></section>
-    <section class="admin-card" style="margin-top:16px"><h3>🧾 অর্ডার ম্যানেজমেন্ট</h3><div id="adminOrdersList"><p class="admin-help">অর্ডার লোড হচ্ছে...</p></div></section>
+    <section class="admin-card" id="adminPermissionCard" style="margin-top:16px;display:none"><h3>👥 ইউজার পণ্য-অনুমতি</h3><form id="adminPermissionForm"><div class="admin-field"><label for="newAdminEmail">ইউজারের নিবন্ধিত ইমেইল</label><input id="newAdminEmail" type="email" required placeholder="user@example.com"></div><div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:13px"><label><input id="grantAddProduct" type="checkbox"> পণ্য যোগ করতে পারবে</label><label><input id="grantEditProduct" type="checkbox"> পণ্য এডিট করতে পারবে</label></div><div class="admin-actions"><button class="admin-primary" type="submit">অনুমতি সেভ করুন</button></div><p class="admin-msg" id="permissionMessage"></p></form><div id="adminPermissionList"></div><p class="admin-help">ইউজারকে আগে এই ইমেইল দিয়ে ElectroMart-এ অ্যাকাউন্ট খুলতে হবে। দুই অনুমতিই বন্ধ করে সেভ করলে অনুমতি বাতিল হবে।</p></section>
+    <section class="admin-card" id="adminOrdersCard" style="margin-top:16px"><h3>🧾 অর্ডার ম্যানেজমেন্ট</h3><div id="adminOrdersList"><p class="admin-help">অর্ডার লোড হচ্ছে...</p></div></section>
    </div>
   </div>
  </div>
@@ -177,7 +177,7 @@ async function openProfile(){if(!currentAuthUser)return openAuth();const u=curre
 function closeProfile(){document.getElementById('profileBackdrop').classList.remove('show');}
 async function logoutAccount(){const {error}=await supabaseClient.auth.signOut();if(error){alert('লগআউট হয়নি: '+error.message);return;}closeProfile();updateAuthUI(null);}
 
-let currentAdminRole=null,editingProductId=null;
+let currentAdminRole=null,currentProductPermissions={can_add:false,can_edit:false},editingProductId=null;
 const PRODUCT_TAXONOMY={
 "Smartphones":{"subs":["Android Phones","iPhone","Gaming Phones","Foldable Phones","Feature Phones"],"brands":["iPhone","Apple","Samsung","Xiaomi","Redmi","POCO","OnePlus","OPPO","vivo","realme","Infinix","TECNO","Motorola","Google Pixel","Nokia","Nothing","HONOR","Huawei","ASUS","Sony","Walton","itel","ZTE","HMD","Symphony","TCL","Nubia","Meizu","Lava","Oukitel","Ulefone","Blackview","Doogee","Cubot","Oscal","Fairphone","Sharp","Coolpad","Energizer","Jolla","Acer","Lenovo"]},
 "Laptops":{"subs":["Business Laptops","Student Laptops","Ultrabooks","Gaming Laptops","Workstations","2-in-1 Laptops","MacBook","Chromebooks","Desktop PCs","Mini PCs","Monitors"],"brands":["Acer","Apple","ASUS","Dell","HP","Lenovo","MSI","Microsoft Surface","Samsung","LG","Huawei","Gigabyte","Razer","Chuwi","Walton","Avita","Fujitsu","Dynabook","Panasonic","Xiaomi","HONOR","Infinix","TECNO","Zyrex","Hasee","Colorful","Framework","Toshiba"]},
@@ -196,24 +196,27 @@ function updateProductSubcategories(sub='',brand=''){const cat=document.getEleme
 
 function adminMessage(id,message,type=''){const el=document.getElementById(id);if(el){el.textContent=message;el.className='admin-msg '+type;}}
 async function refreshAdminAccess(){
- currentAdminRole=null;
- const nav=document.getElementById('adminNavBtn');
- const panel=document.getElementById('adminPanel');
+ currentAdminRole=null;currentProductPermissions={can_add:false,can_edit:false};
+ const nav=document.getElementById('adminNavBtn'),panel=document.getElementById('adminPanel');
  nav.classList.remove('show');panel.classList.remove('show');
  document.getElementById('adminPermissionCard').style.display='none';
- if(!currentAuthUser?.email)return;
+ if(!currentAuthUser?.id)return;
  const {data,error}=await supabaseClient.from('profiles').select('role').eq('id',currentAuthUser.id).maybeSingle();
- if(error){console.warn('Admin permission check:',error.message);return;}
- if(!data)return;
- currentAdminRole=data.role;
- if(currentAdminRole==='admin') nav.classList.add('show');
- document.getElementById('adminPermissionCard').style.display='none';
+ if(error){console.warn('Profile permission check:',error.message);return;}
+ currentAdminRole=data?.role||'customer';
+ const {data:pp}=await supabaseClient.from('product_permissions').select('can_add,can_edit').eq('user_id',currentAuthUser.id).maybeSingle();
+ currentProductPermissions={can_add:!!pp?.can_add,can_edit:!!pp?.can_edit};
+ const admin=currentAdminRole==='admin';
+ if(admin||currentProductPermissions.can_add||currentProductPermissions.can_edit)nav.classList.add('show');
+ document.getElementById('adminPermissionCard').style.display=admin?'block':'none';
+ document.getElementById('adminProductForm').parentElement.style.display=(admin||currentProductPermissions.can_add)?'block':'none';
+ document.getElementById('adminProductList').parentElement.style.display=(admin||currentProductPermissions.can_edit)?'block':'none';
+ document.getElementById('adminOrdersCard').style.display=admin?'block':'none';
 }
 async function toggleAdminPanel(){
- if(!currentAdminRole){alert('এই প্যানেল ব্যবহারের অনুমতি আপনার নেই।');return;}
- const panel=document.getElementById('adminPanel');
- panel.classList.toggle('show');
- if(panel.classList.contains('show')){panel.scrollIntoView({behavior:'smooth',block:'start'});await Promise.all([loadAdminProducts(),loadAdminOrders()]);}
+ if(currentAdminRole!=='admin'&&!currentProductPermissions.can_add&&!currentProductPermissions.can_edit){alert('এই প্যানেল ব্যবহারের অনুমতি আপনার নেই।');return;}
+ const panel=document.getElementById('adminPanel');panel.classList.toggle('show');
+ if(panel.classList.contains('show')){panel.scrollIntoView({behavior:'smooth',block:'start'});const jobs=[];if(currentAdminRole==='admin'||currentProductPermissions.can_edit)jobs.push(loadAdminProducts());if(currentAdminRole==='admin')jobs.push(loadAdminOrders(),loadAdminPermissions());await Promise.all(jobs);}
 }
 async function loadAdminOrders(){
  const box=document.getElementById('adminOrdersList');if(!box)return;box.innerHTML='<p class="admin-help">অর্ডার লোড হচ্ছে...</p>';
@@ -244,7 +247,7 @@ async function loadAdminProducts(){
   groups.get(cat).get(sub).get(brand).push(p);
  });
  const categoryKeys=[...Object.keys(PRODUCT_TAXONOMY),...([...groups.keys()].filter(k=>!PRODUCT_TAXONOMY[k]))];
- const productRow=p=>`<div class="admin-product-row"><img src="${escapeHtml(p.image_url||'')}" alt=""><div><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.product_code||'')} · ${money(p.price)} · স্টক ${Number(p.stock)} · ${p.is_active?'সক্রিয়':'লুকানো'}</small></div><div class="admin-actions"><button class="admin-secondary" type="button" onclick="editAdminProduct('${escapeHtml(p.id)}')">এডিট</button><button class="admin-danger" type="button" onclick="deleteAdminProduct('${escapeHtml(p.id)}')">ডিলিট</button></div></div>`;
+ const productRow=p=>`<div class="admin-product-row"><img src="${escapeHtml(p.image_url||'')}" alt=""><div><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.product_code||'')} · ${money(p.price)} · স্টক ${Number(p.stock)} · ${p.is_active?'সক্রিয়':'লুকানো'}</small></div><div class="admin-actions">${(currentAdminRole==='admin'||currentProductPermissions.can_edit)?`<button class="admin-secondary" type="button" onclick="editAdminProduct('${escapeHtml(p.id)}')">এডিট</button>`:''}${currentAdminRole==='admin'? `<button class="admin-danger" type="button" onclick="deleteAdminProduct('${escapeHtml(p.id)}')">ডিলিট</button>`:''}</div></div>`;
  const categoryHtml=categoryKeys.map(key=>{
   const subMap=groups.get(key)||new Map(),configured=PRODUCT_TAXONOMY[key]?.subs||[];
   const subKeys=[...new Set([...configured,...subMap.keys()])];
@@ -281,6 +284,7 @@ function resetAdminProductForm(){
  document.getElementById('apSave').textContent='প্রোডাক্ট সেভ করুন';adminMessage('apMessage','');
 }
 async function editAdminProduct(id){
+ if(currentAdminRole!=='admin'&&!currentProductPermissions.can_edit){alert('পণ্য এডিটের অনুমতি নেই।');return;}
  const {data,error}=await supabaseClient.from('products').select('*').eq('id',id).single();
  if(error||!data){adminMessage('apMessage','প্রোডাক্ট পাওয়া যায়নি: '+(error?.message||''),'error');return;}
  editingProductId=id;document.getElementById('apName').value=data.name||'';document.getElementById('apPrice').value=data.price??0;
@@ -290,13 +294,14 @@ async function editAdminProduct(id){
  document.getElementById('apSave').textContent='পরিবর্তন সেভ করুন';document.getElementById('apName').scrollIntoView({behavior:'smooth',block:'center'});
 }
 async function deleteAdminProduct(id){
+ if(currentAdminRole!=='admin'){alert('শুধু অ্যাডমিন পণ্য ডিলিট করতে পারবেন।');return;}
  if(!confirm('এই প্রোডাক্টটি ডিলিট করতে চান?'))return;
  const {error}=await supabaseClient.from('products').delete().eq('id',id);
  if(error){alert('ডিলিট হয়নি: '+error.message);return;}
  await loadAdminProducts();await loadProducts();
 }
 async function saveAdminProduct(event){
- event.preventDefault();const button=document.getElementById('apSave');button.disabled=true;button.textContent='সেভ হচ্ছে...';adminMessage('apMessage','');
+ event.preventDefault();if(editingProductId&&currentAdminRole!=='admin'&&!currentProductPermissions.can_edit){adminMessage('apMessage','পণ্য এডিটের অনুমতি নেই।','error');return;}if(!editingProductId&&currentAdminRole!=='admin'&&!currentProductPermissions.can_add){adminMessage('apMessage','পণ্য যোগ করার অনুমতি নেই।','error');return;}const button=document.getElementById('apSave');button.disabled=true;button.textContent='সেভ হচ্ছে...';adminMessage('apMessage','');
  try{
   const name=document.getElementById('apName').value.trim();
   const payload={name,
@@ -326,19 +331,19 @@ async function saveAdminProduct(event){
 }
 async function loadAdminPermissions(){
  const box=document.getElementById('adminPermissionList');box.innerHTML='<p class="admin-help">লোড হচ্ছে...</p>';
- const {data,error}=await supabaseClient.from('admin_users').select('email,role,created_at').order('created_at');
- if(error){box.innerHTML='<p class="admin-help">পারমিশন আনা যায়নি: '+escapeHtml(error.message)+'</p>';return;}
- box.innerHTML=(data||[]).map(a=>`<div class="admin-permission-row"><span><b>${escapeHtml(a.email)}</b><br><small>${a.role==='owner'?'প্রধান Owner':'Admin'}</small></span>${a.role==='admin'?`<button class="admin-danger" type="button" onclick="removeAdminPermission('${escapeHtml(a.email)}')">অনুমতি বাতিল</button>`:''}</div>`).join('')||'<p class="admin-help">কোনো অ্যাডমিন যোগ করা হয়নি।</p>';
+ const {data,error}=await supabaseClient.rpc('admin_list_product_permissions');
+ if(error){box.innerHTML='<p class="admin-help">অনুমতি তালিকা আনা যায়নি: '+escapeHtml(error.message)+'</p>';return;}
+ box.innerHTML=(data||[]).map(a=>`<div class="admin-permission-row"><span><b>${escapeHtml(a.full_name||a.email)}</b><br><small>${escapeHtml(a.email)} · ${[a.can_add?'পণ্য যোগ':'',a.can_edit?'পণ্য এডিট':''].filter(Boolean).join(' ও ')}</small></span><button class="admin-danger" type="button" onclick="removeProductPermission(${escapeHtml(JSON.stringify(a.email))})">অনুমতি বাতিল</button></div>`).join('')||'<p class="admin-help">এখনো কাউকে অনুমতি দেওয়া হয়নি।</p>';
 }
 async function addAdminPermission(event){
- event.preventDefault();const email=document.getElementById('newAdminEmail').value.trim().toLowerCase();
- const {error}=await supabaseClient.from('admin_users').insert({email,role:'admin'});
- if(error){adminMessage('permissionMessage','যোগ করা যায়নি: '+error.message,'error');return;}
- document.getElementById('adminPermissionForm').reset();adminMessage('permissionMessage','অ্যাডমিন পারমিশন দেওয়া হয়েছে।','success');await loadAdminPermissions();
+ event.preventDefault();const email=document.getElementById('newAdminEmail').value.trim().toLowerCase(),canAdd=document.getElementById('grantAddProduct').checked,canEdit=document.getElementById('grantEditProduct').checked;
+ const {error}=await supabaseClient.rpc('admin_set_product_permissions',{p_email:email,p_can_add:canAdd,p_can_edit:canEdit});
+ if(error){adminMessage('permissionMessage','অনুমতি সেভ হয়নি: '+error.message,'error');return;}
+ document.getElementById('adminPermissionForm').reset();adminMessage('permissionMessage','ইউজারের অনুমতি আপডেট হয়েছে।','success');await loadAdminPermissions();
 }
-async function removeAdminPermission(email){
- if(!confirm(email+' এর অ্যাডমিন অনুমতি বাতিল করবেন?'))return;
- const {error}=await supabaseClient.from('admin_users').delete().eq('email',email).eq('role','admin');
+async function removeProductPermission(email){
+ if(!confirm(email+' এর পণ্য ম্যানেজমেন্ট অনুমতি বাতিল করবেন?'))return;
+ const {error}=await supabaseClient.rpc('admin_set_product_permissions',{p_email:email,p_can_add:false,p_can_edit:false});
  if(error){alert('অনুমতি বাতিল হয়নি: '+error.message);return;}await loadAdminPermissions();
 }
 document.getElementById('apCategory').addEventListener('change',()=>updateProductSubcategories());
