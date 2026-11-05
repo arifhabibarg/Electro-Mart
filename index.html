@@ -66,7 +66,7 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
 .detail-stock{font-size:13px;color:#16834b;margin:8px 0 16px}.detail-buy-row{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 20px}.detail-buy-row button{min-height:46px;padding:0 22px;border-radius:5px;font-weight:800}.detail-cart-btn{background:#fff;border:1px solid #171717;color:#171717}.detail-buy-btn{background:#f5c400;border:1px solid #f5c400;color:#111}.detail-buy-row button:disabled{opacity:.5;cursor:not-allowed}
 .detail-trust{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:16px 0}.detail-trust span{padding:10px 8px;background:#fafafa;border:1px solid #eee;border-radius:6px;text-align:center;font-size:11px;color:#555}
 .detail-spec-section{margin-top:24px;border-top:1px solid #eee;padding-top:16px}.detail-section-title{font-size:19px;font-weight:900;margin:0 0 13px;color:#171717}
-.detail-description{white-space:normal;line-height:1.65;color:#444;font-size:13px;margin-top:20px}
+.detail-feature-list{display:grid;gap:9px;margin:0 0 16px}.detail-feature-item{display:flex;align-items:flex-start;gap:9px;padding:10px 12px;background:#fafafa;border:1px solid #eee;border-radius:7px}.detail-feature-item>span{flex:0 0 20px;width:20px;height:20px;display:grid;place-items:center;border-radius:50%;background:#e8f7ee;color:#16834b;font-weight:900;font-size:12px}.detail-feature-item p{margin:0;color:#333;font-size:13px;line-height:1.65}.detail-description{white-space:normal;line-height:1.65;color:#444;font-size:13px;margin-top:20px}
 .detail-description .spec-heading{font-size:17px;font-weight:900;color:#171717;margin:22px 0 12px;padding-bottom:9px;border-bottom:2px solid #f5c400}
 .detail-description .spec-intro{font-size:13px;color:#555;line-height:1.8;margin:0 0 12px}
 .detail-description .spec-list{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:0 0 16px}
@@ -399,10 +399,21 @@ function showWishlist(){renderWishlist();document.getElementById('wishlistBackdr
 function closeWishlist(){document.getElementById('wishlistBackdrop').classList.remove('show');}
 function renderDetailDescription(value){
  const box=document.getElementById('detailDescription');
- const lines=String(value||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+ let lines=String(value||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+ // Imported product descriptions often arrive as one long paragraph. Break them
+ // into a short introduction and readable feature points without changing facts.
+ if(lines.length===1&&lines[0].length>220&&!/\n/.test(String(value||''))){
+  const parts=lines[0].split(/(?<=[।!?])\s+|(?<=\.)\s+(?=[A-Zঅ-হ])/u).filter(Boolean);
+  if(parts.length>=3)lines=[parts[0],'__FEATURES__',...parts.slice(1)];
+ }
  let html='',items=[];
  const flush=()=>{if(items.length){html+='<div class="spec-list">'+items.map(([k,v])=>'<div class="spec-item"><b>'+escapeHtml(k)+'</b><span>'+escapeHtml(v)+'</span></div>').join('')+'</div>';items=[];}};
+ let featureMode=false,featureItems=[];
+ const flushFeatures=()=>{if(featureItems.length){html+='<div class="detail-feature-list">'+featureItems.map(x=>'<div class="detail-feature-item"><span>✓</span><p>'+escapeHtml(x)+'</p></div>').join('')+'</div>';featureItems=[];}};
  for(const line of lines){
+  if(line==='__FEATURES__'){flush();html+='<div class="spec-heading">বিস্তারিত তথ্য ও বৈশিষ্ট্য</div>';featureMode=true;continue;}
+  if(featureMode&&!line.includes(':')&&line.length>35){featureItems.push(line);continue;}
+  if(featureMode){flushFeatures();featureMode=false;}
   if(/^(সংক্ষিপ্ত পরিচিতি|প্যাকেজ পরিচিতি):/.test(line)){flush();html+='<p class="spec-intro">'+escapeHtml(line)+'</p>';continue;}
   const idx=line.indexOf(':');
   if(idx>0&&idx<45){items.push([line.slice(0,idx),line.slice(idx+1).trim()]);continue;}
@@ -413,7 +424,7 @@ function renderDetailDescription(value){
   }
   html+='<p class="spec-intro">'+escapeHtml(line)+'</p>';
  }
- flush();box.innerHTML=html||'<p class="spec-intro">বিস্তারিত তথ্য পাওয়া যায়নি।</p>';
+ flush();flushFeatures();box.innerHTML=html||'<p class="spec-intro">বিস্তারিত তথ্য পাওয়া যায়নি।</p>';
 }
 function showProductDetails(id){
  const p=allProducts.find(x=>String(x.id)===String(id));if(!p)return;
