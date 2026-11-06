@@ -90,14 +90,14 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
 .side-category>.side-category-toggle:hover,.side-category.expanded>.side-category-toggle{background:#242424;color:var(--yellow)}
 .side-category .cat-emoji{width:auto;color:var(--yellow)}
 .side-category .chev{margin-left:2px;color:#aaa}
-.side-category .category-detail-panel{display:none;position:fixed;top:180px;left:5%;right:5%;width:90%;max-height:65vh;overflow:auto;margin:0;padding:16px;background:#171717;color:#fff;border:1px solid #3a3a3a;border-top:2px solid var(--yellow);border-radius:0 0 7px 7px;box-shadow:0 12px 28px #0005;z-index:100}
+.side-category .category-detail-panel{display:none;position:fixed;top:215px;left:5%;right:5%;width:90%;max-height:65vh;overflow:auto;margin:0;padding:16px;background:#171717;color:#fff;border:1px solid #3a3a3a;border-top:2px solid var(--yellow);border-radius:0 0 7px 7px;box-shadow:0 12px 28px #0005;z-index:100}
 .side-category:hover>.category-detail-panel,.side-category:focus-within>.category-detail-panel,.side-category.expanded>.category-detail-panel{display:block}
 .category-detail-title{color:var(--yellow);font-size:13px;font-weight:800;margin:0 0 10px}
 .category-detail-types{display:flex;flex-wrap:wrap;gap:8px;overflow:visible;white-space:normal;padding:0 0 13px}
-.category-detail-brands{display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;overflow-y:hidden;white-space:nowrap;border-top:1px solid #383838;padding:12px 0 8px;scrollbar-width:thin}
-.category-sidebar .category-detail-panel .side-subcategory-button,.category-sidebar .category-detail-panel .side-brand-button{flex:0 0 auto;min-height:38px;padding:8px 13px!important;background:#242424!important;border:1px solid #414141!important;border-radius:5px;color:#eee!important;font-size:12px!important;font-weight:600;text-align:center;white-space:nowrap}
+.category-detail-brands{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:8px;border-top:1px solid #383838;padding:12px 0 8px}
+.category-sidebar .category-detail-panel .side-subcategory-button,.category-sidebar .category-detail-panel .side-brand-button{min-width:0;min-height:38px;padding:8px 13px!important;background:#242424!important;border:1px solid #414141!important;border-radius:5px;color:#eee!important;font-size:12px!important;font-weight:600;text-align:center;white-space:normal;overflow-wrap:anywhere}
 .category-sidebar .category-detail-panel .side-subcategory-button:hover,.category-sidebar .category-detail-panel .side-brand-button:hover{background:#333!important;border-color:var(--yellow)!important;color:var(--yellow)!important}
-@media(max-width:600px){.category-list{flex-wrap:nowrap;overflow-x:auto;overflow-y:visible;scrollbar-width:thin;padding:0 4px}.side-category>.side-category-toggle{padding:0 11px}.side-category .category-detail-panel{position:fixed;top:180px;left:3%;right:3%;width:94%;max-height:65vh}.category-detail-brands{flex-wrap:nowrap;overflow-x:auto}}
+@media(max-width:600px){.category-list{flex-wrap:nowrap;overflow-x:auto;overflow-y:visible;scrollbar-width:thin;padding:0 4px}.side-category>.side-category-toggle{padding:0 11px}.side-category .category-detail-panel{position:fixed;top:280px;left:3%;right:3%;width:94%;max-height:60vh}.category-detail-brands{grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}.category-sidebar .category-detail-panel .side-brand-button{padding:7px 3px!important;font-size:10px!important;line-height:1.2}}
 </style>
 </head>
 <body>
