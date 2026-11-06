@@ -272,6 +272,112 @@ async function loadAdminProducts(){
   const subMap=groups.get(key)||new Map(),configured=PRODUCT_TAXONOMY[key]?.subs||[];
   const subKeys=[...new Set([...configured,...subMap.keys()])];
   const count=[...subMap.values()].reduce((n,brands)=>n+[...brands.values()].reduce((a,list)=>a+list.length,0),0);
+  const subHtml=subKeys.map(sub=>{
+   const brandMap=subMap.get(sub)||new Map();
+   const subCount=[...brandMap.values()].reduce((n,list)=>n+list.length,0);
+   const configuredBrands=PRODUCT_TAXONOMY[key]?.brands||[];const brandNames=[...new Set([...configuredBrands,...brandMap.keys()])].sort((a,b)=>a.localeCompare(b));const brandHtml=brandNames.map(brand=>{const products=brandMap.get(brand)||[];return `<details class="admin-brand-group"><summary class="admin-brand-title"><span>${escapeHtml(brand)}</span><span class="admin-category-count">${products.length}টি পণ্য</span></summary><div class="admin-brand-inner"><div class="admin-brand-content">${products.length?products.map(productRow).join(''):'<p class="admin-empty-sub">এই ব্র্যান্ডের পণ্য এখনো যোগ করা হয়নি।</p>'}</div></div></details>`;}).join('');
+   return `<details class="admin-subcategory-group"><summary class="admin-subcategory-title"><span>${escapeHtml(sub)}</span><span class="admin-category-count">${subCount}টি পণ্য · ${brandMap.size} ব্র্যান্ড</span></summary><div class="admin-subcategory-inner"><div class="admin-subcategory-content">${brandHtml}</div></div></details>`;
+  }).join('');
+  return `<details class="admin-category-group"><summary class="admin-category-title"><span>${escapeHtml(key)}</span><span class="admin-category-count">${count}টি পণ্য · ${subKeys.length} সাব-ক্যাটাগরি</span></summary><div class="admin-category-inner"><div class="admin-category-content">${subHtml}</div></div></details>`;
+ }).join('');
+ box.innerHTML='<p class="admin-help">মোট '+rows.length+'টি পণ্য · মূল ক্যাটাগরি → সাব-ক্যাটাগরি → ব্র্যান্ড → পণ্য। সব বিভাগ বন্ধ থাকবে; প্রয়োজনমতো খুলুন।</p>'+categoryHtml;
+ if(!box.dataset.animationBound){
+  box.addEventListener('click',event=>{
+   const summary=event.target.closest('summary');
+   if(!summary||!box.contains(summary))return;
+   const group=summary.parentElement;
+   if(!group||group.tagName!=='DETAILS')return;
+   event.preventDefault();
+   if(group.open){
+    group.classList.add('is-closing');
+    window.setTimeout(()=>{group.open=false;group.classList.remove('is-closing');},480);
+   }else{
+    group.classList.remove('is-closing');group.open=true;
+   }
+  });
+  box.dataset.animationBound='true';
+ }
+}
+function resetAdminProductForm(){
+ editingProductId=null;document.getElementById('adminProductForm').reset();document.getElementById('apStock').value=1;document.getElementById('apSubcategory').innerHTML='<option value="">আগে ক্যাটাগরি বাছাই করুন</option>';document.getElementById('apBrand').innerHTML='<option value="">আগে ক্যাটাগরি বাছাই করুন</option>';
+ document.getElementById('productFormTitle').textContent='➕ নতুন প্রোডাক্ট যোগ করুন';
+ document.getElementById('apSave').textContent='প্রোডাক্ট সেভ করুন';adminMessage('apMessage','');
+}
+async function editAdminProduct(id){
+ if(currentAdminRole!=='admin'&&!currentProductPermissions.can_edit){alert('পণ্য এডিটের অনুমতি নেই।');return;}
+ const {data,error}=await supabaseClient.from('products').select('*').eq('id',id).single();
+ if(error||!data){adminMessage('apMessage','প্রোডাক্ট পাওয়া যায়নি: '+(error?.message||''),'error');return;}
+ editingProductId=id;document.getElementById('apName').value=data.name||'';document.getElementById('apPrice').value=data.price??0;
+ document.getElementById('apStock').value=data.stock??0;document.getElementById('apCategory').value=data.category||'';updateProductSubcategories(data.subcategory||'',data.brand||'');
+ document.getElementById('apDescription').value=data.description||'';document.getElementById('apFullDescription').value=data.full_description||'';document.getElementById('apActive').value=String(data.is_active);
+ document.getElementById('apImage').value='';document.getElementById('productFormTitle').textContent='✏️ প্রোডাক্ট এডিট করুন';
+ document.getElementById('apSave').textContent='পরিবর্তন সেভ করুন';document.getElementById('apName').scrollIntoView({behavior:'smooth',block:'center'});
+}
+async function deleteAdminProduct(id){
+ if(currentAdminRole!=='admin'){alert('শুধু অ্যাডমিন পণ্য ডিলিট করতে পারবেন।');return;}
+ if(!confirm('এই প্রোডাক্টটি ডিলিট করতে চান?'))return;
+ const {error}=await supabaseClient.from('products').delete().eq('id',id);
+ if(error){alert('ডিলিট হয়নি: '+error.message);return;}
+ await loadAdminProducts();await loadProducts();
+}
+async function saveAdminProduct(event){
+ event.preventDefault();if(editingProductId&&currentAdminRole!=='admin'&&!currentProductPermissions.can_edit){adminMessage('apMessage','পণ্য এডিটের অনুমতি নেই।','error');return;}if(!editingProductId&&currentAdminRole!=='admin'&&!currentProductPermissions.can_add){adminMessage('apMessage','পণ্য যোগ করার অনুমতি নেই।','error');return;}const button=document.getElementById('apSave');button.disabled=true;button.textContent='সেভ হচ্ছে...';adminMessage('apMessage','');
+ try{
+  const name=document.getElementById('apName').value.trim();
+  const payload={name,
+   price:Number(document.getElementById('apPrice').value),stock:Number(document.getElementById('apStock').value),
+   category:document.getElementById('apCategory').value,subcategory:document.getElementById('apSubcategory').value,brand:document.getElementById('apBrand').value,description:document.getElementById('apDescription').value.trim(),
+   full_description:document.getElementById('apFullDescription').value.trim()||document.getElementById('apDescription').value.trim(),
+   is_active:document.getElementById('apActive').value==='true'};
+  const file=document.getElementById('apImage').files[0];
+  if(file&&!['image/jpeg','image/png','image/webp'].includes(file.type))throw new Error('শুধু JPG, PNG বা WebP ছবি আপলোড করুন।');
+  if(file&&file.size>5*1024*1024)throw new Error('ছবির সাইজ ৫ MB-এর মধ্যে রাখুন।');
+  if(file){const ext=file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg';const path=`${Date.now()}-${crypto.randomUUID()}.${ext}`;const {error:uploadError}=await supabaseClient.storage.from('product-images').upload(path,file,{contentType:file.type,upsert:false});if(uploadError)throw uploadError;const {data:urlData}=supabaseClient.storage.from('product-images').getPublicUrl(path);payload.image_url=urlData.publicUrl;}
+  let result;
+  if(editingProductId)result=await supabaseClient.from('products').update(payload).eq('id',editingProductId);
+  else result=await supabaseClient.from('products').insert(payload);
+  if(result.error)throw result.error;
+  adminMessage('apMessage',editingProductId?'প্রোডাক্ট আপডেট হয়েছে।':'নতুন প্রোডাক্ট যোগ হয়েছে।','success');
+  resetAdminProductForm();await loadAdminProducts();await loadProducts();
+ }catch(error){adminMessage('apMessage',error.message||'প্রোডাক্ট সেভ হয়নি।','error');}
+ finally{button.disabled=false;button.textContent=editingProductId?'পরিবর্তন সেভ করুন':'প্রোডাক্ট সেভ করুন';}
+}
+async function loadAdminPermissions(){
+ const box=document.getElementById('adminPermissionList');box.innerHTML='<p class="admin-help">লোড হচ্ছে...</p>';
+ const {data,error}=await supabaseClient.rpc('admin_list_product_permissions');
+ if(error){box.innerHTML='<p class="admin-help">অনুমতি তালিকা আনা যায়নি: '+escapeHtml(error.message)+'</p>';return;}
+ box.innerHTML=(data||[]).map(a=>`<div class="admin-permission-row"><span><b>${escapeHtml(a.full_name||a.email)}</b><br><small>${escapeHtml(a.email)} · ${[a.can_add?'পণ্য যোগ':'',a.can_edit?'পণ্য এডিট':''].filter(Boolean).join(' ও ')}</small></span><button class="admin-danger" type="button" onclick="removeProductPermission(${escapeHtml(JSON.stringify(a.email))})">অনুমতি বাতিল</button></div>`).join('')||'<p class="admin-help">এখনো কাউকে অনুমতি দেওয়া হয়নি।</p>';
+}
+async function addAdminPermission(event){
+ event.preventDefault();const email=document.getElementById('newAdminEmail').value.trim().toLowerCase(),canAdd=document.getElementById('grantAddProduct').checked,canEdit=document.getElementById('grantEditProduct').checked;
+ const {error}=await supabaseClient.rpc('admin_set_product_permissions',{p_email:email,p_can_add:canAdd,p_can_edit:canEdit});
+ if(error){adminMessage('permissionMessage','অনুমতি সেভ হয়নি: '+error.message,'error');return;}
+ document.getElementById('adminPermissionForm').reset();adminMessage('permissionMessage','ইউজারের অনুমতি আপডেট হয়েছে।','success');await loadAdminPermissions();
+}
+async function removeProductPermission(email){
+ if(!confirm(email+' এর পণ্য ম্যানেজমেন্ট অনুমতি বাতিল করবেন?'))return;
+ const {error}=await supabaseClient.rpc('admin_set_product_permissions',{p_email:email,p_can_add:false,p_can_edit:false});
+ if(error){alert('অনুমতি বাতিল হয়নি: '+error.message);return;}await loadAdminPermissions();
+}
+document.getElementById('apCategory').addEventListener('change',()=>updateProductSubcategories());
+document.getElementById('adminProductForm').addEventListener('submit',saveAdminProduct);
+document.getElementById('adminPermissionForm').addEventListener('submit',addAdminPermission);
+
+async function initAuth(){const {data}=await supabaseClient.auth.getSession();updateAuthUI(data.session?.user||null);supabaseClient.auth.onAuthStateChange((_event,session)=>updateAuthUI(session?.user||null));}
+
+let allProducts=[],activeCategory='',activeSubcategory='',activeBrand='',cart={},wishlist=new Set(JSON.parse(localStorage.getItem('electromart_wishlist')||'[]').map(String));
+const money=n=>'৳'+Number(n||0).toLocaleString('en-BD');
+const markedPrice=p=>Math.round(Number(p?.price||0)*1.05);
+const discountedPrice=p=>Math.round(Number(p?.price||0)*1.05*0.95);
+const priceMarkup=p=>'<span class="old-price">'+money(markedPrice(p))+'</span> <strong>'+money(discountedPrice(p))+'</strong> <small style="color:#d12b2b;font-weight:700">5% OFF</small>';
+function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+const SIDE_CATEGORY_META={"Smartphones":["▣","Smartphones"],"Laptops":["▱","Laptops & Computers"],"Tablets":["▣","Tablets"],"Audio":["♫","Audio"],"Smartwatches":["◷","Smartwatches"],"Cameras":["◎","Cameras"],"Accessories":["♡","Accessories"],"Gaming":["♧","Gaming"],"TV":["▣","TV & Home Theater"],"Home Appliances":["▤","Home Appliances"],"Deals":["％","Deals & Offers"]};
+let expandedSideCategory='';
+function renderSideCategories(){
+ const list=document.getElementById('sideCategories');if(!list)return;
+ list.innerHTML=Object.keys(SIDE_CATEGORY_META).map(cat=>{
+  const meta=SIDE_CATEGORY_META[cat],isOpen=expandedSideCategory===cat,catArg=escapeHtml(JSON.stringify(cat)),cfg=PRODUCT_TAXONOMY[cat]||{subs:[],brands:[]};
    const brandHtml=(cfg.brands||[]).map(brand=>'<button type="button" class="side-brand-button" onclick="filterByBrand('+catArg+','+escapeHtml(JSON.stringify(brand))+')">'+escapeHtml(brand)+'</button>').join('');
    const menu='<div class="category-detail-panel '+(isOpen?'show':'')+'"><div class="category-detail-title">ব্র্যান্ড</div><div class="category-detail-brands">'+brandHtml+'</div></div>';
   return '<li class="side-category '+(isOpen?'expanded':'')+'"><button type="button" class="side-category-toggle" aria-expanded="'+isOpen+'" onclick="toggleSideCategory('+catArg+')"><span class="cat-emoji">'+meta[0]+'</span><span>'+meta[1]+'</span><span class="chev">⌄</span></button>'+menu+'</li>';
