@@ -79,6 +79,25 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
 
 .checkout-box{border-top:1px solid #eee;margin-top:8px;padding-top:16px}.checkout-box h3{font-size:16px;margin:0 0 7px}.checkout-box form>label{display:block;font-size:12px;font-weight:700;margin:11px 0 5px}.checkout-box input:not([type=radio]),.checkout-box textarea{width:100%;border:1px solid #ddd;border-radius:5px;padding:10px;font:inherit;font-size:13px}.checkout-box textarea{min-height:75px;resize:vertical}.payment-choice{display:grid;gap:8px;font-size:12px}.payment-choice label{display:flex;gap:7px;align-items:center}.payment-disabled{color:#999}.checkout-submit{width:100%;border:0;border-radius:5px;background:var(--yellow);padding:12px;font-weight:800;margin-top:14px}.checkout-submit:disabled{opacity:.55;cursor:wait}.checkout-message{font-size:12px;line-height:1.5;color:#555;white-space:pre-wrap}.checkout-message.error{color:#b42318}.checkout-message.success{color:#16834b}
 .profile-backdrop{display:none;position:fixed;inset:0;background:#000a;z-index:70;align-items:center;justify-content:center;padding:16px}.profile-backdrop.show{display:flex}.profile-panel{width:min(620px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:12px;padding:22px;box-shadow:0 18px 60px #0005}.profile-head{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #eee;padding-bottom:13px;margin-bottom:15px}.profile-head h2{margin:0;font-size:21px}.profile-avatar{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:#fff4bf;color:#8b6c00;font-size:26px;font-weight:900}.profile-info{display:grid;grid-template-columns:1fr 1fr;gap:10px}.profile-info>div{padding:12px;border:1px solid #eee;border-radius:7px;min-width:0}.profile-info small{display:block;color:#888;font-size:11px;margin-bottom:5px}.profile-info b{font-size:13px;overflow-wrap:anywhere}.profile-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}.profile-actions button{border:0;border-radius:5px;padding:11px 15px;font-weight:700}.profile-admin{background:#fff8d8;border:1px solid #f0d66a;border-radius:8px;padding:14px;margin-top:16px}.profile-permissions{font-size:12px;color:#555;line-height:1.7;margin-top:8px}.profile-logout{background:#fff0ef;color:#b42318}@media(max-width:520px){.profile-info{grid-template-columns:1fr}.profile-panel{padding:16px}}
+
+/* Horizontal category navigation with dark header-matched dropdowns */
+.hero-layout{display:block!important}
+.category-sidebar{width:100%;border:0;background:#111;align-self:auto;position:relative;z-index:30;margin:0 0 14px;border-radius:5px}
+.category-sidebar>.side-title{display:none}
+.category-list{display:flex;align-items:stretch;gap:0;overflow:visible;list-style:none;padding:0 8px;margin:0;flex-wrap:wrap}
+.side-category{position:relative;flex:0 0 auto}
+.side-category>.side-category-toggle{width:auto;min-height:46px;height:46px;padding:0 13px;border:0;background:#111;color:#fff;display:flex;align-items:center;gap:8px;font-size:12px;white-space:nowrap}
+.side-category>.side-category-toggle:hover,.side-category.expanded>.side-category-toggle{background:#242424;color:var(--yellow)}
+.side-category .cat-emoji{width:auto;color:var(--yellow)}
+.side-category .chev{margin-left:2px;color:#aaa}
+.side-category .category-detail-panel{display:none;position:absolute;top:100%;left:0;width:min(570px,88vw);max-height:70vh;overflow:auto;margin:0;padding:16px;background:#171717;color:#fff;border:1px solid #3a3a3a;border-top:2px solid var(--yellow);border-radius:0 0 7px 7px;box-shadow:0 12px 28px #0005;z-index:50}
+.side-category:hover>.category-detail-panel,.side-category:focus-within>.category-detail-panel,.side-category.expanded>.category-detail-panel{display:block}
+.category-detail-title{color:var(--yellow);font-size:13px;font-weight:800;margin:0 0 10px}
+.category-detail-types{display:flex;flex-wrap:wrap;gap:8px;overflow:visible;white-space:normal;padding:0 0 13px}
+.category-detail-brands{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;border-top:1px solid #383838;padding-top:12px}
+.category-sidebar .category-detail-panel .side-subcategory-button,.category-sidebar .category-detail-panel .side-brand-button{min-height:38px;padding:8px 11px!important;background:#242424!important;border:1px solid #414141!important;border-radius:5px;color:#eee!important;font-size:12px!important;font-weight:600;text-align:center;white-space:normal}
+.category-sidebar .category-detail-panel .side-subcategory-button:hover,.category-sidebar .category-detail-panel .side-brand-button:hover{background:#333!important;border-color:var(--yellow)!important;color:var(--yellow)!important}
+@media(max-width:600px){.category-list{flex-wrap:nowrap;overflow-x:auto;overflow-y:visible;scrollbar-width:thin;padding:0 4px}.side-category>.side-category-toggle{padding:0 11px}.side-category .category-detail-panel{position:fixed;top:auto;left:5%;right:5%;bottom:auto;width:90%;max-height:65vh}.category-detail-brands{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 </head>
 <body>
@@ -358,20 +377,14 @@ let expandedSideCategory='';
 function renderSideCategories(){
  const list=document.getElementById('sideCategories');if(!list)return;
  list.innerHTML=Object.keys(SIDE_CATEGORY_META).map(cat=>{
-  const meta=SIDE_CATEGORY_META[cat],isOpen=expandedSideCategory===cat,catArg=escapeHtml(JSON.stringify(cat));
-  return '<li class="side-category '+(isOpen?'expanded':'')+'"><button type="button" class="side-category-toggle" aria-expanded="'+isOpen+'" onclick="toggleSideCategory('+catArg+')"><span class="cat-emoji">'+meta[0]+'</span> '+meta[1]+' <span class="chev">›</span></button></li>';
+  const meta=SIDE_CATEGORY_META[cat],isOpen=expandedSideCategory===cat,catArg=escapeHtml(JSON.stringify(cat)),cfg=PRODUCT_TAXONOMY[cat]||{subs:[],brands:[]};
+  const subHtml=(cfg.subs||[]).map(sub=>'<button type="button" class="side-subcategory-button" onclick="filterBySubcategory('+catArg+','+escapeHtml(JSON.stringify(sub))+')">'+escapeHtml(sub)+'</button>').join('');
+  const brandHtml=(cfg.brands||[]).map(brand=>'<button type="button" class="side-brand-button" onclick="filterByBrand('+catArg+','+escapeHtml(JSON.stringify(brand))+')">'+escapeHtml(brand)+'</button>').join('');
+  const menu='<div class="category-detail-panel '+(isOpen?'show':'')+'"><div class="category-detail-title">'+escapeHtml(meta[1])+' — পণ্যের ধরন</div><div class="category-detail-types">'+subHtml+'</div><div class="category-detail-title" style="margin-top:8px">ব্র্যান্ড</div><div class="category-detail-brands">'+brandHtml+'</div></div>';
+  return '<li class="side-category '+(isOpen?'expanded':'')+'"><button type="button" class="side-category-toggle" aria-expanded="'+isOpen+'" onclick="toggleSideCategory('+catArg+')"><span class="cat-emoji">'+meta[0]+'</span><span>'+meta[1]+'</span><span class="chev">⌄</span></button>'+menu+'</li>';
  }).join('');
- renderCategoryDetailPanel();
 }
-function renderCategoryDetailPanel(){
- const panel=document.getElementById('categoryDetailPanel');if(!panel)return;
- if(!expandedSideCategory){panel.classList.remove('show');panel.innerHTML='';return;}
- const cat=expandedSideCategory,cfg=PRODUCT_TAXONOMY[cat]||{subs:[],brands:[]},catArg=escapeHtml(JSON.stringify(cat));
- const subHtml=(cfg.subs||[]).map(sub=>'<button type="button" class="side-subcategory-button" onclick="filterBySubcategory('+catArg+','+escapeHtml(JSON.stringify(sub))+')">'+escapeHtml(sub)+'</button>').join('');
- const brandHtml=(cfg.brands||[]).map(brand=>'<button type="button" class="side-brand-button" onclick="filterByBrand('+catArg+','+escapeHtml(JSON.stringify(brand))+')">'+escapeHtml(brand)+'</button>').join('');
- panel.innerHTML='<div class="category-detail-title">'+escapeHtml(SIDE_CATEGORY_META[cat][1])+' — পণ্যের ধরন</div><div class="category-detail-types">'+subHtml+'</div><div class="category-detail-title" style="margin-top:3px">ব্র্যান্ড</div><div class="category-detail-brands">'+brandHtml+'</div>';
- panel.classList.add('show');
-}
+function renderCategoryDetailPanel(){}
 function toggleSideCategory(cat){expandedSideCategory=expandedSideCategory===cat?'':cat;renderSideCategories();}
 function filterBySubcategory(cat,sub){activeCategory=cat;activeSubcategory=sub;activeBrand='';document.getElementById('searchCategory').value='';document.getElementById('searchInput').value='';refreshProducts();statusText.textContent=sub+' · '+visibleProducts().length+'টি পণ্য';document.getElementById('featured').scrollIntoView({behavior:'smooth'});}
 function filterByBrand(cat,brand){activeCategory=cat;activeSubcategory='';activeBrand=brand;document.getElementById('searchCategory').value='';document.getElementById('searchInput').value='';refreshProducts();statusText.textContent=brand+' · '+visibleProducts().length+'টি পণ্য';document.getElementById('featured').scrollIntoView({behavior:'smooth'});}
