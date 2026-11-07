@@ -122,14 +122,30 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
  .category-sidebar .category-list{max-height:none!important;height:46px!important;overflow-x:auto!important;overflow-y:hidden!important}
  .category-sidebar>#sideCategoryDropdown{position:absolute!important;top:46px!important;z-index:9999!important;max-height:60vh!important;overflow-y:auto!important}
 }
- .whatsapp-contact{display:inline-flex;align-items:center;justify-content:center;width:54px;height:54px;border-radius:50%;background:#25D366;color:#fff;box-shadow:0 4px 14px #0002;transition:transform .2s}.whatsapp-contact:hover{transform:scale(1.08)}.whatsapp-contact svg{width:34px;height:34px}.contact-icons{display:flex;align-items:center;gap:14px}.email-contact{display:inline-flex;align-items:center;justify-content:center;width:54px;height:54px;border-radius:50%;background:#0755c9;color:#fff;box-shadow:0 4px 14px #0002;transition:transform .2s}.email-contact:hover{transform:scale(1.08)}.email-contact svg{width:30px;height:30px}</style>
+ .whatsapp-contact{display:inline-flex;align-items:center;justify-content:center;width:54px;height:54px;border-radius:50%;background:#25D366;color:#fff;box-shadow:0 4px 14px #0002;transition:transform .2s}.whatsapp-contact:hover{transform:scale(1.08)}.whatsapp-contact svg{width:34px;height:34px}.contact-icons{display:flex;align-items:center;gap:14px}.email-contact{display:inline-flex;align-items:center;justify-content:center;width:54px;height:54px;border-radius:50%;background:#0755c9;color:#fff;box-shadow:0 4px 14px #0002;transition:transform .2s}.email-contact:hover{transform:scale(1.08)}.email-contact svg{width:30px;height:30px}
+/* ElectroMart header refresh: prominent brand above, profile icon in brand's former position */
+.main-header{background:linear-gradient(180deg,#080808 0%,#151515 100%)}
+.header-inner{min-height:0;padding:13px 18px 15px;grid-template-columns:54px minmax(220px,1fr) 245px;grid-template-rows:auto auto;column-gap:18px;row-gap:12px}
+.brand{grid-column:1/-1;grid-row:1;justify-self:center;gap:12px;font-size:31px;letter-spacing:-.8px;line-height:1}
+.brand-mark{width:48px;height:48px;display:grid;place-items:center;border:0;border-radius:14px;background:linear-gradient(145deg,#ffe16b,#e9ad00);color:#171717;transform:none;box-shadow:0 4px 16px #f5c40035}
+.brand-mark svg{width:34px;height:34px}
+.brand-name{display:block}.brand .tagline{font-size:9px;letter-spacing:1.5px;margin-top:5px;text-align:center}
+.profile-icon-button{grid-column:1;grid-row:2;justify-self:start;width:46px;height:43px;justify-content:center;padding:0;border:1px solid #ffffff35;border-radius:10px;background:#ffffff0b}
+.profile-icon-button .profile-svg{width:25px;height:25px;display:block}
+.profile-button-label{display:none!important}
+.header-inner>.searchbar{grid-column:2;grid-row:2;width:100%}
+.header-actions{grid-column:3;grid-row:2;gap:18px;align-items:center}
+@media(max-width:900px){.header-inner{grid-template-columns:48px minmax(160px,1fr) 205px;gap:10px}.header-actions{grid-column:3;grid-row:2;justify-content:flex-end;padding:0}.brand{grid-column:1/-1}.profile-icon-button{grid-column:1;grid-row:2}}
+@media(max-width:600px){.header-inner{grid-template-columns:42px minmax(0,1fr);grid-template-rows:auto auto auto;gap:10px;padding:12px}.brand{grid-column:1/-1;grid-row:1;font-size:27px}.brand-mark{width:43px;height:43px}.brand-mark svg{width:31px;height:31px}.header-inner>.searchbar{grid-column:1/-1;grid-row:2}.profile-icon-button{grid-column:1;grid-row:3;width:40px;height:40px}.header-actions{grid-column:2;grid-row:3;justify-content:flex-end;gap:18px;padding:0}.header-actions .head-action{font-size:11px}.header-actions .head-action .ico{font-size:21px}}
+</style>
 </head>
 <body>
 
 <header class="main-header"><div class="header-inner">
-<a class="brand" href="#home" onclick="goHome(event)"><span class="brand-mark">↗</span><span>Electro<span>Mart</span><div class="tagline">Upgrade Your World</div></span></a>
+<a class="brand" href="#home" onclick="goHome(event)"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 48 48" role="img"><path d="M24 4 42 14v20L24 44 6 34V14L24 4Z" fill="none" stroke="currentColor" stroke-width="2.8"/><path d="M27 9 15 26h9l-3 13 13-19h-9l2-11Z" fill="currentColor"/></svg></span><span class="brand-name">Electro<span>Mart</span><div class="tagline">Upgrade Your World</div></span></a>
+<button class="head-action profile-icon-button" type="button" id="authButton" aria-label="প্রোফাইল" title="প্রোফাইল" onclick="openAuth"><svg class="profile-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M4 21c.6-4.1 3.4-6.2 8-6.2s7.4 2.1 8 6.2" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg><span id="authButtonText" class="profile-button-label">Login / Signup</span></button>
 <div class="searchbar"><select id="searchCategory" aria-label="ক্যাটাগরি"><option value="">All Categories</option><option>Smartphones</option><option>Laptops</option><option>Audio</option><option>Smartwatches</option><option>Cameras</option></select><input id="searchInput" type="search" placeholder="পণ্যের নাম বা ID দিয়ে খুঁজুন..." aria-label="পণ্য খুঁজুন"><button type="button" aria-label="Search" onclick="applySearch()">⌕</button></div>
-<div class="header-actions"><button class="head-action" type="button" id="authButton" onclick="openAuth()"><span class="ico">♙</span><span id="authButtonText">Login / Signup</span></button><button class="head-action" type="button" onclick="showWishlist()"><span class="ico" style="color:#e11d48">❤️</span><span class="counter" id="wishCount">0</span><span>Wishlist</span></button><button class="head-action" type="button" onclick="openCart()"><span class="ico">🛒</span><span class="counter" id="cartCount">0</span><span>Cart</span></button></div>
+<div class="header-actions"><button class="head-action" type="button" onclick="showWishlist()"><span class="ico" style="color:#e11d48">❤️</span><span class="counter" id="wishCount">0</span><span>Wishlist</span></button><button class="head-action" type="button" onclick="openCart()"><span class="ico">🛒</span><span class="counter" id="cartCount">0</span><span>Cart</span></button></div>
 </div></header>
 <nav class="navbar"><div class="nav-inner"><a class="active" href="#home" onclick="goHome(event)">Home</a><a href="#featured">Shop</a><a href="#deals">Deals</a><a href="#featured">New Arrivals</a><a href="#shopCategories">Brands</a><a href="#footer">Blog</a><a href="#footer">Contact Us</a><button class="admin-nav-btn" id="adminNavBtn" type="button" onclick="toggleAdminPanel()">⚙ Admin Panel</button></div></nav>
 <main id="home">
