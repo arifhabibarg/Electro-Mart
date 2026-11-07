@@ -57,8 +57,9 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
 .detail-backdrop.show{display:flex}.detail-panel{position:relative;background:#fff;border-radius:12px;width:min(1120px,100%);max-height:none;min-height:80vh;overflow:visible;padding:24px;box-shadow:0 18px 60px #0005;margin:auto}
 .detail-close{position:sticky;float:right;top:10px;margin:-10px -10px 0 0;border:0;background:#f1f1f1;border-radius:50%;width:36px;height:36px;font-size:18px;z-index:5}
 .detail-grid{display:grid;grid-template-columns:minmax(280px,.9fr) minmax(0,1.1fr);gap:30px;align-items:start;padding-top:8px}
-.detail-image-wrap{min-height:390px;display:grid;place-items:center;border:1px solid #eee;border-radius:10px;padding:22px;background:#fff;position:sticky;top:18px}
-.detail-image-wrap img{width:100%;height:350px;object-fit:contain;transition:opacity .35s ease}
+.detail-image-wrap{min-height:390px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;border:1px solid #eee;border-radius:10px;padding:22px;background:#fff;position:sticky;top:18px}
+.detail-image-wrap>img{width:100%;height:330px;object-fit:contain;transition:opacity .25s ease}
+.detail-image-thumbs{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;width:100%}.detail-image-thumb{width:62px;height:62px;border:1px solid #e5e5e5;border-radius:6px;background:#fff;padding:4px;cursor:pointer}.detail-image-thumb.active{border:2px solid #c49b00}.detail-image-thumb img{width:100%;height:100%;object-fit:contain}
 .product-photo-wrap .photo{transition:none}
 .detail-copy{min-width:0;padding:8px 4px}
 .detail-copy h2{font-size:27px;line-height:1.35;margin:12px 0;color:#171717}
@@ -219,7 +220,7 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
  <section class="detail-panel" role="dialog" aria-modal="true" aria-labelledby="detailName">
   <button class="detail-close" type="button" onclick="closeProductDetails()" aria-label="Close">✕</button>
   <div class="detail-grid">
-   <div class="detail-image-wrap"><img id="detailImage" src="" alt=""></div>
+   <div class="detail-image-wrap"><img id="detailImage" src="" alt=""><div class="detail-image-thumbs" id="detailImageThumbs" aria-label="Product photos"></div></div>
    <div class="detail-copy">
     <small id="detailCode"></small><h2 id="detailName"></h2>
     <div class="detail-meta" id="detailMeta"></div>
@@ -568,6 +569,8 @@ function renderDetailDescription(value){
 }
 
 let activeDetailVariantId='';
+let activeDetailImageIndex=0;
+function selectDetailImage(index){const p=allProducts.find(x=>String(x.id)===activeDetailVariantId);if(!p)return;const imgs=(Array.isArray(p.image_urls)?p.image_urls:[]).filter(Boolean);const list=[...new Set([p.image_url,...imgs].filter(Boolean))].slice(0,5);if(!list.length)return;activeDetailImageIndex=Math.max(0,Math.min(index,list.length-1));const main=document.getElementById('detailImage');main.style.opacity='.25';setTimeout(()=>{main.src=list[activeDetailImageIndex];main.style.opacity='1';},100);document.querySelectorAll('#detailImageThumbs .detail-image-thumb').forEach((b,i)=>b.classList.toggle('active',i===activeDetailImageIndex));}
 function showProductDetails(id){
  const base=allProducts.find(x=>String(x.id)===String(id));if(!base)return;
  const variants=base.variant_group?allProducts.filter(x=>x.is_active!==false&&String(x.variant_group)===String(base.variant_group)).sort((a,b)=>Number(a.price||0)-Number(b.price||0)):[base];
@@ -581,7 +584,7 @@ function showProductDetails(id){
 function selectProductVariant(id){activeDetailVariantId=String(id);const v=allProducts.find(x=>String(x.id)===activeDetailVariantId);if(!v)return;document.querySelectorAll('#variantOptions .variant-option').forEach(b=>b.classList.toggle('active',b.textContent.startsWith(v.variant_label||v.name||'Option')));renderSelectedProductVariant();}
 function renderSelectedProductVariant(){
  const p=allProducts.find(x=>String(x.id)===activeDetailVariantId);if(!p)return;
- document.getElementById('detailImage').src=p.image_url||'';document.getElementById('detailImage').alt=p.name||'Product';
+ const detailImages=[...new Set([p.image_url,...(Array.isArray(p.image_urls)?p.image_urls:[])].filter(Boolean))].slice(0,5);activeDetailImageIndex=0;document.getElementById('detailImage').src=detailImages[0]||'';document.getElementById('detailImage').alt=p.name||'Product';document.getElementById('detailImageThumbs').innerHTML=detailImages.map((url,i)=>'<button type="button" class="detail-image-thumb '+(i===0?'active':'')+'" onclick="selectDetailImage('+i+')" aria-label="View product photo '+(i+1)+'"><img src="'+escapeHtml(url)+'" alt=""></button>').join('');document.getElementById('detailImageThumbs').hidden=detailImages.length<2;
  document.getElementById('detailCode').textContent='Product Code: '+(p.product_code||'');
  document.getElementById('detailName').textContent=p.name||'Unnamed product';
  const meta=[p.brand&&('Brand: '+p.brand),p.model&&('Model: '+p.model),p.category,p.subcategory].filter(Boolean);
