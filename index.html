@@ -127,11 +127,11 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
 <body>
 
 <header class="main-header"><div class="header-inner">
-<a class="brand" href="#home"><span class="brand-mark">↗</span><span>Electro<span>Mart</span><div class="tagline">Upgrade Your World</div></span></a>
+<a class="brand" href="#home" onclick="goHome(event)"><span class="brand-mark">↗</span><span>Electro<span>Mart</span><div class="tagline">Upgrade Your World</div></span></a>
 <div class="searchbar"><select id="searchCategory" aria-label="ক্যাটাগরি"><option value="">All Categories</option><option>Smartphones</option><option>Laptops</option><option>Audio</option><option>Smartwatches</option><option>Cameras</option></select><input id="searchInput" type="search" placeholder="পণ্যের নাম বা ID দিয়ে খুঁজুন..." aria-label="পণ্য খুঁজুন"><button type="button" aria-label="Search" onclick="applySearch()">⌕</button></div>
 <div class="header-actions"><button class="head-action" type="button" id="authButton" onclick="openAuth()"><span class="ico">♙</span><span id="authButtonText">Login / Signup</span></button><button class="head-action" type="button" onclick="showWishlist()"><span class="ico" style="color:#e11d48">❤️</span><span class="counter" id="wishCount">0</span><span>Wishlist</span></button><button class="head-action" type="button" onclick="openCart()"><span class="ico">🛒</span><span class="counter" id="cartCount">0</span><span>Cart</span></button></div>
 </div></header>
-<nav class="navbar"><div class="nav-inner"><button class="allcats" type="button" onclick="document.getElementById('shopCategories').scrollIntoView()">☰ &nbsp; All Categories</button><a class="active" href="#home">Home</a><a href="#featured">Shop</a><a href="#deals">Deals</a><a href="#featured">New Arrivals</a><a href="#shopCategories">Brands</a><a href="#footer">Blog</a><a href="#footer">Contact Us</a><button class="admin-nav-btn" id="adminNavBtn" type="button" onclick="toggleAdminPanel()">⚙ Admin Panel</button></div></nav>
+<nav class="navbar"><div class="nav-inner"><button class="allcats" type="button" onclick="document.getElementById('shopCategories').scrollIntoView()">☰ &nbsp; All Categories</button><a class="active" href="#home" onclick="goHome(event)">Home</a><a href="#featured">Shop</a><a href="#deals">Deals</a><a href="#featured">New Arrivals</a><a href="#shopCategories">Brands</a><a href="#footer">Blog</a><a href="#footer">Contact Us</a><button class="admin-nav-btn" id="adminNavBtn" type="button" onclick="toggleAdminPanel()">⚙ Admin Panel</button></div></nav>
 <main id="home">
 <div class="hero-layout"><aside class="category-sidebar"><div class="side-title">☰ &nbsp; All Categories</div><ul class="category-list" id="sideCategories"></ul></aside>
 </div>
@@ -425,6 +425,7 @@ function refreshProducts(){const items=visibleProducts();statusText.textContent=
 function applySearch(){activeCategory='';activeSubcategory='';activeBrand='';refreshProducts();document.getElementById('featured').scrollIntoView({behavior:'smooth'});}
 function filterByCategory(cat){activeCategory=cat;activeSubcategory='';activeBrand='';document.getElementById('searchCategory').value='';refreshProducts();document.getElementById('featured').scrollIntoView({behavior:'smooth'});}
 function clearCategory(){activeCategory='';activeSubcategory='';activeBrand='';document.getElementById('searchCategory').value='';document.getElementById('searchInput').value='';refreshProducts();}
+ function goHome(event){if(event)event.preventDefault();clearCategory();expandedSideCategory='';renderSideCategories();if(location.hash!=='#home')history.replaceState(null,'','#home');window.scrollTo({top:0,behavior:'smooth'});}
 function addToCart(id){const p=allProducts.find(x=>String(x.id)===String(id));if(!p)return;cart[id]=(cart[id]||0)+1;updateCart();}
 function changeQty(id,n){cart[id]=(cart[id]||0)+n;if(cart[id]<=0)delete cart[id];updateCart();}
 const DELIVERY_CHARGE=150;
