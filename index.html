@@ -184,7 +184,7 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
       <div class="admin-field"><label for="apPrice">Price (৳) *</label><input id="apPrice" type="number" min="0" step="0.01" required></div>
       <div class="admin-field"><label for="apStock">Stock *</label><input id="apStock" type="number" min="0" step="1" required value="1"></div>
       <div class="admin-field"><label for="apCategory">Category *</label><select id="apCategory" required onchange="updateProductSubcategories()"><option value="">Select</option><option>Smartphones</option><option>Laptops</option><option>Tablets</option><option>Audio</option><option>Smartwatches</option><option>Cameras</option><option>Accessories</option><option>Gaming</option><option>TV</option><option>Home Appliances</option><option>Deals</option></select></div><div class="admin-field"><label for="apSubcategory">Subcategory *</label><select id="apSubcategory" required><option value="">First Category Select</option></select></div><div class="admin-field"><label for="apBrand">Brand *</label><select id="apBrand" required><option value="">First Category Select</option></select></div>
-      <div class="admin-field"><label for="apImage">Product Image *</label><input id="apImage" type="file" accept="image/jpeg,image/png,image/webp"><small class="admin-help">a JPG, PNG or WebP Upload image (maximum ৫ MB)।</small></div>
+      <div class="admin-field"><label for="apImage">Product Image *</label><input id="apImage" type="file" accept="image/jpeg,image/png,image/webp"><small class="admin-help">a JPG, PNG or WebP Upload image (maximum 5 MB)।</small></div>
       <div class="admin-field full"><label for="apDescription">Short Description</label><textarea id="apDescription" maxlength="1000" placeholder="Product Brief Introduction"></textarea></div>
       <div class="admin-field full"><label for="apFullDescription">Full Description</label><textarea id="apFullDescription" maxlength="10000" placeholder="Enter detailed features, usage, compatibility, and other important information."></textarea></div>
       <div class="admin-field"><label for="apActive">Visible in store?</label><select id="apActive"><option value="true">Yes, Active</option><option value="false">No, Hidden</option></select></div>
@@ -260,7 +260,7 @@ function updateCheckoutUpazilas(){
  const division=bangladeshLocations[Number(document.getElementById('checkoutDivision').value)];
  const district=division?.districts?.[Number(document.getElementById('checkoutDistrict').value)];
  const up=document.getElementById('checkoutUpazila');
- up.innerHTML='<option value="">Upazila / Thana নির্বাচন Please</option>';
+ up.innerHTML='<option value="">Upazila / Thana Selection Please</option>';
  if(!district){up.disabled=true;return;}
  up.disabled=false;up.innerHTML+=(district.upazilas||[]).map(u=>'<option value="'+(u.name)+'">'+(u.name)+'</option>').join('');
 }
