@@ -470,7 +470,7 @@ let allProducts=[],activeCategory='',activeSubcategory='',activeBrand='',cart={}
 const money=n=>'৳'+Number(n||0).toLocaleString('en-BD');
 const markedPrice=p=>Math.round(Number(p?.price||0)*1.05);
 const discountedPrice=p=>Math.round(Number(p?.price||0)*1.05*0.95);
-const priceMarkup=p=>'<del class="old-price" style="display:inline-block;color:#888;text-decoration:line-through;text-decoration-thickness:2px;text-decoration-color:#888">'+money(markedPrice(p))+'</del> <strong>'+money(discountedPrice(p))+'</strong> <small style="color:#d12b2b;font-weight:700">5% OFF</small>';
+const priceMarkup=p=>'<del class="old-price" style="display:inline-block;color:#888;text-decoration:line-through;text-decoration-thickness:2px;text-decoration-color:#888;margin-right:9px">'+money(markedPrice(p))+'</del> <strong>'+money(discountedPrice(p))+'</strong> <small style="color:#d12b2b;font-weight:700">5% OFF</small>';
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
 const SIDE_CATEGORY_META={"Smartphones":["▣","Smartphones"],"Laptops":["▱","Laptops & Computers"],"Tablets":["▣","Tablets"],"Audio":["♫","Audio"],"Smartwatches":["◷","Smartwatches"],"Cameras":["◎","Cameras"],"Accessories":["♡","Accessories"],"Gaming":["♧","Gaming"],"TV":["▣","TV & Home Theater"],"Home Appliances":["▤","Home Appliances"],"Deals":["％","Deals & Offers"]};
