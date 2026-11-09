@@ -197,7 +197,7 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
       <div class="admin-field"><label for="apPrice">Price (৳) *</label><input id="apPrice" type="number" min="0" step="0.01" required></div>
       <div class="admin-field"><label for="apStock">Stock *</label><input id="apStock" type="number" min="0" step="1" required value="1"></div>
       <div class="admin-field"><label for="apCategory">Category *</label><select id="apCategory" required onchange="updateProductSubcategories()"><option value="">Select</option><option>Smartphones</option><option>Laptops</option><option>Tablets</option><option>Audio</option><option>Smartwatches</option><option>Cameras</option><option>Accessories</option><option>Gaming</option><option>TV</option><option>Home Appliances</option><option>Deals</option></select></div><div class="admin-field"><label for="apSubcategory">Subcategory *</label><select id="apSubcategory" required><option value="">First Category Select</option></select></div><div class="admin-field"><label for="apBrand">Brand *</label><select id="apBrand" required><option value="">First Category Select</option></select></div>
-      <div class="admin-field"><label for="apImage">Product Image *</label><input id="apImage" type="file" accept="image/jpeg,image/png,image/webp"><small class="admin-help">a JPG, PNG or WebP Upload image (maximum 5 MB)।</small></div>
+      <div class="admin-field"><label for="apImage">Product Photos (maximum 8) *</label><input id="apImage" type="file" accept="image/jpeg,image/png,image/webp" multiple><small class="admin-help">একসঙ্গে সর্বোচ্চ ৮টি JPG, PNG বা WebP ছবি দিন। প্রতিটি ছবি সর্বোচ্চ 5 MB।</small></div>
       <div class="admin-field full"><label for="apDescription">Short Description</label><textarea id="apDescription" maxlength="1000" placeholder="Product Brief Introduction"></textarea></div>
       <div class="admin-field full"><label for="apFullDescription">Full Description</label><textarea id="apFullDescription" maxlength="10000" placeholder="Enter detailed features, usage, compatibility, and other important information."></textarea></div>
       <div class="admin-field"><label for="apActive">Visible in store?</label><select id="apActive"><option value="true">Yes, Active</option><option value="false">No, Hidden</option></select></div>
@@ -399,8 +399,9 @@ async function loadAdminProducts(){
   box.dataset.animationBound='true';
  }
 }
+let editingProductImageUrls=[];
 function resetAdminProductForm(){
- editingProductId=null;document.getElementById('adminProductForm').reset();document.getElementById('apStock').value=1;document.getElementById('apSubcategory').innerHTML='<option value="">First Category Select</option>';document.getElementById('apBrand').innerHTML='<option value="">First Category Select</option>';
+ editingProductId=null;editingProductImageUrls=[];document.getElementById('adminProductForm').reset();document.getElementById('apStock').value=1;document.getElementById('apSubcategory').innerHTML='<option value="">First Category Select</option>';document.getElementById('apBrand').innerHTML='<option value="">First Category Select</option>';
  document.getElementById('productFormTitle').textContent='➕ Add New Product';
  document.getElementById('apSave').textContent='Save Product';adminMessage('apMessage','');
 }
@@ -408,7 +409,7 @@ async function editAdminProduct(id){
  if(currentAdminRole!=='admin'&&!currentProductPermissions.can_edit){alert('Product Editof Permission None।');return;}
  const {data,error}=await supabaseClient.from('products').select('*').eq('id',id).single();
  if(error||!data){adminMessage('apMessage','Product found could not: '+(error?.message||''),'error');return;}
- editingProductId=id;document.getElementById('apName').value=data.name||'';document.getElementById('apPrice').value=data.price??0;
+ editingProductId=id;editingProductImageUrls=[...new Set([data.image_url,...(Array.isArray(data.image_urls)?data.image_urls:[])].filter(Boolean))].slice(0,8);document.getElementById('apName').value=data.name||'';document.getElementById('apPrice').value=data.price??0;
  document.getElementById('apStock').value=data.stock??0;document.getElementById('apCategory').value=data.category||'';updateProductSubcategories(data.subcategory||'',data.brand||'');
  document.getElementById('apDescription').value=data.description||'';document.getElementById('apFullDescription').value=data.full_description||'';document.getElementById('apActive').value=String(data.is_active);
  document.getElementById('apImage').value='';document.getElementById('productFormTitle').textContent='✏️ Product Edit Please';
@@ -430,10 +431,14 @@ async function saveAdminProduct(event){
    category:document.getElementById('apCategory').value,subcategory:document.getElementById('apSubcategory').value,brand:document.getElementById('apBrand').value,description:document.getElementById('apDescription').value.trim(),
    full_description:document.getElementById('apFullDescription').value.trim()||document.getElementById('apDescription').value.trim(),
    is_active:document.getElementById('apActive').value==='true'};
-  const file=document.getElementById('apImage').files[0];
-  if(file&&!['image/jpeg','image/png','image/webp'].includes(file.type))throw new Error('Only JPG, PNG, or WebP images are allowed।');
-  if(file&&file.size>5*1024*1024)throw new Error('Image size must be 5 MB or less।');
-  if(file){const ext=file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg';const path=`${Date.now()}-${crypto.randomUUID()}.${ext}`;const {error:uploadError}=await supabaseClient.storage.from('product-images').upload(path,file,{contentType:file.type,upsert:false});if(uploadError)throw uploadError;const {data:urlData}=supabaseClient.storage.from('product-images').getPublicUrl(path);payload.image_url=urlData.publicUrl;}
+  const files=[...document.getElementById('apImage').files];
+  if(files.length>8)throw new Error('একটি প্রোডাক্টে সর্বোচ্চ ৮টি ছবি দেওয়া যাবে।');
+  if(files.some(file=>!['image/jpeg','image/png','image/webp'].includes(file.type)))throw new Error('Only JPG, PNG, or WebP images are allowed।');
+  if(files.some(file=>file.size>5*1024*1024))throw new Error('প্রতিটি ছবির সাইজ 5 MB বা কম হতে হবে।');
+  const uploadedUrls=[];
+  for(const file of files){const ext=file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg';const path=`${Date.now()}-${crypto.randomUUID()}.${ext}`;const {error:uploadError}=await supabaseClient.storage.from('product-images').upload(path,file,{contentType:file.type,upsert:false});if(uploadError)throw uploadError;const {data:urlData}=supabaseClient.storage.from('product-images').getPublicUrl(path);uploadedUrls.push(urlData.publicUrl);}
+  const allImageUrls=[...new Set([...editingProductImageUrls,...uploadedUrls])].slice(0,8);
+  if(allImageUrls.length){payload.image_url=allImageUrls[0];payload.image_urls=allImageUrls;}
   let result;
   if(editingProductId)result=await supabaseClient.from('products').update(payload).eq('id',editingProductId);
   else result=await supabaseClient.from('products').insert(payload);
