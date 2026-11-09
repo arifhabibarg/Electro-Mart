@@ -188,7 +188,7 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
 <section class="admin-wrap" id="adminPanel">
  <div class="admin-shell">
   <div class="admin-top"><div><h2>ElectroMart Admin Panel</h2><p>Only authorized administrators can manage products and access.</p></div><button class="admin-close" type="button" onclick="toggleAdminPanel()">Close ✕</button></div>
-  <nav class="admin-menu" aria-label="Admin menu"><button type="button" class="active" data-admin-tab="adminProductManagementPanel" onclick="switchAdminTab(this)">🛍 Product Management</button><button type="button" data-admin-tab="adminManageProductsPanel" onclick="switchAdminTab(this)">📦 Manage Products</button><button type="button" data-admin-tab="adminDeliveredPanel" onclick="switchAdminTab(this)">🚚 Product Delivery Report</button><button type="button" data-admin-tab="adminOrdersPanel" onclick="switchAdminTab(this)">🧾 Order Management</button><button type="button" id="adminPermissionMenuBtn" data-admin-tab="adminUserPermissionsPanel" onclick="switchAdminTab(this)">👥 User Product Permissions</button></nav>
+  <nav class="admin-menu" aria-label="Admin menu"><button type="button" class="active" data-admin-tab="adminProductManagementPanel" onclick="switchAdminTab(this)">🛍 Product Management</button><button type="button" data-admin-tab="adminManageProductsPanel" onclick="switchAdminTab(this)">📦 Manage Products</button><button type="button" data-admin-tab="adminDeliveredPanel" onclick="switchAdminTab(this)">🚚 Product Delivery Report</button><button type="button" data-admin-tab="adminOrdersPanel" onclick="switchAdminTab(this)">🧾 Order Management</button><button type="button" id="adminPermissionMenuBtn" data-admin-tab="adminUserPermissionsPanel" onclick="switchAdminTab(this)">👥 Staff & Roles</button></nav>
   <div class="admin-grid">
    <section class="admin-card admin-tab-panel active" id="adminProductManagementPanel">
     <h3 id="productFormTitle">➕ Add New Product</h3>
@@ -211,7 +211,7 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
    </section>
    <div class="admin-tab-content">
     <section class="admin-card admin-tab-panel" id="adminManageProductsPanel"><h3>📦 Manage Products</h3><div id="adminProductList"><p class="admin-help">Loading...</p></div></section>
-    <section class="admin-card admin-tab-panel" id="adminUserPermissionsPanel" style="margin-top:16px;display:none"><h3>👥 User Product Permissions</h3><form id="adminPermissionForm"><div class="admin-field"><label for="newAdminEmail">User Registered Email</label><input id="newAdminEmail" type="email" required placeholder="user@example.com"></div><div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:13px"><label><input id="grantAddProduct" type="checkbox"> Can Add Products</label><label><input id="grantEditProduct" type="checkbox"> Can Edit Products</label></div><div class="admin-actions"><button class="admin-primary" type="submit">Save Permissions</button></div><p class="admin-msg" id="permissionMessage"></p></form><div id="adminPermissionList"></div><p class="admin-help">The user must first create an ElectroMart account with this email address.। Saving with both permissions disabled will revoke access.।</p></section>
+    <section class="admin-card admin-tab-panel" id="adminUserPermissionsPanel" style="margin-top:16px;display:none"><h3>👥 Staff & Role Management</h3><form id="adminPermissionForm"><div class="admin-field"><label for="newAdminEmail">Registered User Email</label><input id="newAdminEmail" type="email" required placeholder="user@example.com"></div><div class="admin-field" style="margin-top:12px"><label for="newStaffRole">Assign Role</label><select id="newStaffRole" required><option value="customer">Customer (Remove Staff Access)</option><option value="product_manager">Product Manager</option><option value="order_manager">Order Manager</option><option value="delivery_manager">Delivery Manager</option><option value="moderator">Moderator</option><option value="customer_support">Customer Support</option><option value="inventory_manager">Inventory Manager</option><option value="marketing_manager">Marketing Manager</option><option value="viewer">Viewer</option><option value="admin">Admin</option><option value="super_admin">Super Admin</option></select></div><div class="admin-actions"><button class="admin-primary" type="submit">Save Role</button></div><p class="admin-msg" id="permissionMessage"></p></form><div id="adminPermissionList"></div><p class="admin-help">User must already have an ElectroMart account. Admin/Super Admin roles require Super Admin authority.</p></section>
     <section class="admin-card admin-tab-panel" id="adminOrdersPanel" style="margin-top:16px"><h3>🧾 Order Management</h3><div id="adminOrdersList"><p class="admin-help">Loading orders...</p></div></section>
     <section class="admin-card admin-tab-panel" id="adminDeliveredPanel" style="margin-top:16px"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><h3>📦 Delivered Products Report</h3><button class="admin-secondary" type="button" onclick="loadDeliveredOrders()">Refresh Report</button></div><div id="adminDeliveredSummary" class="admin-help">Loading delivered orders...</div><div id="adminDeliveredList"></div></section>
    </div>
@@ -298,7 +298,7 @@ function setAuthMode(mode){authMode=mode;const signup=mode==='signup';document.g
 function authMessage(message,type=''){const el=document.getElementById('authMessage');el.textContent=message;el.className='auth-message '+type;}
 async function submitAuth(event){event.preventDefault();const email=document.getElementById('authEmail').value.trim(),password=document.getElementById('authPassword').value,button=document.getElementById('authSubmit');button.disabled=true;button.textContent='Please wait...';authMessage('');try{if(authMode==='signup'){const fullName=document.getElementById('authName').value.trim();const {data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{full_name:fullName}}});if(error)throw error;if(data.session){authMessage('Sign-up successful! You Login have done।','success');updateAuthUI(data.user);setTimeout(closeAuth,900);}else{authMessage('Sign Up completed। Sent to your email confirmation link-this Click to activate your account।','success');}}else{const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});if(error)throw error;authMessage('Login successful!','success');updateAuthUI(data.user);setTimeout(closeAuth,700);}}catch(error){authMessage(error.message||'Something went wrong। Please try again।','error');}finally{button.disabled=false;button.textContent=authMode==='signup'?'Account Create Please':'Log In';}}
 function updateAuthUI(user){currentAuthUser=user||null;syncCheckoutUser();const label=user?(user.user_metadata?.full_name||user.email||'My Account'):'Login / Signup';document.getElementById('authButtonText').textContent=label.length>18?label.slice(0,16)+'…':label;document.getElementById('authButton').onclick=user?openProfile:openAuth;refreshAdminAccess();}
-async function openProfile(){if(!currentAuthUser)return openAuth();const u=currentAuthUser;document.getElementById('profileName').textContent=u.user_metadata?.full_name||'Name not provided';document.getElementById('profileEmail').textContent=u.email||'—';document.getElementById('profilePhone').textContent='Loading...';document.getElementById('profileId').textContent=u.id;document.getElementById('profileAvatar').textContent=(u.user_metadata?.full_name||u.email||'U').charAt(0).toUpperCase();document.getElementById('profileAdminArea').style.display='none';document.getElementById('profileBackdrop').classList.add('show');const {data}=await supabaseClient.from('profiles').select('full_name,phone,role').eq('id',u.id).maybeSingle();const role=data?.role||'customer';document.getElementById('profileName').textContent=data?.full_name||u.user_metadata?.full_name||'Name not provided';document.getElementById('profilePhone').textContent=data?.phone||'Not added';document.getElementById('profileRoleLabel').textContent=role==='admin'?'Administrator Account':'Regular User';const {data:pp}=await supabaseClient.from('product_permissions').select('can_add,can_edit').eq('user_id',u.id).maybeSingle();currentProductPermissions={can_add:!!pp?.can_add,can_edit:!!pp?.can_edit};const admin=role==='admin';document.getElementById('profilePermissionText').textContent=admin?'Full administrator access: manage products, orders, and user permissions.।':(currentProductPermissions.can_add||currentProductPermissions.can_edit?'Permission: '+[currentProductPermissions.can_add?'Product Add':'',currentProductPermissions.can_edit?'Product Edit':''].filter(Boolean).join(' and '):'Additional Product Management Permission None।');if(admin||currentProductPermissions.can_add||currentProductPermissions.can_edit){document.getElementById('profileAdminArea').style.display='block';document.getElementById('profileAdminHeading').textContent=admin?'Admin Panel':'Authorized Product Management';}}
+async function openProfile(){if(!currentAuthUser)return openAuth();const u=currentAuthUser;document.getElementById('profileName').textContent=u.user_metadata?.full_name||'Name not provided';document.getElementById('profileEmail').textContent=u.email||'—';document.getElementById('profilePhone').textContent='Loading...';document.getElementById('profileId').textContent=u.id;document.getElementById('profileAvatar').textContent=(u.user_metadata?.full_name||u.email||'U').charAt(0).toUpperCase();document.getElementById('profileAdminArea').style.display='none';document.getElementById('profileBackdrop').classList.add('show');const {data}=await supabaseClient.from('profiles').select('full_name,phone,role').eq('id',u.id).maybeSingle();const role=data?.role||'customer';document.getElementById('profileName').textContent=data?.full_name||u.user_metadata?.full_name||'Name not provided';document.getElementById('profilePhone').textContent=data?.phone||'Not added';document.getElementById('profileRoleLabel').textContent=STAFF_LABELS[role]||'Customer';const {data:pp}=await supabaseClient.from('product_permissions').select('can_add,can_edit').eq('user_id',u.id).maybeSingle();currentProductPermissions={can_add:!!pp?.can_add,can_edit:!!pp?.can_edit};const staff=role!=='customer'||currentProductPermissions.can_add||currentProductPermissions.can_edit;document.getElementById('profilePermissionText').textContent=role==='super_admin'?'Full system access.':(['admin','product_manager'].includes(role)?'Product and store management access.':(['order_manager','delivery_manager'].includes(role)?'Order and delivery management access.':(['moderator','customer_support','viewer'].includes(role)?'Read and support access.':(['inventory_manager','marketing_manager'].includes(role)?'Product operations access.':(currentProductPermissions.can_add||currentProductPermissions.can_edit?'Legacy product permission assigned.':'No additional permissions.')))));if(staff){document.getElementById('profileAdminArea').style.display='block';document.getElementById('profileAdminHeading').textContent=(STAFF_LABELS[role]||'Authorized')+' Panel';}}
 function closeProfile(){document.getElementById('profileBackdrop').classList.remove('show');}
 async function logoutAccount(){const {error}=await supabaseClient.auth.signOut();if(error){alert('Log Out not completed: '+error.message);return;}closeProfile();updateAuthUI(null);}
 
@@ -320,6 +320,12 @@ function fillSelect(id,items,placeholder){const el=document.getElementById(id);i
 function updateProductSubcategories(sub='',brand=''){const cat=document.getElementById('apCategory').value,cfg=PRODUCT_TAXONOMY[cat]||{subs:[],brands:[]};fillSelect('apSubcategory',cfg.subs,'Subcategory Select');fillSelect('apBrand',cfg.brands,'Brand Select');if(sub)document.getElementById('apSubcategory').value=sub;if(brand)document.getElementById('apBrand').value=brand;}
 
 function adminMessage(id,message,type=''){const el=document.getElementById(id);if(el){el.textContent=message;el.className='admin-msg '+type;}}
+const STAFF_LABELS={super_admin:'Super Admin',admin:'Admin',product_manager:'Product Manager',order_manager:'Order Manager',delivery_manager:'Delivery Manager',moderator:'Moderator',customer_support:'Customer Support',inventory_manager:'Inventory Manager',marketing_manager:'Marketing Manager',viewer:'Viewer',customer:'Customer'};
+const isAdminRole=()=>['super_admin','admin'].includes(currentAdminRole);
+const canManageProducts=()=>isAdminRole()||['product_manager','inventory_manager','marketing_manager'].includes(currentAdminRole)||currentProductPermissions.can_edit;
+const canAddProducts=()=>isAdminRole()||currentAdminRole==='product_manager'||currentProductPermissions.can_add;
+const canManageOrders=()=>isAdminRole()||['order_manager','delivery_manager'].includes(currentAdminRole);
+const canViewOrders=()=>canManageOrders()||['moderator','customer_support','viewer'].includes(currentAdminRole);
 async function refreshAdminAccess(){
  currentAdminRole=null;currentProductPermissions={can_add:false,can_edit:false};
  const nav=document.getElementById('adminNavBtn'),panel=document.getElementById('adminPanel');
@@ -331,29 +337,39 @@ async function refreshAdminAccess(){
  currentAdminRole=data?.role||'customer';
  const {data:pp}=await supabaseClient.from('product_permissions').select('can_add,can_edit').eq('user_id',currentAuthUser.id).maybeSingle();
  currentProductPermissions={can_add:!!pp?.can_add,can_edit:!!pp?.can_edit};
- const admin=currentAdminRole==='admin';
- if(admin||currentProductPermissions.can_add||currentProductPermissions.can_edit)nav.classList.add('show');
- document.getElementById('adminPermissionCard').style.display=admin?'block':'none';
- document.getElementById('adminPermissionMenuBtn').style.display=admin?'':'none';
- document.getElementById('adminProductForm').parentElement.style.display=(admin||currentProductPermissions.can_add)?'block':'none';
- document.getElementById('adminProductList').parentElement.style.display=(admin||currentProductPermissions.can_edit)?'block':'none';
- document.getElementById('adminOrdersCard').style.display=admin?'block':'none';
+ if(currentAdminRole!=='customer'||currentProductPermissions.can_add||currentProductPermissions.can_edit)nav.classList.add('show');
+ document.getElementById('adminPermissionCard').style.display=isAdminRole()?'block':'none';
+ document.getElementById('adminPermissionMenuBtn').style.display=isAdminRole()?'':'none';
+ document.querySelector('[data-admin-tab="adminProductManagementPanel"]').style.display=canAddProducts()?'':'none';
+ document.querySelector('[data-admin-tab="adminManageProductsPanel"]').style.display=canManageProducts()?'':'none';
+ document.querySelector('[data-admin-tab="adminOrdersPanel"]').style.display=canViewOrders()?'':'none';
+ document.querySelector('[data-admin-tab="adminDeliveredPanel"]').style.display=(isAdminRole()||['order_manager','delivery_manager','moderator','viewer'].includes(currentAdminRole))?'':'none';
+ document.getElementById('adminProductForm').parentElement.style.display=canAddProducts()?'block':'none';
+ document.getElementById('adminProductList').parentElement.style.display=canManageProducts()?'block':'none';
+ document.getElementById('adminOrdersCard').style.display=canViewOrders()?'block':'none';
 }
 function switchAdminTab(button){const id=button?.dataset?.adminTab;if(!id)return;document.querySelectorAll("#adminPanel .admin-tab-panel").forEach(p=>p.classList.toggle("active",p.id===id));document.querySelectorAll("#adminPanel .admin-menu button").forEach(b=>b.classList.toggle("active",b===button));const target=document.getElementById(id);if(target)target.scrollTop=0;}
 async function toggleAdminPanel(){
+ const panel=document.getElementById('adminPanel');
+ if(panel.classList.contains('show')){panel.classList.remove('show');return;}
  if(!currentAuthUser?.id){alert('Please log in first।');return;}
- // Recheck permissions at click time to avoid stale auth-state timing.
  const {data:profile,error:profileError}=await supabaseClient.from('profiles').select('role').eq('id',currentAuthUser.id).maybeSingle();
- if(profileError){alert('Admin permission check failed: '+profileError.message);return;}
+ if(profileError){alert('Role check failed: '+profileError.message);return;}
  currentAdminRole=profile?.role||'customer';
  const {data:permission,error:permissionError}=await supabaseClient.from('product_permissions').select('can_add,can_edit').eq('user_id',currentAuthUser.id).maybeSingle();
  if(permissionError){alert('Permission check failed: '+permissionError.message);return;}
  currentProductPermissions={can_add:!!permission?.can_add,can_edit:!!permission?.can_edit};
- const admin=currentAdminRole==='admin';
- document.getElementById('adminNavBtn').classList.toggle('show',admin||currentProductPermissions.can_add||currentProductPermissions.can_edit);
- if(!admin&&!currentProductPermissions.can_add&&!currentProductPermissions.can_edit){alert('You are not authorized to use this panel।');return;}
- const panel=document.getElementById('adminPanel');panel.classList.toggle('show');
- if(panel.classList.contains('show')){const jobs=[];if(admin||currentProductPermissions.can_edit)jobs.push(loadAdminProducts());if(admin)jobs.push(loadAdminOrders(),loadAdminPermissions(),loadDeliveredOrders());await Promise.all(jobs);}
+ await refreshAdminAccess();
+ if(currentAdminRole==='customer'&&!currentProductPermissions.can_add&&!currentProductPermissions.can_edit){alert('You are not authorized to use this panel।');return;}
+ panel.classList.add('show');
+ const firstVisible=[...document.querySelectorAll('#adminPanel .admin-menu button')].find(b=>b.style.display!=='none');
+ if(firstVisible)switchAdminTab(firstVisible);
+ const jobs=[];
+ if(canManageProducts())jobs.push(loadAdminProducts());
+ if(canViewOrders())jobs.push(loadAdminOrders());
+ if(isAdminRole())jobs.push(loadAdminPermissions());
+ if(isAdminRole()||['order_manager','delivery_manager','moderator','viewer'].includes(currentAdminRole))jobs.push(loadDeliveredOrders());
+ await Promise.all(jobs);
 }
 async function loadAdminOrders(){
  const box=document.getElementById('adminOrdersList');if(!box)return;box.innerHTML='<p class="admin-help">Loading orders...</p>';
@@ -361,7 +377,7 @@ async function loadAdminOrders(){
  if(error){box.innerHTML='<p class="admin-help">Order ANo could not: '+escapeHtml(error.message)+'</p>';return;}
  if(!data?.length){box.innerHTML='<p class="admin-help">No orders yet।</p>';return;}
  const labels={pending:'Pending',confirmed:'Confirmed',shipped:'Shipped',delivered:'Delivered',cancelled:'Cancelled'};
- box.innerHTML=data.map(o=>'<article class="admin-order-card" style="border:1px solid #eee;border-radius:7px;padding:12px;margin:10px 0"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>Order '+escapeHtml(o.id.slice(0,8))+'</b><b>'+money(o.total_amount)+'</b></div><p class="admin-help">'+escapeHtml(o.customer_name)+' · '+escapeHtml(o.phone)+'</p><p class="admin-help">'+escapeHtml(o.delivery_address)+'</p><div class="admin-help">'+(o.order_items||[]).map(i=>escapeHtml(i.product_name)+' × '+Number(i.quantity)+' ('+money(i.unit_price)+')').join('<br>')+'</div><p class="admin-help">Payment: '+(o.payment_method==='cod'?'Cash on Delivery':'bKash')+' · '+(o.payment_status==='paid'?'Paid':'Unpaid')+' · '+escapeHtml(new Date(o.created_at).toLocaleString('bn-BD'))+'</p><label style="font-size:12px;font-weight:700">Order Status </label><select onchange="updateOrderStatus(\''+escapeHtml(o.id)+'\',this.value)" style="padding:8px;border:1px solid #ddd;border-radius:5px">'+['pending','confirmed','shipped','delivered','cancelled'].map(s=>'<option value="'+s+'" '+(o.order_status===s?'selected':'')+'>'+labels[s]+'</option>').join('')+'</select></article>').join('');
+ box.innerHTML=data.map(o=>'<article class="admin-order-card" style="border:1px solid #eee;border-radius:7px;padding:12px;margin:10px 0"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>Order '+escapeHtml(o.id.slice(0,8))+'</b><b>'+money(o.total_amount)+'</b></div><p class="admin-help">'+escapeHtml(o.customer_name)+' · '+escapeHtml(o.phone)+'</p><p class="admin-help">'+escapeHtml(o.delivery_address)+'</p><div class="admin-help">'+(o.order_items||[]).map(i=>escapeHtml(i.product_name)+' × '+Number(i.quantity)+' ('+money(i.unit_price)+')').join('<br>')+'</div><p class="admin-help">Payment: '+(o.payment_method==='cod'?'Cash on Delivery':'bKash')+' · '+(o.payment_status==='paid'?'Paid':'Unpaid')+' · '+escapeHtml(new Date(o.created_at).toLocaleString('bn-BD'))+'</p><label style="font-size:12px;font-weight:700">Order Status </label><select onchange="updateOrderStatus(\''+escapeHtml(o.id)+'\',this.value)" style="padding:8px;border:1px solid #ddd;border-radius:5px" '+(canManageOrders()?'':'disabled')+'>'+['pending','confirmed','shipped','delivered','cancelled'].map(s=>'<option value="'+s+'" '+(o.order_status===s?'selected':'')+'>'+labels[s]+'</option>').join('')+'</select></article>').join('');
 }
 async function loadDeliveredOrders(){
  const box=document.getElementById('adminDeliveredList'),summary=document.getElementById('adminDeliveredSummary');if(!box||!summary)return;
@@ -374,6 +390,7 @@ async function loadDeliveredOrders(){
  box.innerHTML=orders.map(o=>'<article class="admin-order-card" style="border:1px solid #e5e5e5;border-radius:7px;padding:12px;margin:10px 0"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>Order '+escapeHtml(o.id.slice(0,8))+'</b><b>'+money(o.total_amount)+'</b></div><p class="admin-help"><b>Customer:</b> '+escapeHtml(o.customer_name)+' · '+escapeHtml(o.phone)+'</p><p class="admin-help"><b>Delivery Address:</b> '+escapeHtml(o.delivery_address)+'</p><div style="margin:8px 0;padding:8px;background:#fafafa;border-radius:5px"><b style="font-size:12px">Delivered Products</b><div class="admin-help">'+(o.order_items||[]).map(i=>escapeHtml(i.product_name)+' × '+Number(i.quantity)+' · '+money(Number(i.unit_price)*Number(i.quantity))).join('<br>')+'</div></div><p class="admin-help">Payment: '+(o.payment_method==='cod'?'Cash on Delivery':'bKash')+' · '+(o.payment_status==='paid'?'Paid':'Unpaid')+' · Delivered order date: '+escapeHtml(new Date(o.created_at).toLocaleString('bn-BD'))+'</p><span style="display:inline-block;padding:4px 9px;border-radius:20px;background:#e8f5e9;color:#20733b;font-size:12px;font-weight:700">✓ Delivered</span></article>').join('');
 }
 async function updateOrderStatus(id,status){
+ if(!canManageOrders()){alert('You do not have permission to update orders.');await loadAdminOrders();return;}
  if(!['pending','confirmed','shipped','delivered','cancelled'].includes(status))return;
  const {error}=await supabaseClient.from('orders').update({order_status:status}).eq('id',id);
  if(error){alert('Order Status Update not completed: '+error.message);await loadAdminOrders();return;}
@@ -394,7 +411,7 @@ async function loadAdminProducts(){
   groups.get(cat).get(sub).get(brand).push(p);
  });
  const categoryKeys=[...Object.keys(PRODUCT_TAXONOMY),...([...groups.keys()].filter(k=>!PRODUCT_TAXONOMY[k]))];
- const productRow=p=>`<div class="admin-product-row"><img src="${escapeHtml(p.image_url||'')}" alt=""><div><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.product_code||'')} · ${money(p.price)} · Stock ${Number(p.stock)} · ${p.is_active?'Active':'Hidden'}</small></div><div class="admin-actions">${(currentAdminRole==='admin'||currentProductPermissions.can_edit)?`<button class="admin-secondary" type="button" onclick="editAdminProduct('${escapeHtml(p.id)}')">Edit</button>`:''}${currentAdminRole==='admin'? `<button class="admin-danger" type="button" onclick="deleteAdminProduct('${escapeHtml(p.id)}')">Delete</button>`:''}</div></div>`;
+ const productRow=p=>`<div class="admin-product-row"><img src="${escapeHtml(p.image_url||'')}" alt=""><div><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.product_code||'')} · ${money(p.price)} · Stock ${Number(p.stock)} · ${p.is_active?'Active':'Hidden'}</small></div><div class="admin-actions">${(isAdminRole()||['product_manager','inventory_manager','marketing_manager'].includes(currentAdminRole)||currentProductPermissions.can_edit)?`<button class="admin-secondary" type="button" onclick="editAdminProduct('${escapeHtml(p.id)}')">Edit</button>`:''}${(isAdminRole()||currentAdminRole==='product_manager')? `<button class="admin-danger" type="button" onclick="deleteAdminProduct('${escapeHtml(p.id)}')">Delete</button>`:''}</div></div>`;
  const categoryHtml=categoryKeys.map(key=>{
   const subMap=groups.get(key)||new Map(),configured=PRODUCT_TAXONOMY[key]?.subs||[];
   const subKeys=[...new Set([...configured,...subMap.keys()])];
@@ -432,7 +449,7 @@ function resetAdminProductForm(){
  document.getElementById('apSave').textContent='Save Product';adminMessage('apMessage','');
 }
 async function editAdminProduct(id){
- if(currentAdminRole!=='admin'&&!currentProductPermissions.can_edit){alert('Product Editof Permission None।');return;}
+ if(!canManageProducts()){alert('Product editing is not allowed for this role.');return;}
  const {data,error}=await supabaseClient.from('products').select('*').eq('id',id).single();
  if(error||!data){adminMessage('apMessage','Product found could not: '+(error?.message||''),'error');return;}
  editingProductId=id;editingProductImageUrls=[...new Set([data.image_url,...(Array.isArray(data.image_urls)?data.image_urls:[])].filter(Boolean))].slice(0,8);document.getElementById('apName').value=data.name||'';document.getElementById('apModel').value=data.model||'';document.getElementById('apDiscount').value=String(data.discount_percent??5);document.getElementById('apPrice').value=data.price??0;
@@ -442,14 +459,14 @@ async function editAdminProduct(id){
  document.getElementById('apSave').textContent='Save Changes';document.getElementById('apName').scrollIntoView({behavior:'smooth',block:'center'});
 }
 async function deleteAdminProduct(id){
- if(currentAdminRole!=='admin'){alert('Only administrators can delete products।');return;}
+ if(!isAdminRole()&&currentAdminRole!=='product_manager'){alert('Product deletion is not allowed for this role.');return;}
  if(!confirm('Are you sure you want to delete this product?'))return;
  const {error}=await supabaseClient.from('products').delete().eq('id',id);
  if(error){alert('Delete not completed: '+error.message);return;}
  await loadAdminProducts();await loadProducts();
 }
 async function saveAdminProduct(event){
- event.preventDefault();if(editingProductId&&currentAdminRole!=='admin'&&!currentProductPermissions.can_edit){adminMessage('apMessage','Product Editof Permission None।','error');return;}if(!editingProductId&&currentAdminRole!=='admin'&&!currentProductPermissions.can_add){adminMessage('apMessage','Product Add to do Permission None।','error');return;}const button=document.getElementById('apSave');button.disabled=true;button.textContent='Saving...';adminMessage('apMessage','');
+ event.preventDefault();if(editingProductId&&!canManageProducts()){adminMessage('apMessage','Product Editof Permission None।','error');return;}if(!editingProductId&&!canAddProducts()){adminMessage('apMessage','Product Add to do Permission None।','error');return;}const button=document.getElementById('apSave');button.disabled=true;button.textContent='Saving...';adminMessage('apMessage','');
  try{
   const name=document.getElementById('apName').value.trim();
   const payload={name,model:document.getElementById('apModel').value.trim(),discount_percent:Number(document.getElementById('apDiscount').value),
@@ -475,21 +492,22 @@ async function saveAdminProduct(event){
  finally{button.disabled=false;button.textContent=editingProductId?'Save Changes':'Save Product';}
 }
 async function loadAdminPermissions(){
- const box=document.getElementById('adminPermissionList');box.innerHTML='<p class="admin-help">Loading...</p>';
- const {data,error}=await supabaseClient.rpc('admin_list_product_permissions');
- if(error){box.innerHTML='<p class="admin-help">Permission List ANo could not: '+escapeHtml(error.message)+'</p>';return;}
- box.innerHTML=(data||[]).map(a=>`<div class="admin-permission-row"><span><b>${escapeHtml(a.full_name||a.email)}</b><br><small>${escapeHtml(a.email)} · ${[a.can_add?'Product Add':'',a.can_edit?'Product Edit':''].filter(Boolean).join(' and ')}</small></span><button class="admin-danger" type="button" onclick="removeProductPermission(${escapeHtml(JSON.stringify(a.email))})">Revoke Permission</button></div>`).join('')||'<p class="admin-help">No users have been granted permissions yet।</p>';
+ const box=document.getElementById('adminPermissionList');box.innerHTML='<p class="admin-help">Loading staff...</p>';
+ const {data,error}=await supabaseClient.rpc('admin_list_staff');
+ if(error){box.innerHTML='<p class="admin-help">Staff list could not load: '+escapeHtml(error.message)+'</p>';return;}
+ const labels={super_admin:'Super Admin',admin:'Admin',product_manager:'Product Manager',order_manager:'Order Manager',delivery_manager:'Delivery Manager',moderator:'Moderator',customer_support:'Customer Support',inventory_manager:'Inventory Manager',marketing_manager:'Marketing Manager',viewer:'Viewer'};
+ box.innerHTML=(data||[]).map(a=>'<div class="admin-permission-row"><span><b>'+escapeHtml(a.full_name||a.email)+'</b><br><small>'+escapeHtml(a.email)+' · '+escapeHtml(labels[a.role]||a.role)+'</small></span>'+(a.role==='super_admin'||(a.role==='admin'&&currentAdminRole!=='super_admin')?'':'<button class="admin-danger" type="button" onclick="removeStaffRole('+escapeHtml(JSON.stringify(a.email))+')">Remove Role</button>')+'</div>').join('')||'<p class="admin-help">No staff roles assigned yet.</p>';
 }
 async function addAdminPermission(event){
- event.preventDefault();const email=document.getElementById('newAdminEmail').value.trim().toLowerCase(),canAdd=document.getElementById('grantAddProduct').checked,canEdit=document.getElementById('grantEditProduct').checked;
- const {error}=await supabaseClient.rpc('admin_set_product_permissions',{p_email:email,p_can_add:canAdd,p_can_edit:canEdit});
- if(error){adminMessage('permissionMessage','Permission Save not completed: '+error.message,'error');return;}
- document.getElementById('adminPermissionForm').reset();adminMessage('permissionMessage','User permissions updated।','success');await loadAdminPermissions();
+ event.preventDefault();const email=document.getElementById('newAdminEmail').value.trim().toLowerCase(),role=document.getElementById('newStaffRole').value;
+ const {error}=await supabaseClient.rpc('admin_set_user_role',{p_email:email,p_role:role});
+ if(error){adminMessage('permissionMessage','Role save failed: '+error.message,'error');return;}
+ document.getElementById('adminPermissionForm').reset();adminMessage('permissionMessage','Role updated successfully.','success');await loadAdminPermissions();
 }
-async function removeProductPermission(email){
- if(!confirm(email+' of Product Management Revoke Permission will?'))return;
- const {error}=await supabaseClient.rpc('admin_set_product_permissions',{p_email:email,p_can_add:false,p_can_edit:false});
- if(error){alert('Revoke Permission not completed: '+error.message);return;}await loadAdminPermissions();
+async function removeStaffRole(email){
+ if(!confirm(email+' — এই ইউজারের Staff Role সরিয়ে Customer করতে চান?'))return;
+ const {error}=await supabaseClient.rpc('admin_set_user_role',{p_email:email,p_role:'customer'});
+ if(error){alert('Role removal failed: '+error.message);return;}await loadAdminPermissions();
 }
 document.getElementById('apCategory').addEventListener('change',()=>updateProductSubcategories());
 document.getElementById('adminProductForm').addEventListener('submit',saveAdminProduct);
