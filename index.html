@@ -343,7 +343,7 @@ async function refreshAdminAccess(){
  document.querySelector('#newStaffRole option[value="admin"]').hidden=currentAdminRole!=='super_admin';
  document.querySelector('#newStaffRole option[value="super_admin"]').hidden=currentAdminRole!=='super_admin';
  document.querySelector('[data-admin-tab="adminProductManagementPanel"]').style.display=canAddProducts()?'':'none';
- document.querySelector('[data-admin-tab="adminManageProductsPanel"]').style.display=canManageProducts()?'':'none';
+ document.querySelector('[data-admin-tab="adminManageProductsPanel"]').style.display=(canManageProducts()||currentAdminRole==='moderator')?'':'none';
  document.querySelector('[data-admin-tab="adminOrdersPanel"]').style.display=canViewOrders()?'':'none';
  document.querySelector('[data-admin-tab="adminDeliveredPanel"]').style.display=(isAdminRole()||['order_manager','delivery_manager','moderator','viewer'].includes(currentAdminRole))?'':'none';
  document.getElementById('adminProductForm').parentElement.style.display=canAddProducts()?'block':'none';
@@ -367,7 +367,7 @@ async function toggleAdminPanel(){
  const firstVisible=[...document.querySelectorAll('#adminPanel .admin-menu button')].find(b=>b.style.display!=='none');
  if(firstVisible)switchAdminTab(firstVisible);
  const jobs=[];
- if(canManageProducts())jobs.push(loadAdminProducts());
+ if(canManageProducts()||currentAdminRole==='moderator')jobs.push(loadAdminProducts());
  if(canViewOrders())jobs.push(loadAdminOrders());
  if(isAdminRole())jobs.push(loadAdminPermissions());
  if(isAdminRole()||['order_manager','delivery_manager','moderator','viewer'].includes(currentAdminRole))jobs.push(loadDeliveredOrders());
