@@ -156,6 +156,14 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
 .product .wish-heart.active{color:#e11d48;background:rgba(0,0,0,.22)}
 .product .wish-heart.active svg{fill:#e11d48;stroke:#e11d48}
 .product .wish-heart:hover{background:rgba(0,0,0,.30);filter:none;transform:scale(1.08)}
+
+/* Delivered report: fit every column to viewport; vertical scrolling only */
+.delivery-report-fit{width:100%;max-width:100%;min-width:0;overflow-x:hidden;border:1px solid #ddd;border-radius:7px}
+.delivery-report-fit table{width:100%;max-width:100%;table-layout:fixed;border-collapse:collapse;font-size:clamp(7px,.78vw,10px);line-height:1.25}
+.delivery-report-fit th{background:#111;color:#fff;padding:4px 2px;text-align:left;border:1px solid #333;overflow-wrap:anywhere;word-break:break-word}
+.delivery-report-fit td{padding:4px 2px;border:1px solid #eee;vertical-align:top;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
+#adminDeliveredPanel,#adminDeliveredList{width:100%;max-width:100%;min-width:0;overflow-x:hidden}
+@media(max-width:600px){.delivery-report-fit table{font-size:7px}.delivery-report-fit th,.delivery-report-fit td{padding:3px 1px}}
 </style>
 </head>
 <body>
@@ -407,7 +415,7 @@ async function loadDeliveredOrders(){
  if(!orders.length){box.innerHTML='<p class="admin-help">No delivered orders yet. Change an order status to Delivered to see it here.</p>';return;}
  const headers=['অর্ডার নম্বর','ডেলিভারির তারিখ','ক্রেতার নাম','মোবাইল','ঠিকানা','পণ্য','পরিমাণ','মোট টাকা','পেমেন্ট'];
  const rows=orders.map(o=>'<tr><td>'+escapeHtml(String(o.id).slice(0,8))+'</td><td>'+escapeHtml(new Date(o.created_at).toLocaleDateString('bn-BD'))+'</td><td>'+escapeHtml(o.customer_name||'')+'</td><td>'+escapeHtml(o.phone||'')+'</td><td>'+escapeHtml(o.delivery_address||'')+'</td><td>'+((o.order_items||[]).map(i=>escapeHtml(i.product_name)+' × '+Number(i.quantity)).join(', ')||'—')+'</td><td>'+((o.order_items||[]).reduce((n,i)=>n+Number(i.quantity||0),0))+'</td><td><b>'+money(o.total_amount)+'</b></td><td>'+((o.payment_method==='cod'?'ক্যাশ অন ডেলিভারি':'bKash')+' · '+(o.payment_status==='paid'?'পরিশোধিত':'বাকি'))+'</td></tr>').join('');
- box.innerHTML='<div style="width:100%;max-width:100%;overflow:visible;border:1px solid #ddd;border-radius:7px"><table style="width:100%;table-layout:fixed;border-collapse:collapse;white-space:normal;overflow-wrap:anywhere;word-break:break-word;font-size:clamp(8px,1.05vw,12px)"><thead><tr>'+headers.map(h=>'<th style="background:#111;color:#fff;padding:6px 3px;text-align:left;border:1px solid #333;overflow-wrap:anywhere">'+h+'</th>').join('')+'</tr></thead><tbody>'+rows.replace(/<tr>/g,'<tr style="border-bottom:1px solid #e5e5e5">').replace(/<td>/g,'<td style="padding:6px 3px;border:1px solid #eee;vertical-align:top;white-space:normal;overflow-wrap:anywhere;word-break:break-word">')+'</tbody></table></div><p class="admin-help">সব কলাম একসঙ্গে দেখাবে; স্ক্রল করতে হবে না। জায়গা কম হলে লেখা একাধিক লাইনে ভাঙবে।</p>';
+ box.innerHTML='<div class="delivery-report-fit"><table><colgroup><col style="width:8%"><col style="width:10%"><col style="width:11%"><col style="width:10%"><col style="width:17%"><col style="width:17%"><col style="width:6%"><col style="width:10%"><col style="width:11%"></colgroup><thead><tr>'+headers.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>'+rows+'</tbody></table></div><p class="admin-help">প্রতিটি অর্ডার আলাদা সারিতে থাকবে; সব কলাম একই স্ক্রিনের প্রস্থে দেখা যাবে। অর্ডার বেশি হলে শুধু নিচে স্ক্রল হবে।</p>';
 }
 async function updateOrderStatus(id,status){
  if(!canManageOrders()){alert('You do not have permission to update orders.');await loadAdminOrders();return;}
