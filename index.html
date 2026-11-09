@@ -432,7 +432,7 @@ async function saveAdminProduct(event){
    full_description:document.getElementById('apFullDescription').value.trim()||document.getElementById('apDescription').value.trim(),
    is_active:document.getElementById('apActive').value==='true'};
   const files=[...document.getElementById('apImage').files];
-  if(files.length>8)throw new Error('একটি প্রোডাক্টে সর্বোচ্চ ৮টি ছবি দেওয়া যাবে।');
+  if(files.length+(editingProductImageUrls.length||0)>8)throw new Error('আগের ছবিসহ একটি প্রোডাক্টে সর্বোচ্চ ৮টি ছবি রাখা যাবে।');
   if(files.some(file=>!['image/jpeg','image/png','image/webp'].includes(file.type)))throw new Error('Only JPG, PNG, or WebP images are allowed।');
   if(files.some(file=>file.size>5*1024*1024))throw new Error('প্রতিটি ছবির সাইজ 5 MB বা কম হতে হবে।');
   const uploadedUrls=[];
