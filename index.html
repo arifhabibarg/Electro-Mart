@@ -188,7 +188,7 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
 <section class="admin-wrap" id="adminPanel">
  <div class="admin-shell">
   <div class="admin-top"><div><h2>ElectroMart Admin Panel</h2><p>Only authorized administrators can manage products and access.</p></div><button class="admin-close" type="button" onclick="toggleAdminPanel()">Close ✕</button></div>
-  <nav class="admin-menu" aria-label="Admin menu"><button type="button" class="active" data-admin-tab="adminProductManagementPanel" onclick="switchAdminTab(this)">🛍 Product Management</button><button type="button" data-admin-tab="adminManageProductsPanel" onclick="switchAdminTab(this)">📦 Manage Products</button><button type="button" data-admin-tab="adminDeliveredPanel" onclick="switchAdminTab(this)">🚚 Product Delivery Report</button><button type="button" data-admin-tab="adminOrdersPanel" onclick="switchAdminTab(this)">🧾 Order Management</button><button type="button" id="adminPermissionMenuBtn" data-admin-tab="adminUserPermissionsPanel" onclick="switchAdminTab(this)">👥 Staff & Roles</button></nav>
+  <nav class="admin-menu" aria-label="Admin menu"><button type="button" class="active" data-admin-tab="adminProductManagementPanel" onclick="switchAdminTab(this)">🛍 Product Management</button><button type="button" data-admin-tab="adminManageProductsPanel" onclick="switchAdminTab(this)">📦 Manage Products</button><button type="button" data-admin-tab="adminDeliveredPanel" onclick="switchAdminTab(this)">🚚 Product Delivery Report</button><button type="button" data-admin-tab="adminOrdersPanel" onclick="switchAdminTab(this)">🧾 Order Management</button><button type="button" id="adminPermissionMenuBtn" data-admin-tab="adminUserPermissionsPanel" onclick="switchAdminTab(this)">👥 Staff & Roles</button><button type="button" id="adminFinanceMenuBtn" data-admin-tab="adminFinancePanel" onclick="switchAdminTab(this)">💰 হিসাব ও লাভ</button></nav>
   <div class="admin-grid">
    <section class="admin-card admin-tab-panel active" id="adminProductManagementPanel">
     <h3 id="productFormTitle">➕ Add New Product</h3>
@@ -197,7 +197,7 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
       <div class="admin-field full"><label for="apName">Product Name *</label><input id="apName" required maxlength="150" placeholder="e.g.: Samsung Galaxy A55"></div>
       <div class="admin-field"><label for="apModel">Model Number</label><input id="apModel" maxlength="100" placeholder="e.g.: SM-A556E"></div>
       <div class="admin-field"><label for="apDiscount">Product Discount</label><select id="apDiscount"><option value="0">No Discount (0%)</option><option value="5" selected>5% OFF</option><option value="10">10% OFF</option><option value="15">15% OFF</option><option value="20">20% OFF</option><option value="25">25% OFF</option><option value="30">30% OFF</option><option value="35">35% OFF</option><option value="40">40% OFF</option><option value="45">45% OFF</option><option value="50">50% OFF</option><option value="60">60% OFF</option><option value="70">70% OFF</option></select></div>
-      <div class="admin-field"><label for="apPrice">Price (৳) *</label><input id="apPrice" type="number" min="0" step="0.01" required></div>
+      <div class="admin-field"><label for="apCostPrice">ক্রয়/তৈরির মোট খরচ (৳)</label><input id="apCostPrice" type="number" min="0" step="0.01" placeholder="যেমন: 1000"><small class="admin-help">এই খরচ শুধু অ্যাডমিনের হিসাবের জন্য; ক্রেতারা দেখবে না।</small></div><div class="admin-field"><label for="apPrice">বিক্রয় মূল্য (৳) *</label><input id="apPrice" type="number" min="0" step="0.01" required></div>
       <div class="admin-field"><label for="apStock">Stock *</label><input id="apStock" type="number" min="0" step="1" required value="1"></div>
       <div class="admin-field"><label for="apCategory">Category *</label><select id="apCategory" required onchange="updateProductSubcategories()"><option value="">Select</option><option>Smartphones</option><option>Laptops</option><option>Tablets</option><option>Audio</option><option>Smartwatches</option><option>Cameras</option><option>Accessories</option><option>Gaming</option><option>TV</option><option>Home Appliances</option><option>Deals</option></select></div><div class="admin-field"><label for="apSubcategory">Subcategory *</label><select id="apSubcategory" required><option value="">First Category Select</option></select></div><div class="admin-field"><label for="apBrand">Brand *</label><select id="apBrand" required><option value="">First Category Select</option></select></div>
       <div class="admin-field"><label for="apImage">Product Photos (maximum 8) *</label><input id="apImage" type="file" accept="image/jpeg,image/png,image/webp" multiple><small class="admin-help">একসঙ্গে সর্বোচ্চ ৮টি JPG, PNG বা WebP ছবি দিন। প্রতিটি ছবি সর্বোচ্চ 5 MB।</small></div>
@@ -213,7 +213,8 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
     <section class="admin-card admin-tab-panel" id="adminManageProductsPanel"><h3>📦 Manage Products</h3><div id="adminProductList"><p class="admin-help">Loading...</p></div></section>
     <section class="admin-card admin-tab-panel" id="adminUserPermissionsPanel" style="margin-top:16px;display:none"><h3>👥 Staff & Role Management</h3><form id="adminPermissionForm"><div class="admin-field"><label for="newAdminEmail">Registered User Email</label><input id="newAdminEmail" type="email" required placeholder="user@example.com"></div><div class="admin-field" style="margin-top:12px"><label for="newStaffRole">Assign Role</label><select id="newStaffRole" required><option value="customer">Customer (Remove Staff Access)</option><option value="product_manager">Product Manager</option><option value="order_manager">Order Manager</option><option value="delivery_manager">Delivery Manager</option><option value="moderator">Moderator</option><option value="customer_support">Customer Support</option><option value="inventory_manager">Inventory Manager</option><option value="marketing_manager">Marketing Manager</option><option value="viewer">Viewer</option><option value="admin">Admin</option><option value="super_admin">Super Admin</option></select></div><div class="admin-actions"><button class="admin-primary" type="submit">Save Role</button></div><p class="admin-msg" id="permissionMessage"></p></form><div id="adminPermissionList"></div><p class="admin-help">User must already have an ElectroMart account. Admin/Super Admin roles require Super Admin authority.</p></section>
     <section class="admin-card admin-tab-panel" id="adminOrdersPanel" style="margin-top:16px"><h3>🧾 Order Management</h3><div id="adminOrdersList"><p class="admin-help">Loading orders...</p></div></section>
-    <section class="admin-card admin-tab-panel" id="adminDeliveredPanel" style="margin-top:16px"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><h3>📦 Delivered Products Report</h3><button class="admin-secondary" type="button" onclick="loadDeliveredOrders()">Refresh Report</button></div><div id="adminDeliveredSummary" class="admin-help">Loading delivered orders...</div><div id="adminDeliveredList"></div></section>
+    <section class="admin-card admin-tab-panel" id="adminFinancePanel"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><h3>💰 ব্যবসার হিসাব ও লাভ-ক্ষতি</h3><button class="admin-secondary" type="button" onclick="loadFinanceReport()">হিসাব রিফ্রেশ</button></div><p class="admin-help">শুধু Delivered অর্ডারের বিক্রয় ও সংরক্ষিত ক্রয়/তৈরির খরচ ধরে মোট লাভ হিসাব হবে। ডেলিভারি/প্যাকেজিংয়ের অতিরিক্ত খরচ এখানে বাদ দেওয়া হয়নি।</p><div id="financeSummary" class="admin-help">হিসাব লোড হচ্ছে...</div><div id="financeOrders"></div></section>
+   <section class="admin-card admin-tab-panel" id="adminDeliveredPanel" style="margin-top:16px"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><h3>📦 Delivered Products Report</h3><button class="admin-secondary" type="button" onclick="loadDeliveredOrders()">Refresh Report</button></div><div id="adminDeliveredSummary" class="admin-help">Loading delivered orders...</div><div id="adminDeliveredList"></div></section>
    </div>
   </div>
  </div>
@@ -342,7 +343,7 @@ async function refreshAdminAccess(){
   const setDisplay=(selector,value)=>{const el=document.querySelector(selector);if(el)el.style.display=value;};
   const setId=(id,value)=>{const el=document.getElementById(id);if(el)el.style.display=value;};
   setId('adminPermissionCard',isAdminRole()?'block':'none');
-  setId('adminPermissionMenuBtn',isAdminRole()?'':'none');
+  setId('adminPermissionMenuBtn',isAdminRole()?'':'none');setId('adminFinanceMenuBtn',isAdminRole()?'':'none');
   setDisplay('#newStaffRole option[value="admin"]',currentAdminRole==='super_admin'?'':'none');
   setDisplay('#newStaffRole option[value="super_admin"]',currentAdminRole==='super_admin'?'':'none');
   setDisplay('[data-admin-tab="adminProductManagementPanel"]',canAddProducts()?'':'none');
@@ -373,7 +374,7 @@ async function toggleAdminPanel(){
  const jobs=[];
  if(canManageProducts()||currentAdminRole==='moderator')jobs.push(loadAdminProducts());
  if(canViewOrders())jobs.push(loadAdminOrders());
- if(isAdminRole())jobs.push(loadAdminPermissions());
+ if(isAdminRole())jobs.push(loadAdminPermissions());if(isAdminRole())jobs.push(loadFinanceReport());
  if(isAdminRole()||['order_manager','delivery_manager','moderator','viewer'].includes(currentAdminRole))jobs.push(loadDeliveredOrders());
  await Promise.all(jobs);
 }
@@ -384,6 +385,17 @@ async function loadAdminOrders(){
  if(!data?.length){box.innerHTML='<p class="admin-help">No orders yet।</p>';return;}
  const labels={pending:'Pending',confirmed:'Confirmed',shipped:'Shipped',delivered:'Delivered',cancelled:'Cancelled'};
   box.innerHTML=data.map(o=>{const orderId=escapeHtml(o.id);const items=(o.order_items||[]).map(i=>escapeHtml(i.product_name)+' × '+Number(i.quantity)+' ('+money(i.unit_price)+')').join('<br>');const statuses=currentAdminRole==='delivery_manager'?['shipped','delivered']:['pending','confirmed','shipped','delivered','cancelled'];const options=statuses.map(st=>'<option value="'+st+'" '+(o.order_status===st?'selected':'')+'>'+labels[st]+'</option>').join('');return '<article class="admin-order-card" style="border:1px solid #eee;border-radius:7px;padding:12px;margin:10px 0"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>Order '+escapeHtml(String(o.id).slice(0,8))+'</b><b>'+money(o.total_amount)+'</b></div><p class="admin-help">'+escapeHtml(o.customer_name)+' · '+escapeHtml(o.phone)+'</p><p class="admin-help">'+escapeHtml(o.delivery_address)+'</p><div class="admin-help">'+items+'</div><p class="admin-help">Payment: '+(o.payment_method==='cod'?'Cash on Delivery':'bKash')+' · '+(o.payment_status==='paid'?'Paid':'Unpaid')+' · '+escapeHtml(new Date(o.created_at).toLocaleString('bn-BD'))+'</p><label style="font-size:12px;font-weight:700">Order Status </label><select onchange="updateOrderStatus(\''+orderId+'\',this.value)" style="padding:8px;border:1px solid #ddd;border-radius:5px" '+(canManageOrders()?'':'disabled')+'>'+options+'</select></article>';}).join('');
+}
+async function loadFinanceReport(){
+ const summary=document.getElementById('financeSummary'),box=document.getElementById('financeOrders');if(!summary||!box)return;
+ summary.textContent='হিসাব লোড হচ্ছে...';box.innerHTML='';
+ const {data,error}=await supabaseClient.from('orders').select('id,customer_name,created_at,total_amount,order_items(id,product_name,quantity,unit_price,order_item_costs(unit_cost))').eq('order_status','delivered').order('created_at',{ascending:false}).limit(500);
+ if(error){summary.textContent='হিসাব লোড হয়নি: '+error.message;return;}
+ const orders=data||[];let revenue=0,cost=0,knownLines=0,missingLines=0,units=0;
+ const rows=orders.map(o=>{let orderRevenue=0,orderCost=0,orderMissing=false;const items=(o.order_items||[]).map(i=>{const qty=Number(i.quantity||0),sale=Number(i.unit_price||0),rel=i.order_item_costs,record=Array.isArray(rel)?rel[0]:rel,unitCost=record?.unit_cost;const lineRevenue=sale*qty;orderRevenue+=lineRevenue;units+=qty;if(unitCost===null||unitCost===undefined){orderMissing=true;missingLines++;return '<div>'+escapeHtml(i.product_name)+' × '+qty+' · বিক্রি '+money(lineRevenue)+' · খরচ দেওয়া নেই</div>';}const lineCost=Number(unitCost)*qty;orderCost+=lineCost;cost+=lineCost;knownLines++;return '<div>'+escapeHtml(i.product_name)+' × '+qty+' · বিক্রি '+money(lineRevenue)+' · খরচ '+money(lineCost)+' · লাভ '+money(lineRevenue-lineCost)+'</div>';}).join('');
+ revenue+=orderRevenue;return '<article class="admin-order-card" style="border:1px solid #e5e5e5;border-radius:8px;padding:12px;margin:10px 0"><b>অর্ডার '+escapeHtml(String(o.id).slice(0,8))+' · '+money(orderRevenue)+'</b><p class="admin-help">'+escapeHtml(o.customer_name||'')+' · '+escapeHtml(new Date(o.created_at).toLocaleString('bn-BD'))+'</p><div class="admin-help">'+items+'</div><p><b>এই অর্ডারের মোট লাভ:</b> '+(orderMissing?'সম্পূর্ণ নয় — কিছু পণ্যের খরচ নেই':money(orderRevenue-orderCost))+'</p></article>';});
+ const profit=revenue-cost;summary.innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:9px;margin:12px 0"><div class="admin-card"><small>মোট বিক্রয়</small><h3>'+money(revenue)+'</h3></div><div class="admin-card"><small>সংরক্ষিত পণ্যের খরচ</small><h3>'+money(cost)+'</h3></div><div class="admin-card"><small>মোট লাভ (যেসব খরচ জানা)</small><h3>'+money(profit)+'</h3></div><div class="admin-card"><small>Delivered অর্ডার / ইউনিট</small><h3>'+orders.length+' / '+units+'</h3></div></div><p class="admin-help">খরচের তথ্য পাওয়া গেছে '+knownLines+'টি পণ্য লাইনে; খরচ দেওয়া নেই '+missingLines+'টি লাইনে। পুরনো অর্ডারের খরচ আগে সংরক্ষিত না থাকলে সেগুলো পূর্ণ লাভে ধরা হয়নি।</p>';
+ box.innerHTML=rows.join('')||'<p class="admin-help">এখনও কোনো Delivered অর্ডার নেই।</p>';
 }
 async function loadDeliveredOrders(){
  const box=document.getElementById('adminDeliveredList'),summary=document.getElementById('adminDeliveredSummary');if(!box||!summary)return;
@@ -450,7 +462,7 @@ async function loadAdminProducts(){
 }
 let editingProductImageUrls=[];
 function resetAdminProductForm(){
- editingProductId=null;editingProductImageUrls=[];document.getElementById('adminProductForm').reset();document.getElementById('apStock').value=1;document.getElementById('apDiscount').value='5';document.getElementById('apSubcategory').innerHTML='<option value="">First Category Select</option>';document.getElementById('apBrand').innerHTML='<option value="">First Category Select</option>';
+ editingProductId=null;editingProductImageUrls=[];document.getElementById('adminProductForm').reset();document.getElementById('apCostPrice').value='';document.getElementById('apStock').value=1;document.getElementById('apDiscount').value='5';document.getElementById('apSubcategory').innerHTML='<option value="">First Category Select</option>';document.getElementById('apBrand').innerHTML='<option value="">First Category Select</option>';
  document.getElementById('productFormTitle').textContent='➕ Add New Product';
  document.getElementById('apSave').textContent='Save Product';adminMessage('apMessage','');
 }
@@ -458,7 +470,7 @@ async function editAdminProduct(id){
  if(!canManageProducts()){alert('Product editing is not allowed for this role.');return;}
  const {data,error}=await supabaseClient.from('products').select('*').eq('id',id).single();
  if(error||!data){adminMessage('apMessage','Product found could not: '+(error?.message||''),'error');return;}
- editingProductId=id;editingProductImageUrls=[...new Set([data.image_url,...(Array.isArray(data.image_urls)?data.image_urls:[])].filter(Boolean))].slice(0,8);document.getElementById('apName').value=data.name||'';document.getElementById('apModel').value=data.model||'';document.getElementById('apDiscount').value=String(data.discount_percent??5);document.getElementById('apPrice').value=data.price??0;
+ editingProductId=id;editingProductImageUrls=[...new Set([data.image_url,...(Array.isArray(data.image_urls)?data.image_urls:[])].filter(Boolean))].slice(0,8);document.getElementById('apName').value=data.name||'';document.getElementById('apModel').value=data.model||'';document.getElementById('apDiscount').value=String(data.discount_percent??5);document.getElementById('apPrice').value=data.price??0;const {data:costRow}=await supabaseClient.from('product_costs').select('cost_price').eq('product_id',id).maybeSingle();document.getElementById('apCostPrice').value=costRow?.cost_price??'';
  document.getElementById('apStock').value=data.stock??0;document.getElementById('apCategory').value=data.category||'';updateProductSubcategories(data.subcategory||'',data.brand||'');
  document.getElementById('apDescription').value=data.description||'';document.getElementById('apFullDescription').value=data.full_description||'';document.getElementById('apActive').value=String(data.is_active);
  document.getElementById('apImage').value='';document.getElementById('productFormTitle').textContent='✏️ Product Edit Please';
@@ -489,9 +501,15 @@ async function saveAdminProduct(event){
   const allImageUrls=[...new Set([...editingProductImageUrls,...uploadedUrls])].slice(0,8);
   if(allImageUrls.length){payload.image_url=allImageUrls[0];payload.image_urls=allImageUrls;}
   let result;
-  if(editingProductId)result=await supabaseClient.from('products').update(payload).eq('id',editingProductId);
-  else result=await supabaseClient.from('products').insert(payload);
+  if(editingProductId)result=await supabaseClient.from('products').update(payload).eq('id',editingProductId).select('id').single();
+  else result=await supabaseClient.from('products').insert(payload).select('id').single();
   if(result.error)throw result.error;
+  if(isAdminRole()){
+   const costValue=document.getElementById('apCostPrice').value.trim();
+   if(costValue==='')throw new Error('অ্যাডমিন হিসাবের জন্য পণ্যের ক্রয়/তৈরির খরচ লিখুন।');
+   const {error:costError}=await supabaseClient.from('product_costs').upsert({product_id:result.data.id,cost_price:Number(costValue),updated_at:new Date().toISOString()},{onConflict:'product_id'});
+   if(costError)throw costError;
+  }
   adminMessage('apMessage',editingProductId?'Product updated successfully।':'New product added successfully।','success');
   resetAdminProductForm();await loadAdminProducts();await loadProducts();
  }catch(error){adminMessage('apMessage',error.message||'Could not save product।','error');}
