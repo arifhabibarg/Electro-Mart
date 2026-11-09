@@ -341,9 +341,19 @@ async function refreshAdminAccess(){
 }
 function switchAdminTab(button){const id=button?.dataset?.adminTab;if(!id)return;document.querySelectorAll("#adminPanel .admin-tab-panel").forEach(p=>p.classList.toggle("active",p.id===id));document.querySelectorAll("#adminPanel .admin-menu button").forEach(b=>b.classList.toggle("active",b===button));const target=document.getElementById(id);if(target)target.scrollTop=0;}
 async function toggleAdminPanel(){
- if(currentAdminRole!=='admin'&&!currentProductPermissions.can_add&&!currentProductPermissions.can_edit){alert('You are not authorized to use this panel।');return;}
+ if(!currentAuthUser?.id){alert('Please log in first।');return;}
+ // Recheck permissions at click time to avoid stale auth-state timing.
+ const {data:profile,error:profileError}=await supabaseClient.from('profiles').select('role').eq('id',currentAuthUser.id).maybeSingle();
+ if(profileError){alert('Admin permission check failed: '+profileError.message);return;}
+ currentAdminRole=profile?.role||'customer';
+ const {data:permission,error:permissionError}=await supabaseClient.from('product_permissions').select('can_add,can_edit').eq('user_id',currentAuthUser.id).maybeSingle();
+ if(permissionError){alert('Permission check failed: '+permissionError.message);return;}
+ currentProductPermissions={can_add:!!permission?.can_add,can_edit:!!permission?.can_edit};
+ const admin=currentAdminRole==='admin';
+ document.getElementById('adminNavBtn').classList.toggle('show',admin||currentProductPermissions.can_add||currentProductPermissions.can_edit);
+ if(!admin&&!currentProductPermissions.can_add&&!currentProductPermissions.can_edit){alert('You are not authorized to use this panel।');return;}
  const panel=document.getElementById('adminPanel');panel.classList.toggle('show');
- if(panel.classList.contains('show')){const jobs=[];if(currentAdminRole==='admin'||currentProductPermissions.can_edit)jobs.push(loadAdminProducts());if(currentAdminRole==='admin')jobs.push(loadAdminOrders(),loadAdminPermissions(),loadDeliveredOrders());await Promise.all(jobs);}
+ if(panel.classList.contains('show')){const jobs=[];if(admin||currentProductPermissions.can_edit)jobs.push(loadAdminProducts());if(admin)jobs.push(loadAdminOrders(),loadAdminPermissions(),loadDeliveredOrders());await Promise.all(jobs);}
 }
 async function loadAdminOrders(){
  const box=document.getElementById('adminOrdersList');if(!box)return;box.innerHTML='<p class="admin-help">Loading orders...</p>';
