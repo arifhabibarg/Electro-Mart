@@ -61,6 +61,24 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
 .detail-image-wrap>img{width:100%;height:330px;object-fit:contain;transition:opacity .25s ease}
 .detail-image-thumbs{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;width:100%}.detail-image-thumb{width:62px;height:62px;border:1px solid #e5e5e5;border-radius:6px;background:#fff;padding:4px;cursor:pointer}.detail-image-thumb.active{border:2px solid #c49b00}.detail-image-thumb img{width:100%;height:100%;object-fit:contain}
 .product-photo-wrap .photo{transition:none}
+
+.all-categories-nav-btn{height:36px;padding:0 14px;border:1px solid #f5c400;border-radius:5px;background:#f5c400;color:#111;font-size:12px;font-weight:900;white-space:nowrap;cursor:pointer}
+.all-categories-popup{position:fixed;top:var(--site-header-height,122px);right:12px;z-index:10001;width:min(820px,calc(100vw - 24px));max-height:72vh;overflow-y:auto;background:#fff;border:1px solid #e5c000;border-radius:0 0 12px 12px;box-shadow:0 18px 48px #0003;padding:16px;transform-origin:top right;animation:allCategoriesPop .22s ease-out}
+@keyframes allCategoriesPop{from{opacity:0;transform:translateY(-16px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.all-categories-popup[hidden]{display:none}
+.all-categories-popup-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.all-categories-popup-head strong{font-size:15px;color:#111}
+.all-categories-popup-close{border:0;background:#f1f1f1;border-radius:50%;width:30px;height:30px;font-size:19px}
+.all-categories-popup-list{display:flex;gap:9px;overflow-x:auto;overflow-y:hidden;padding:2px 2px 12px;white-space:nowrap;scrollbar-width:thin}
+.all-categories-popup-item{flex:0 0 auto;min-width:112px;max-width:180px;padding:10px 14px;border:1px solid #e7e7e7;border-radius:7px;background:#fafafa;color:#222;font-size:12px;font-weight:750;text-align:center}
+.all-categories-popup-item.active{border-color:#c49b00;background:#fff5c7}
+.all-categories-popup-brands{border-top:1px solid #eee;padding-top:13px;scroll-margin-top:42vh}
+.all-categories-popup-brands[hidden]{display:none}
+.all-categories-popup-brands-title{font-size:13px;font-weight:900;color:#222;margin-bottom:10px}
+.all-categories-popup-brand-list{display:flex;flex-wrap:wrap;gap:9px;max-height:30vh;overflow-y:auto}
+.all-categories-popup-brand{padding:9px 13px;border:1px solid #e5e5e5;border-radius:20px;background:#fff;color:#333;font-size:12px;font-weight:700}
+.all-categories-popup-brand:hover{border-color:#c49b00;background:#fff8d9}
+@media(max-width:600px){.all-categories-nav-btn{padding:0 9px;font-size:11px}.all-categories-popup{right:8px;width:calc(100vw - 16px);padding:12px;max-height:72vh}.all-categories-popup-item{min-width:100px}.all-categories-popup-brand-list{max-height:28vh}}
 .detail-contact-banner{margin-top:24px}.detail-page-footer{background:#111;color:#aaa;text-align:center;padding:18px 12px;border-radius:7px;margin-top:10px;font-size:13px}.detail-page-footer b{color:#f5c400}
 .detail-related-section{margin-top:30px;padding-top:22px;border-top:1px solid #eee}.detail-related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px}.detail-related-card{min-width:0;border:1px solid #eee;border-radius:9px;padding:10px;background:#fff;cursor:pointer;transition:transform .18s,border-color .18s}.detail-related-card:hover{transform:translateY(-3px);border-color:#d5ad00}.detail-related-card img{width:100%;height:145px;object-fit:contain;background:#fff}.detail-related-card h4{font-size:13px;line-height:1.4;margin:8px 0;color:#222}.detail-related-card .related-price{font-size:14px;font-weight:900;margin:6px 0}.detail-related-card .related-stock{font-size:11px;color:#777;margin:4px 0}.detail-copy{min-width:0;padding:8px 4px}
 .detail-copy h2{font-size:27px;line-height:1.35;margin:12px 0;color:#171717}
@@ -210,12 +228,10 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
 <div class="searchbar"><select id="searchCategory" class="category-native-select" aria-label="Category"><option value="">All Categories</option><option>Smartphones</option><option>Laptops</option><option>Audio</option><option>Smartwatches</option><option>Cameras</option></select><button type="button" class="category-trigger" id="categoryTrigger" aria-haspopup="dialog" aria-expanded="false"><span id="categoryTriggerLabel">All Categories</span><span class="category-trigger-chevron">⌄</span></button><input id="searchInput" type="search" placeholder="Search products by name or ID..." aria-label="Search"><button type="button" aria-label="Search" onclick="applySearch()">⌕</button></div>
 <div class="header-actions"><button class="head-action" type="button" onclick="showWishlist()"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20.8 4.8a5.4 5.4 0 0 0-7.6 0L12 6l-1.2-1.2a5.4 5.4 0 0 0-7.6 7.6L12 21l8.8-8.6a5.4 5.4 0 0 0 0-7.6Z"/></svg></span><span class="counter" id="wishCount">0</span><span>Wishlist</span></button><button class="head-action track-order-nav" type="button" onclick="openOrderTracking()"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7h11v11H3zM14 10h4l3 3v5h-7z"/><circle cx="7.5" cy="18.5" r="1.8"/><circle cx="17.5" cy="18.5" r="1.8"/></svg></span><span>Track Order</span></button><button class="head-action" type="button" onclick="openCart()"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 4h2l2.2 11.2a2 2 0 0 0 2 1.6h8.9a2 2 0 0 0 1.9-1.4L22 8H6"/><circle cx="10" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/></svg></span><span class="counter" id="cartCount">0</span><span>Cart</span></button></div>
 </div></header>
-<nav class="navbar"><div class="nav-inner"><a class="active" href="#home" onclick="goHome(event)">Home</a><a href="#featured">Shop</a><a href="#deals">Deals</a><a href="#featured">New Arrivals</a><a href="#shopCategories">Brands</a><a href="#footer">Blog</a><a href="#footer">Contact Us</a><button class="admin-nav-btn" id="adminNavBtn" type="button" onclick="toggleAdminPanel()">⚙ Admin Panel</button></div></nav>
+<nav class="navbar"><div class="nav-inner"><a class="active" href="#home" onclick="goHome(event)">Home</a><a href="#featured">Shop</a><a href="#deals">Deals</a><a href="#featured">New Arrivals</a><a href="#shopCategories">Brands</a><a href="#footer">Blog</a><a href="#footer">Contact Us</a><button class="admin-nav-btn" id="adminNavBtn" type="button" onclick="toggleAdminPanel()">⚙ Admin Panel</button><button class="all-categories-nav-btn" id="allCategoriesNavBtn" type="button" aria-expanded="false" onclick="toggleAllCategoriesPopup()">☰ All Categories</button></div></nav>
 </div>
 <main id="home">
-<div class="hero-layout"><aside class="category-sidebar"><div class="side-title">☰ &nbsp; All Categories</div><ul class="category-list" id="sideCategories"></ul></aside>
-</div>
-<section id="categoryDetailPanel" class="category-detail-panel" aria-live="polite"></section>
+<div class="hero-layout" aria-hidden="true"></div>
 <section class="benefits"><div class="benefit"><span class="symbol">♧</span><div><b>Free Shipping</b><small>On orders over ৳5,000</small></div></div><div class="benefit"><span class="symbol">♧</span><div><b>Secure Payment</b><small>100% secure checkout</small></div></div><div class="benefit"><span class="symbol">◉</span><div><b>1 Year Warranty</b><small>Get full protection</small></div></div><div class="benefit"><span class="symbol">⟳</span><div><b>Easy Returns</b><small>7 days return policy</small></div></div></section>
 <section id="shopCategories"><div class="section-head"><h2>Shop by Category</h2><a href="#featured">View All Categories →</a></div><div class="category-cards">
 <button class="category-card" onclick="filterByCategory('Smartphones')"><img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=300&q=75" alt=""><span>Smartphones</span></button>
@@ -611,21 +627,30 @@ function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;',
 
 const SIDE_CATEGORY_META={"Smartphones":["▣","Smartphones"],"Laptops":["▱","Laptops & Computers"],"Tablets":["▣","Tablets"],"Audio":["♫","Audio"],"Smartwatches":["◷","Smartwatches"],"Cameras":["◎","Cameras"],"Accessories":["♡","Accessories"],"Gaming":["♧","Gaming"],"TV":["▣","TV & Home Theater"],"Home Appliances":["▤","Home Appliances"],"Deals":["％","Deals & Offers"]};
 let expandedSideCategory='';
+function ensureAllCategoriesPopup(){
+ let popup=document.getElementById('allCategoriesPopup');
+ if(!popup){popup=document.createElement('section');popup.id='allCategoriesPopup';popup.className='all-categories-popup';popup.hidden=true;popup.setAttribute('aria-label','All product categories');popup.innerHTML='<div class="all-categories-popup-head"><strong>All Categories</strong><button type="button" class="all-categories-popup-close" aria-label="Close categories" onclick="toggleAllCategoriesPopup(false)">×</button></div><div class="all-categories-popup-list" id="allCategoriesPopupList"></div><div class="all-categories-popup-brands" id="allCategoriesPopupBrands" hidden><div class="all-categories-popup-brands-title" id="allCategoriesPopupBrandsTitle">Brands</div><div class="all-categories-popup-brand-list" id="allCategoriesPopupBrandList"></div></div>';document.body.appendChild(popup);document.addEventListener('click',e=>{if(!popup.hidden&&!popup.contains(e.target)&&!e.target.closest('#allCategoriesNavBtn'))toggleAllCategoriesPopup(false);});}
+ return popup;
+}
+function toggleAllCategoriesPopup(force){
+ const popup=ensureAllCategoriesPopup(),btn=document.getElementById('allCategoriesNavBtn'),open=typeof force==='boolean'?force:popup.hidden;
+ popup.hidden=!open;if(btn)btn.setAttribute('aria-expanded',String(open));
+ if(open){renderSideCategories();popup.style.animation='none';void popup.offsetWidth;popup.style.animation='';}
+}
 function renderSideCategories(){
- const list=document.getElementById('sideCategories');if(!list)return;
+ const popup=ensureAllCategoriesPopup(),list=document.getElementById('allCategoriesPopupList');
  const dynamicCategories=[...new Set(allProducts.map(p=>String(p.category||p.category_name||'').trim()).filter(Boolean))];
- const sideMeta={...SIDE_CATEGORY_META};dynamicCategories.forEach(cat=>{if(!sideMeta[cat])sideMeta[cat]=['▣',cat];});
- list.innerHTML=Object.keys(sideMeta).map(cat=>{
-  const meta=sideMeta[cat],isOpen=expandedSideCategory===cat,catArg=escapeHtml(JSON.stringify(cat));
-  return '<li class="side-category '+(isOpen?'expanded':'')+'"><button type="button" class="side-category-toggle" aria-expanded="'+isOpen+'" onclick="toggleSideCategory('+catArg+')"><span class="cat-emoji">'+meta[0]+'</span><span>'+meta[1]+'</span><span class="chev">⌄</span></button></li>';
- }).join('');
- let panel=document.getElementById('sideCategoryDropdown');
- if(!panel){panel=document.createElement('div');panel.id='sideCategoryDropdown';panel.className='category-detail-panel';list.parentElement.appendChild(panel);}
- const cfg=PRODUCT_TAXONOMY[expandedSideCategory]||{brands:[...new Set(allProducts.filter(p=>String(p.category||'')===expandedSideCategory).map(p=>p.brand).filter(Boolean))]};
- const catArg=escapeHtml(JSON.stringify(expandedSideCategory));
- const brandHtml=(cfg.brands||[]).map(brand=>'<button type="button" class="side-brand-button" onclick="filterByBrand('+catArg+','+escapeHtml(JSON.stringify(brand))+')">'+escapeHtml(brand)+'</button>').join('');
- panel.innerHTML=expandedSideCategory?'<div class="category-detail-title">Brand</div><div class="category-detail-brands">'+brandHtml+'</div>':'';
- panel.style.display=expandedSideCategory?'block':'none';
+ const categories=[...new Set([...Object.keys(SIDE_CATEGORY_META),...dynamicCategories])];
+ list.innerHTML=categories.map(cat=>'<button type="button" class="all-categories-popup-item '+(expandedSideCategory===cat?'active':'')+'" aria-pressed="'+(expandedSideCategory===cat)+'" onclick="toggleSideCategory('+escapeHtml(JSON.stringify(cat))+')">'+escapeHtml((SIDE_CATEGORY_META[cat]||['▣',cat])[0])+' &nbsp; '+escapeHtml((SIDE_CATEGORY_META[cat]||['▣',cat])[1])+'</button>').join('');
+ const brandsPanel=document.getElementById('allCategoriesPopupBrands'),brandList=document.getElementById('allCategoriesPopupBrandList'),title=document.getElementById('allCategoriesPopupBrandsTitle');
+ if(!expandedSideCategory){brandsPanel.hidden=true;brandList.innerHTML='';return;}
+ const cfg=PRODUCT_TAXONOMY[expandedSideCategory]||{};
+ const actualBrands=allProducts.filter(p=>String(p.category||p.category_name||'').trim()===expandedSideCategory).map(p=>String(p.brand||'').trim()).filter(Boolean);
+ const brands=[...new Set([...(cfg.brands||[]),...actualBrands])];
+ title.textContent=expandedSideCategory+' · Brands';
+ brandList.innerHTML=brands.length?brands.map(brand=>'<button type="button" class="all-categories-popup-brand" onclick="filterByBrand('+escapeHtml(JSON.stringify(expandedSideCategory))+','+escapeHtml(JSON.stringify(brand))+');toggleAllCategoriesPopup(false)">'+escapeHtml(brand)+'</button>').join(''):'<span style="color:#777;font-size:12px">এই ক্যাটাগরিতে এখনো কোনো ব্র্যান্ড যোগ করা হয়নি।</span>';
+ brandsPanel.hidden=false;
+ requestAnimationFrame(()=>brandsPanel.scrollIntoView({block:'center',behavior:'smooth'}));
 }
 function renderCategoryDetailPanel(){}
 function toggleSideCategory(cat){expandedSideCategory=expandedSideCategory===cat?'':cat;renderSideCategories();}
