@@ -27,7 +27,7 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
 .admin-shell{border:1px solid #e8e8e8;border-radius:10px;overflow:hidden;background:#fff;box-shadow:0 8px 30px #0000000a}
 .admin-top{background:#171717;color:#fff;padding:18px 22px;display:flex;justify-content:space-between;align-items:center;gap:12px}.admin-top h2{margin:0;font-size:20px}.admin-top p{margin:5px 0 0;color:#ccc;font-size:12px}
 .admin-close{border:0;background:#333;color:white;border-radius:5px;padding:9px 12px}
-.admin-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);gap:18px;padding:18px}
+.admin-menu{display:flex;gap:8px;padding:12px 18px;overflow-x:auto;border-bottom:1px solid #eee;background:#fafafa;position:sticky;top:0;z-index:5}.admin-menu button{flex:0 0 auto;border:1px solid #ddd;background:#fff;color:#333;border-radius:7px;padding:10px 13px;font-size:13px;font-weight:700;cursor:pointer}.admin-menu button.active{background:#f5c400;border-color:#e0b400;color:#171717}.admin-tab-panel{display:none!important}.admin-tab-panel.active{display:block!important}.admin-grid{display:block;padding:18px}.admin-tab-content{min-width:0}
 .admin-card{border:1px solid #eee;border-radius:8px;padding:16px;min-width:0}.admin-card h3{margin:0 0 14px;font-size:16px}
 .admin-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.admin-field{display:flex;flex-direction:column;gap:6px}.admin-field.full{grid-column:1/-1}.admin-field label{font-size:12px;font-weight:700;color:#444}.admin-field input,.admin-field textarea,.admin-field select{width:100%;border:1px solid #ddd;border-radius:5px;padding:10px;font:inherit;font-size:13px;min-width:0}.admin-field textarea{min-height:90px;resize:vertical}
 .admin-primary{background:#f5c400;border:0;border-radius:5px;padding:11px 16px;font-weight:800}.admin-secondary{background:#eee;border:0;border-radius:5px;padding:10px 13px;font-weight:700}.admin-danger{background:#fff0ef;color:#b42318;border:1px solid #ffd1cc;border-radius:5px;padding:7px 10px}
@@ -188,8 +188,9 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
 <section class="admin-wrap" id="adminPanel">
  <div class="admin-shell">
   <div class="admin-top"><div><h2>ElectroMart Admin Panel</h2><p>Only authorized administrators can manage products and access.</p></div><button class="admin-close" type="button" onclick="toggleAdminPanel()">Close ✕</button></div>
+  <nav class="admin-menu" aria-label="Admin menu"><button type="button" class="active" data-admin-tab="adminProductManagementPanel" onclick="switchAdminTab(this)">🛍 Product Management</button><button type="button" data-admin-tab="adminManageProductsPanel" onclick="switchAdminTab(this)">📦 Manage Products</button><button type="button" data-admin-tab="adminDeliveredPanel" onclick="switchAdminTab(this)">🚚 Product Delivery Report</button><button type="button" data-admin-tab="adminOrdersPanel" onclick="switchAdminTab(this)">🧾 Order Management</button><button type="button" id="adminPermissionMenuBtn" data-admin-tab="adminUserPermissionsPanel" onclick="switchAdminTab(this)">👥 User Product Permissions</button></nav>
   <div class="admin-grid">
-   <section class="admin-card">
+   <section class="admin-card admin-tab-panel active" id="adminProductManagementPanel">
     <h3 id="productFormTitle">➕ Add New Product</h3>
     <form id="adminProductForm">
      <div class="admin-form-grid">
@@ -208,11 +209,11 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
      <p class="admin-msg" id="apMessage" aria-live="polite"></p>
     </form>
    </section>
-   <div>
-    <section class="admin-card"><h3>📦 Manage Products</h3><div id="adminProductList"><p class="admin-help">Loading...</p></div></section>
-    <section class="admin-card" id="adminPermissionCard" style="margin-top:16px;display:none"><h3>👥 User Product Permissions</h3><form id="adminPermissionForm"><div class="admin-field"><label for="newAdminEmail">User Registered Email</label><input id="newAdminEmail" type="email" required placeholder="user@example.com"></div><div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:13px"><label><input id="grantAddProduct" type="checkbox"> Can Add Products</label><label><input id="grantEditProduct" type="checkbox"> Can Edit Products</label></div><div class="admin-actions"><button class="admin-primary" type="submit">Save Permissions</button></div><p class="admin-msg" id="permissionMessage"></p></form><div id="adminPermissionList"></div><p class="admin-help">The user must first create an ElectroMart account with this email address.। Saving with both permissions disabled will revoke access.।</p></section>
-    <section class="admin-card" id="adminOrdersCard" style="margin-top:16px"><h3>🧾 Order Management</h3><div id="adminOrdersList"><p class="admin-help">Loading orders...</p></div></section>
-    <section class="admin-card" id="adminDeliveredCard" style="margin-top:16px"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><h3>📦 Delivered Products Report</h3><button class="admin-secondary" type="button" onclick="loadDeliveredOrders()">Refresh Report</button></div><div id="adminDeliveredSummary" class="admin-help">Loading delivered orders...</div><div id="adminDeliveredList"></div></section>
+   <div class="admin-tab-content">
+    <section class="admin-card admin-tab-panel" id="adminManageProductsPanel"><h3>📦 Manage Products</h3><div id="adminProductList"><p class="admin-help">Loading...</p></div></section>
+    <section class="admin-card admin-tab-panel" id="adminUserPermissionsPanel" style="margin-top:16px;display:none"><h3>👥 User Product Permissions</h3><form id="adminPermissionForm"><div class="admin-field"><label for="newAdminEmail">User Registered Email</label><input id="newAdminEmail" type="email" required placeholder="user@example.com"></div><div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:13px"><label><input id="grantAddProduct" type="checkbox"> Can Add Products</label><label><input id="grantEditProduct" type="checkbox"> Can Edit Products</label></div><div class="admin-actions"><button class="admin-primary" type="submit">Save Permissions</button></div><p class="admin-msg" id="permissionMessage"></p></form><div id="adminPermissionList"></div><p class="admin-help">The user must first create an ElectroMart account with this email address.। Saving with both permissions disabled will revoke access.।</p></section>
+    <section class="admin-card admin-tab-panel" id="adminOrdersPanel" style="margin-top:16px"><h3>🧾 Order Management</h3><div id="adminOrdersList"><p class="admin-help">Loading orders...</p></div></section>
+    <section class="admin-card admin-tab-panel" id="adminDeliveredPanel" style="margin-top:16px"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><h3>📦 Delivered Products Report</h3><button class="admin-secondary" type="button" onclick="loadDeliveredOrders()">Refresh Report</button></div><div id="adminDeliveredSummary" class="admin-help">Loading delivered orders...</div><div id="adminDeliveredList"></div></section>
    </div>
   </div>
  </div>
@@ -333,10 +334,12 @@ async function refreshAdminAccess(){
  const admin=currentAdminRole==='admin';
  if(admin||currentProductPermissions.can_add||currentProductPermissions.can_edit)nav.classList.add('show');
  document.getElementById('adminPermissionCard').style.display=admin?'block':'none';
+ document.getElementById('adminPermissionMenuBtn').style.display=admin?'':'none';
  document.getElementById('adminProductForm').parentElement.style.display=(admin||currentProductPermissions.can_add)?'block':'none';
  document.getElementById('adminProductList').parentElement.style.display=(admin||currentProductPermissions.can_edit)?'block':'none';
  document.getElementById('adminOrdersCard').style.display=admin?'block':'none';
 }
+function switchAdminTab(button){const id=button?.dataset?.adminTab;if(!id)return;document.querySelectorAll("#adminPanel .admin-tab-panel").forEach(p=>p.classList.toggle("active",p.id===id));document.querySelectorAll("#adminPanel .admin-menu button").forEach(b=>b.classList.toggle("active",b===button));const target=document.getElementById(id);if(target)target.scrollTop=0;}
 async function toggleAdminPanel(){
  if(currentAdminRole!=='admin'&&!currentProductPermissions.can_add&&!currentProductPermissions.can_edit){alert('You are not authorized to use this panel।');return;}
  const panel=document.getElementById('adminPanel');panel.classList.toggle('show');
