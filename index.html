@@ -70,8 +70,8 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
 .all-categories-popup-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
 .all-categories-popup-head strong{font-size:15px;color:#111}
 .all-categories-popup-close{border:0;background:#f1f1f1;border-radius:50%;width:30px;height:30px;font-size:19px}
-.all-categories-popup-list{display:flex;flex-flow:row nowrap;align-items:center;gap:9px;overflow-x:auto;overflow-y:hidden;padding:2px 2px 12px;white-space:nowrap;scrollbar-width:thin;overscroll-behavior-x:contain}
-.all-categories-popup-item{flex:0 0 auto;min-width:112px;max-width:180px;padding:10px 14px;border:1px solid #e7e7e7;border-radius:7px;background:#fafafa;color:#222;font-size:12px;font-weight:750;text-align:center}
+.all-categories-popup-list{display:flex;flex-flow:column nowrap;align-items:stretch;gap:7px;overflow-y:auto;overflow-x:hidden;max-height:42vh;padding:2px 5px 12px 2px;white-space:normal;scrollbar-width:thin;overscroll-behavior-y:contain}
+.all-categories-popup-item{flex:0 0 auto;width:100%;min-width:0;max-width:none;padding:10px 14px;text-align:left;border:1px solid #e7e7e7;border-radius:7px;background:#fafafa;color:#222;font-size:12px;font-weight:750;text-align:center}
 .all-categories-popup-item.active{border-color:#c49b00;background:#fff5c7}
 .all-categories-popup-brands{border-top:1px solid #eee;padding-top:13px;scroll-margin-top:42vh}
 .all-categories-popup-brands[hidden]{display:none}
