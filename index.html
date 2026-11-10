@@ -473,10 +473,10 @@ async function loadFinanceReport(){
   let orderProductCost=0,orderPackaging=0,orderProductOther=0,orderMissing=false;
   const items=(o.order_items||[]).map(i=>{
    const qty=Number(i.quantity||0),rel=i.order_item_costs,record=Array.isArray(rel)?rel[0]:rel,unitCost=record?.unit_cost,unitPackaging=record?.packaging_cost??0,unitOther=record?.other_cost??0;
-   if(unitCost===null||unitCost===undefined){orderMissing=true;missingLines++;return escapeHtml(i.product_name)+' × '+qty+' · ক্রয়মূল্য নেই';}
+   if(unitCost===null||unitCost===undefined){orderMissing=true;missingLines++;return escapeHtml(i.product_name);}
    const lineCost=Number(unitCost)*qty,linePackaging=Number(unitPackaging)*qty,lineOther=Number(unitOther)*qty;
    orderProductCost+=lineCost;orderPackaging+=linePackaging;orderProductOther+=lineOther;productCost+=lineCost;packagingCost+=linePackaging;productOtherCost+=lineOther;knownLines++;
-   return escapeHtml(i.product_name)+' × '+qty+' · ক্রয় '+money(lineCost)+' · প্যাকেজিং '+money(linePackaging)+' · অন্যান্য '+money(lineOther);
+   return escapeHtml(i.product_name);
   }).join('<br>')||'—';
   const courier=Number(o.delivery_cost||0),cod=Number(o.cod_fee||0),other=Number(o.other_cost||0),orderRevenue=Number(o.total_amount||0),delivery=Number(o.customer_delivery_charge||0);
   const net=orderRevenue-orderProductCost-orderPackaging-orderProductOther-courier-cod-other;
