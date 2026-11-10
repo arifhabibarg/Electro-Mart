@@ -654,7 +654,7 @@ async function refreshAdminAccess(){
 function switchAdminTab(button){const id=button?.dataset?.adminTab;if(!id)return;document.querySelectorAll("#adminPanel .admin-tab-panel").forEach(p=>p.classList.toggle("active",p.id===id));document.querySelectorAll("#adminPanel .admin-menu button").forEach(b=>b.classList.toggle("active",b===button));const target=document.getElementById(id);if(target)target.scrollTop=0;}
 async function toggleAdminPanel(){
  const panel=document.getElementById('adminPanel');
- if(panel.classList.contains('show')){panel.classList.remove('show');return;}
+ if(panel.classList.contains('show')){panel.classList.remove('show');sessionStorage.removeItem('electromart_admin_panel_open');return;}
  if(!currentAuthUser?.id){alert('Please log in first।');return;}
  const {data:profile,error:profileError}=await supabaseClient.from('profiles').select('role').eq('id',currentAuthUser.id).maybeSingle();
  if(profileError){alert('Role check failed: '+profileError.message);return;}
@@ -665,6 +665,7 @@ async function toggleAdminPanel(){
  await refreshAdminAccess();
  if(currentAdminRole==='customer'&&!currentProductPermissions.can_add&&!currentProductPermissions.can_edit){alert('You are not authorized to use this panel।');return;}
  panel.classList.add('show');
+ sessionStorage.setItem('electromart_admin_panel_open','1');
  const firstVisible=[...document.querySelectorAll('#adminPanel .admin-menu button')].find(b=>b.style.display!=='none');
  if(firstVisible)switchAdminTab(firstVisible);
  const jobs=[];
@@ -866,7 +867,7 @@ document.getElementById('apCategory').addEventListener('change',()=>updateProduc
 ['apCategory','apSubcategory','apBrand'].forEach(syncProductSearchSelect);document.getElementById('adminProductForm').addEventListener('submit',saveAdminProduct);
 document.getElementById('adminPermissionForm').addEventListener('submit',addAdminPermission);
 
-async function initAuth(){const {data}=await supabaseClient.auth.getSession();updateAuthUI(data.session?.user||null);supabaseClient.auth.onAuthStateChange((_event,session)=>updateAuthUI(session?.user||null));}
+async function initAuth(){const {data}=await supabaseClient.auth.getSession();updateAuthUI(data.session?.user||null);if(!data.session?.user){sessionStorage.removeItem('electromart_admin_panel_open');}else if(sessionStorage.getItem('electromart_admin_panel_open')==='1'){await toggleAdminPanel();}supabaseClient.auth.onAuthStateChange((_event,session)=>{updateAuthUI(session?.user||null);if(!session)sessionStorage.removeItem('electromart_admin_panel_open');});}
 
 let allProducts=[],activeCategory='',activeSubcategory='',activeBrand='',cart={},wishlist=new Set(JSON.parse(localStorage.getItem('electromart_wishlist')||'[]').map(String));
 const money=n=>'৳'+Number(n||0).toLocaleString('en-BD');
