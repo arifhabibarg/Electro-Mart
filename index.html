@@ -547,7 +547,7 @@ async function saveProfileAddress(event){event.preventDefault();const btn=docume
 async function setDefaultProfileAddress(id){const u=currentAuthUser;if(!u)return;const {error:e1}=await supabaseClient.from('user_addresses').update({is_default:false}).eq('user_id',u.id);if(e1){alert(e1.message);return;}const {error:e2}=await supabaseClient.from('user_addresses').update({is_default:true}).eq('id',id).eq('user_id',u.id);if(e2)alert(e2.message);await loadProfileAddresses();}
 async function deleteProfileAddress(id){if(!confirm('Delete this saved address?'))return;const {error}=await supabaseClient.from('user_addresses').delete().eq('id',id).eq('user_id',currentAuthUser.id);if(error){alert(error.message);return;}await loadProfileAddresses();}
 function closeProfile(){document.getElementById('profileEditPanel').hidden=true;document.getElementById('profileBackdrop').classList.remove('show');document.body.style.overflow='';hideAddressForm();}
-async function logoutAccount(){const {error}=await supabaseClient.auth.signOut();if(error){alert('Log Out not completed: '+error.message);return;}closeProfile();updateAuthUI(null);}
+async function logoutAccount(){window.checkoutAutofillLoaded=false;const {error}=await supabaseClient.auth.signOut();if(error){alert('Log Out not completed: '+error.message);return;}closeProfile();updateAuthUI(null);}
 
 let currentAdminRole=null,currentProductPermissions={can_add:false,can_edit:false},editingProductId=null;
 const PRODUCT_TAXONOMY={
