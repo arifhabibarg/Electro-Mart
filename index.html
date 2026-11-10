@@ -528,6 +528,32 @@ function closeAuth(){document.getElementById('authBackdrop').classList.remove('s
 function setAuthMode(mode){authMode=mode;const signup=mode==='signup';document.getElementById('loginTab').classList.toggle('active',!signup);document.getElementById('signupTab').classList.toggle('active',signup);document.getElementById('nameField').hidden=!signup;document.getElementById('authName').required=signup;document.getElementById('authPassword').autocomplete=signup?'new-password':'current-password';document.getElementById('authSubmit').textContent=signup?'Account Create Please':'Log In';document.getElementById('authTitle').textContent=signup?'Create your ElectroMart account':'Welcome back!';document.getElementById('authMessage').textContent='';}
 function authMessage(message,type=''){const el=document.getElementById('authMessage');el.textContent=message;el.className='auth-message '+type;}
 async function submitAuth(event){event.preventDefault();if(!authCaptchaToken){authMessage('আগে নিরাপত্তা যাচাই সম্পন্ন করুন।','error');return;}const captchaToken=authCaptchaToken;const email=document.getElementById('authEmail').value.trim().toLowerCase(),password=document.getElementById('authPassword').value,button=document.getElementById('authSubmit');button.disabled=true;button.textContent='Please wait...';authMessage('');try{if(authMode==='signup'){const fullName=document.getElementById('authName').value.trim(),{data,error}=await supabaseClient.auth.signUp({email,password,options:{captchaToken,data:{full_name:fullName,signup_method:'email'}}});if(error)throw error;if(data.session){authMessage('অ্যাকাউন্ট তৈরি হয়েছে এবং লগইন সম্পন্ন।','success');updateAuthUI(data.user);setTimeout(closeAuth,900);}else authMessage('ইমেইলে পাঠানো লিংক দিয়ে অ্যাকাউন্ট চালু করুন।','success');}else{const {data,error}=await supabaseClient.auth.signInWithPassword({email,password,options:{captchaToken}});if(error)throw error;authMessage('লগইন সফল হয়েছে।','success');updateAuthUI(data.user);setTimeout(closeAuth,700);}}catch(error){authMessage(error.message||'আবার চেষ্টা করুন।','error');}finally{resetAuthCaptcha();button.disabled=false;button.textContent=authMode==='signup'?'Account Create Please':'Log In';}}
+function updateAuthUI(user){
+ currentAuthUser=user||null;
+ const avatar=document.getElementById('profileHeaderAvatar');
+ const fallback=document.getElementById('authButtonFallback');
+ const nameLabel=document.getElementById('authButtonText');
+ const nameButton=document.getElementById('authNameButton');
+ const photoButton=document.getElementById('authButton');
+ if(!currentAuthUser){
+  if(avatar){avatar.hidden=true;avatar.removeAttribute('src');}
+  if(fallback)fallback.hidden=false;
+  if(nameLabel)nameLabel.textContent='Login / Signup';
+  if(nameButton){nameButton.onclick=()=>openAuth();nameButton.setAttribute('aria-label','Login or sign up');}
+  if(photoButton){photoButton.title='Login / Signup';photoButton.setAttribute('aria-label','Login / Signup');}
+  return;
+ }
+ const metadata=currentAuthUser.user_metadata||{};
+ const fullName=String(metadata.full_name||currentAuthUser.email||'My Account').trim();
+ const avatarUrl=metadata.avatar_url||'';
+ if(nameLabel)nameLabel.textContent=fullName;
+ if(nameButton){nameButton.onclick=()=>openProfile().catch(e=>console.error('Profile open failed:',e));nameButton.setAttribute('aria-label','Open profile');}
+ if(photoButton){photoButton.title='Profile photo';photoButton.setAttribute('aria-label','Open profile');}
+ if(avatar){
+  if(avatarUrl){avatar.src=avatarUrl;avatar.hidden=false;avatar.onerror=()=>{avatar.hidden=true;if(fallback)fallback.hidden=false;};if(fallback)fallback.hidden=true;}
+  else{avatar.hidden=true;avatar.removeAttribute('src');if(fallback)fallback.hidden=false;}
+ }
+}
 function showProfileEdit(){const u=currentAuthUser;if(!u)return;document.getElementById('profileEditName').value=document.getElementById('profileName').textContent==='Name not provided'?'':document.getElementById('profileName').textContent;document.getElementById('profileEditPhone').value=document.getElementById('profilePhone').textContent==='Not added'?'':document.getElementById('profilePhone').textContent;document.getElementById('profileEditMessage').textContent='';document.getElementById('profileEditPanel').hidden=false;}
 function hideProfileEdit(){document.getElementById('profileEditPanel').hidden=true;}
 async function saveProfileEdit(event){event.preventDefault();const u=currentAuthUser,btn=document.getElementById('profileEditSave'),msg=document.getElementById('profileEditMessage');if(!u)return;const full_name=document.getElementById('profileEditName').value.trim(),phone=document.getElementById('profileEditPhone').value.trim();if(phone&&!/^[+0-9()\-\s]{7,20}$/.test(phone)){msg.textContent='সঠিক মোবাইল নম্বর লিখুন।';return;}btn.disabled=true;btn.textContent='Saving...';msg.textContent='';try{const {data:updatedProfile,error:profileError}=await supabaseClient.from('profiles').update({full_name,phone}).eq('id',u.id).select('id,full_name,phone').maybeSingle();if(profileError)throw profileError;if(!updatedProfile)throw new Error('প্রোফাইল রেকর্ড পাওয়া যায়নি বা আপডেটের অনুমতি নেই। আবার লগইন করে চেষ্টা করুন।');const {data,error}=await supabaseClient.auth.updateUser({data:{full_name,phone}});if(error)throw error;currentAuthUser=data.user||u;document.getElementById('profileName').textContent=full_name;document.getElementById('profilePhone').textContent=phone||'Not added';updateAuthUI(currentAuthUser);msg.textContent='প্রোফাইল আপডেট হয়েছে।';setTimeout(()=>hideProfileEdit(),700);}catch(e){msg.textContent='আপডেট হয়নি: '+(e.message||'আবার চেষ্টা করুন।');}finally{btn.disabled=false;btn.textContent='Save Changes';}}
