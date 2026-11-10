@@ -414,7 +414,7 @@ async function refreshAdminAccess(){
   setId('adminPermissionMenuBtn',isAdminRole()?'':'none');setId('adminFinanceMenuBtn',isAdminRole()?'':'none');setId('apCostField',isAdminRole()?'':'none');
   setDisplay('#newStaffRole option[value="admin"]',currentAdminRole==='super_admin'?'':'none');
   setDisplay('#newStaffRole option[value="super_admin"]',currentAdminRole==='super_admin'?'':'none');
-  setDisplay('[data-admin-tab="adminProductManagementPanel"]',canAddProducts()?'':'none');
+  setDisplay('[data-admin-tab="adminProductManagementPanel"]',(canAddProducts()||canManageProducts())?'':'none');
   setDisplay('[data-admin-tab="adminManageProductsPanel"]',(canManageProducts()||currentAdminRole==='moderator')?'':'none');
   setDisplay('[data-admin-tab="adminOrdersPanel"]',canViewOrders()?'':'none');
   setDisplay('[data-admin-tab="adminDeliveredPanel"]',(isAdminRole()||['order_manager','delivery_manager','moderator','viewer'].includes(currentAdminRole))?'':'none');
@@ -548,11 +548,11 @@ async function editAdminProduct(id){
  if(!canManageProducts()){alert('Product editing is not allowed for this role.');return;}
  const {data,error}=await supabaseClient.from('products').select('*').eq('id',id).single();
  if(error||!data){adminMessage('apMessage','Product found could not: '+(error?.message||''),'error');return;}
- editingProductId=id;editingProductImageUrls=[...new Set([data.image_url,...(Array.isArray(data.image_urls)?data.image_urls:[])].filter(Boolean))].slice(0,8);document.getElementById('apName').value=data.name||'';document.getElementById('apModel').value=data.model||'';document.getElementById('apDiscount').value=String(data.discount_percent??5);document.getElementById('apPrice').value=data.price??0;const {data:costRow}=await supabaseClient.from('product_costs').select('cost_price').eq('product_id',id).maybeSingle();document.getElementById('apCostPrice').value=costRow?.cost_price??'';document.getElementById('apProfitPercent').value=(costRow?.cost_price>0?(((Number(data.price||0)/Number(costRow.cost_price))-1)*100).toFixed(2):'');
+ editingProductId=id;const editorForm=document.getElementById('adminProductForm');if(editorForm?.parentElement)editorForm.parentElement.style.display='block';const editorTab=document.querySelector('[data-admin-tab="adminProductManagementPanel"]');if(editorTab)switchAdminTab(editorTab);document.getElementById('productFormTitle').textContent='✏️ Edit Product';editingProductImageUrls=[...new Set([data.image_url,...(Array.isArray(data.image_urls)?data.image_urls:[])].filter(Boolean))].slice(0,8);document.getElementById('apName').value=data.name||'';document.getElementById('apModel').value=data.model||'';document.getElementById('apDiscount').value=String(data.discount_percent??5);document.getElementById('apPrice').value=data.price??0;const {data:costRow}=await supabaseClient.from('product_costs').select('cost_price').eq('product_id',id).maybeSingle();document.getElementById('apCostPrice').value=costRow?.cost_price??'';document.getElementById('apProfitPercent').value=(costRow?.cost_price>0?(((Number(data.price||0)/Number(costRow.cost_price))-1)*100).toFixed(2):'');
  document.getElementById('apStock').value=data.stock??0;document.getElementById('apCategory').value=data.category||'';updateProductSubcategories(data.subcategory||'',data.brand||'');
  document.getElementById('apDescription').value=data.description||'';document.getElementById('apFullDescription').value=data.full_description||'';document.getElementById('apActive').value=String(data.is_active);
  document.getElementById('apImage').value='';document.getElementById('productFormTitle').textContent='✏️ Product Edit Please';
- document.getElementById('apSave').textContent='Save Changes';document.getElementById('apName').scrollIntoView({behavior:'smooth',block:'center'});
+ document.getElementById('apSave').textContent='Save Changes';document.getElementById('adminProductManagementPanel').scrollIntoView({behavior:'smooth',block:'start'});document.getElementById('apName').focus({preventScroll:true});
 }
 async function deleteAdminProduct(id){
  if(!isAdminRole()&&currentAdminRole!=='product_manager'){alert('Product deletion is not allowed for this role.');return;}
