@@ -1028,7 +1028,8 @@ function renderSideCategories(){
  popup.classList.toggle('has-brands',!!expandedSideCategory);popup.classList.toggle('has-category',!!expandedSideCategory);popup.classList.toggle('has-subcategory',!!expandedSideSubcategory);
  const dynamicCategories=[...new Set(allProducts.map(p=>String(p.category||p.category_name||'').trim()).filter(Boolean))];
  const categories=[...new Set([...Object.keys(SIDE_CATEGORY_META),...Object.keys(PRODUCT_TAXONOMY),...dynamicCategories])];
- const savedCategoryScroll=list.scrollTop;\n list.innerHTML=categories.map(cat=>'<button type="button" class="all-categories-popup-item '+(expandedSideCategory===cat?'active':'')+'" aria-pressed="'+(expandedSideCategory===cat)+'" onclick="event.stopPropagation();toggleSideCategory('+escapeHtml(JSON.stringify(cat))+')">'+escapeHtml((SIDE_CATEGORY_META[cat]||['',cat])[1])+'</button>').join('');
+ const savedCategoryScroll=list.scrollTop;
+ list.innerHTML=categories.map(cat=>'<button type="button" class="all-categories-popup-item '+(expandedSideCategory===cat?'active':'')+'" aria-pressed="'+(expandedSideCategory===cat)+'" onclick="event.stopPropagation();toggleSideCategory('+escapeHtml(JSON.stringify(cat))+')">'+escapeHtml((SIDE_CATEGORY_META[cat]||['',cat])[1])+'</button>').join('');
  list.scrollTop=savedCategoryScroll;
  const subsPanel=document.getElementById('allCategoriesPopupSubs'),subList=document.getElementById('allCategoriesPopupSubList'),subsTitle=document.getElementById('allCategoriesPopupSubsTitle');
  const brandsPanel=document.getElementById('allCategoriesPopupBrands'),brandList=document.getElementById('allCategoriesPopupBrandList'),title=document.getElementById('allCategoriesPopupBrandsTitle');
