@@ -955,7 +955,7 @@ const SIDE_CATEGORY_META={"Smartwatches":["◷","Smartwatches"],"Accessories":["
 let expandedSideCategory='';
 function ensureAllCategoriesPopup(){
  let popup=document.getElementById('allCategoriesPopup');
- if(!popup){popup=document.createElement('section');popup.id='allCategoriesPopup';popup.className='all-categories-popup';popup.hidden=true;popup.setAttribute('aria-label','All product categories');popup.innerHTML='<div class="all-categories-popup-head"><strong>All Categories</strong><button type="button" class="all-categories-popup-close" aria-label="Close categories" onclick="toggleAllCategoriesPopup(false)">×</button></div><div class="all-categories-popup-list" id="allCategoriesPopupList"></div><div class="all-categories-popup-brands" id="allCategoriesPopupBrands" hidden><div class="all-categories-popup-brands-title" id="allCategoriesPopupBrandsTitle">Brands</div><div class="all-categories-popup-brand-list" id="allCategoriesPopupBrandList"></div></div>';document.body.appendChild(popup);document.addEventListener('click',e=>{if(!popup.hidden&&!popup.contains(e.target)&&!e.target.closest('#allCategoriesNavBtn'))toggleAllCategoriesPopup(false);});}
+ if(!popup){popup=document.createElement('section');popup.id='allCategoriesPopup';popup.className='all-categories-popup';popup.hidden=true;popup.setAttribute('aria-label','All product categories');popup.innerHTML='<div class="all-categories-popup-head"><strong>All Categories</strong><button type="button" class="all-categories-popup-close" aria-label="Close categories" onclick="toggleAllCategoriesPopup(false)">×</button></div><div class="all-categories-popup-list" id="allCategoriesPopupList"></div><div class="all-categories-popup-brands" id="allCategoriesPopupSubs" hidden><div class="all-categories-popup-brands-title" id="allCategoriesPopupSubsTitle">Subcategories</div><div class="all-categories-popup-brand-list" id="allCategoriesPopupSubList"></div></div><div class="all-categories-popup-brands" id="allCategoriesPopupBrands" hidden><div class="all-categories-popup-brands-title" id="allCategoriesPopupBrandsTitle">Brands</div><div class="all-categories-popup-brand-list" id="allCategoriesPopupBrandList"></div></div>';document.body.appendChild(popup);document.addEventListener('click',e=>{if(!popup.hidden&&!popup.contains(e.target)&&!e.target.closest('#allCategoriesNavBtn'))toggleAllCategoriesPopup(false);});}
  return popup;
 }
 function toggleAllCategoriesPopup(force){
@@ -969,15 +969,20 @@ function renderSideCategories(){
  const dynamicCategories=[...new Set(allProducts.map(p=>String(p.category||p.category_name||'').trim()).filter(Boolean))];
  const categories=[...new Set([...Object.keys(SIDE_CATEGORY_META),...Object.keys(PRODUCT_TAXONOMY),...dynamicCategories])];
  list.innerHTML=categories.map(cat=>'<button type="button" class="all-categories-popup-item '+(expandedSideCategory===cat?'active':'')+'" aria-pressed="'+(expandedSideCategory===cat)+'" onclick="event.stopPropagation();toggleSideCategory('+escapeHtml(JSON.stringify(cat))+')">'+escapeHtml((SIDE_CATEGORY_META[cat]||['',cat])[1])+'</button>').join('');
+ const subsPanel=document.getElementById('allCategoriesPopupSubs'),subList=document.getElementById('allCategoriesPopupSubList'),subsTitle=document.getElementById('allCategoriesPopupSubsTitle');
  const brandsPanel=document.getElementById('allCategoriesPopupBrands'),brandList=document.getElementById('allCategoriesPopupBrandList'),title=document.getElementById('allCategoriesPopupBrandsTitle');
- if(!expandedSideCategory){brandsPanel.hidden=true;brandList.innerHTML='';return;}
+ if(!expandedSideCategory){subsPanel.hidden=true;brandsPanel.hidden=true;subList.innerHTML='';brandList.innerHTML='';return;}
  const cfg=PRODUCT_TAXONOMY[expandedSideCategory]||{};
+ const actualSubs=allProducts.filter(p=>String(p.category||p.category_name||'').trim()===expandedSideCategory).map(p=>String(p.subcategory||'').trim()).filter(Boolean);
+ const subs=[...new Set([...(cfg.subs||[]),...actualSubs])];
+ subsTitle.textContent=expandedSideCategory+' · Subcategories';
+ subList.innerHTML=subs.length?subs.map(sub=>'<button type="button" class="all-categories-popup-brand" onclick="filterBySubcategory('+escapeHtml(JSON.stringify(expandedSideCategory))+','+escapeHtml(JSON.stringify(sub))+');toggleAllCategoriesPopup(false)">'+escapeHtml(sub)+'</button>').join(''):'<span style="color:#777;font-size:12px">এই ক্যাটাগরিতে এখনো কোনো সাব-ক্যাটাগরি যোগ করা হয়নি।</span>';
+ subsPanel.hidden=false;
  const actualBrands=allProducts.filter(p=>String(p.category||p.category_name||'').trim()===expandedSideCategory).map(p=>String(p.brand||'').trim()).filter(Boolean);
  const brands=[...new Set([...(cfg.brands||[]),...actualBrands])];
  title.textContent=expandedSideCategory+' · Brands';
  brandList.innerHTML=brands.length?brands.map(brand=>'<button type="button" class="all-categories-popup-brand" onclick="filterByBrand('+escapeHtml(JSON.stringify(expandedSideCategory))+','+escapeHtml(JSON.stringify(brand))+');toggleAllCategoriesPopup(false)">'+escapeHtml(brand)+'</button>').join(''):'<span style="color:#777;font-size:12px">এই ক্যাটাগরিতে এখনো কোনো ব্র্যান্ড যোগ করা হয়নি।</span>';
  brandsPanel.hidden=false;
- 
 }
 function renderCategoryDetailPanel(){}
 function toggleSideCategory(cat){expandedSideCategory=expandedSideCategory===cat?'':cat;renderSideCategories();}
