@@ -1334,7 +1334,7 @@ loadProducts();
   if(t)lastOpener=t;
  },true);
  function visible(back,panel){
-  return !!panel&&back.isConnected&&getComputedStyle(back).display!=='none'&&getComputedStyle(back).visibility!=='hidden'&&getComputedStyle(panel).display!=='none';
+  return !!panel&&back.isConnected&&!back.classList.contains('motion-closing')&&getComputedStyle(back).display!=='none'&&getComputedStyle(back).visibility!=='hidden'&&getComputedStyle(panel).display!=='none';
  }
  function point(el){
   if(!el||!el.isConnected)return null;
