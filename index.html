@@ -1068,6 +1068,7 @@ function ensureAllCategoriesPopup(){
 }
 function toggleAllCategoriesPopup(force){
  const popup=ensureAllCategoriesPopup(),btn=document.getElementById('allCategoriesNavBtn'),open=typeof force==='boolean'?force:popup.hidden;
+ if(open&&popup.hidden){expandedSideCategory='';expandedSideSubcategory='';}
  popup.hidden=!open;if(btn)btn.setAttribute('aria-expanded',String(open));
  if(open){renderSideCategories();popup.style.animation='none';void popup.offsetWidth;popup.style.animation='';}
 }
@@ -1096,7 +1097,17 @@ function renderSideCategories(){
 }
 function renderCategoryDetailPanel(){}
 function toggleSideCategory(cat){if(expandedSideCategory===cat){expandedSideCategory='';expandedSideSubcategory='';}else{expandedSideCategory=cat;expandedSideSubcategory='';}renderSideCategories();}
-function toggleSideSubcategory(sub){expandedSideSubcategory=expandedSideSubcategory===sub?'':sub;renderSideCategories();}
+function toggleSideSubcategory(sub){
+ expandedSideSubcategory=expandedSideSubcategory===sub?'':sub;
+ renderSideCategories();
+ const popup=document.getElementById('allCategoriesPopup');
+ const panel=document.getElementById('allCategoriesPopupBrands');
+ if(popup&&panel&&expandedSideSubcategory){
+  popup.classList.add('has-category','has-subcategory');
+  panel.hidden=false;panel.removeAttribute('hidden');panel.setAttribute('aria-hidden','false');
+  panel.style.display='block';panel.style.visibility='visible';panel.style.opacity='1';panel.style.pointerEvents='auto';
+ }
+}
 function filterBySubcategory(cat,sub){activeCategory=cat;activeSubcategory=sub;activeBrand='';document.getElementById('searchCategory').value='';document.getElementById('searchInput').value='';refreshProducts();statusText.textContent=sub+' · '+visibleProducts().length+' Product';document.getElementById('featured').scrollIntoView({behavior:'smooth'});}
 function filterByBrand(cat,brand,sub=''){activeCategory=cat;activeSubcategory=sub||'';activeBrand=brand;document.getElementById('searchCategory').value='';document.getElementById('searchInput').value='';refreshProducts();statusText.textContent=brand+' · '+visibleProducts().length+' Product';document.getElementById('featured').scrollIntoView({behavior:'smooth'});}
 function productCategory(p){return String(p.category||p.category_name||'').toLowerCase();}
