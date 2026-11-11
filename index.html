@@ -425,6 +425,13 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
   <nav class="admin-menu" aria-label="Admin menu"><button type="button" class="active" data-admin-tab="adminProductManagementPanel" onclick="switchAdminTab(this)">🛍 Product Management</button><button type="button" data-admin-tab="adminManageProductsPanel" onclick="switchAdminTab(this)">📦 Manage Products</button><button type="button" data-admin-tab="adminDeliveredPanel" onclick="switchAdminTab(this)">🚚 Product Delivery Report</button><button type="button" data-admin-tab="adminOrdersPanel" onclick="switchAdminTab(this)">🧾 Order Management</button><button type="button" id="adminPermissionMenuBtn" data-admin-tab="adminUserPermissionsPanel" onclick="switchAdminTab(this)">👥 Staff & Roles</button><button type="button" id="adminFinanceMenuBtn" data-admin-tab="adminFinancePanel" onclick="switchAdminTab(this)">📊 Finance Report</button></nav>
   <div class="admin-grid">
    <section class="admin-card admin-tab-panel active" id="adminProductManagementPanel">
+    <section class="admin-card" id="adminBulkProductPanel" style="margin:0 0 18px;border:1px solid #e7dca8;background:#fffdf3">
+     <h3 style="margin:0 0 8px">⚡ Bulk Product Import</h3>
+     <p class="admin-help">একসঙ্গে সর্বোচ্চ ১০টি নতুন পণ্য JSON আকারে যোগ করুন। প্রতিটি পণ্যে ৩–৫টি আলাদা ছবির URL, সঠিক ক্যাটাগরি এবং ক্রয়মূল্য দিতে হবে। একই মডেল আগে থাকলে সেটি বাদ যাবে।</p>
+     <textarea id="adminBulkProductsJson" rows="10" spellcheck="false" style="width:100%;margin:10px 0;padding:12px;border:1px solid #ddd;border-radius:7px;font:12px/1.5 monospace" placeholder='[{"name":"Vision Product","model":"MODEL-01","brand":"Vision","category":"Home Appliances","subcategory":"Electric Kettles","price":1800,"cost_price":1200,"stock":5,"image_urls":["https://.../front.jpg","https://.../side.jpg","https://.../detail.jpg"],"description":"...","full_description":"..."}]'></textarea>
+     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="admin-primary" id="adminBulkImportBtn" onclick="importAdminProductsBulk()">Import Products</button><button type="button" class="admin-secondary" onclick="document.getElementById('adminBulkProductsJson').value=''">Clear</button><small class="admin-help">শুধু নতুন পণ্য যোগ হবে; বিদ্যমান পণ্য পরিবর্তন বা মুছে যাবে না।</small></div>
+     <p class="admin-msg" id="adminBulkImportMessage" aria-live="polite"></p>
+    </section>
     <h3 id="productFormTitle">➕ Add New Product</h3>
     <form id="adminProductForm">
      <div class="admin-form-grid">
@@ -844,6 +851,41 @@ async function saveAdminProduct(event){
   resetAdminProductForm();await loadAdminProducts();await loadProducts();
  }catch(error){adminMessage('apMessage',error.message||'Could not save product।','error');}
  finally{button.disabled=false;button.textContent=editingProductId?'Save Changes':'Save Product';}
+}
+async function importAdminProductsBulk(){
+ const input=document.getElementById('adminBulkProductsJson'),button=document.getElementById('adminBulkImportBtn'),status=document.getElementById('adminBulkImportMessage');
+ const report=(message,type='')=>{status.textContent=message;status.className='admin-msg'+(type?' '+type:'');};
+ if(!canAddProducts()){report('আপনার এই কাজের অনুমতি নেই।','error');return;}
+ let rows;
+ try{rows=JSON.parse(input.value);}catch(error){report('JSON ফরম্যাট ঠিক নেই: '+error.message,'error');return;}
+ if(!Array.isArray(rows)||!rows.length||rows.length>10){report('একবারে ১ থেকে ১০টি পণ্য দিতে হবে।','error');return;}
+ const required=['name','model','brand','category','subcategory','price','cost_price','image_urls'];
+ for(let i=0;i<rows.length;i++){
+  const p=rows[i];
+  if(!p||required.some(k=>p[k]===undefined||p[k]===null||p[k]==='')){report('পণ্য '+(i+1)+': প্রয়োজনীয় তথ্য অনুপস্থিত।','error');return;}
+  if(!Array.isArray(p.image_urls)||p.image_urls.length<3||p.image_urls.length>5||p.image_urls.some(u=>typeof u!=='string'||!/^https?:\/\//i.test(u))){report('পণ্য '+(i+1)+': ৩–৫টি সঠিক ছবির URL দিতে হবে।','error');return;}
+  if(!Number.isFinite(Number(p.price))||Number(p.price)<=0||!Number.isFinite(Number(p.cost_price))||Number(p.cost_price)<0||!Number.isFinite(Number(p.stock??0))||Number(p.stock??0)<0){report('পণ্য '+(i+1)+': মূল্য, ক্রয়মূল্য বা স্টক সঠিক নয়।','error');return;}
+ }
+ button.disabled=true;button.textContent='Importing...';let added=0,skipped=0,failed=[];
+ try{
+  for(let i=0;i<rows.length;i++){
+   const p=rows[i],model=String(p.model).trim(),name=String(p.name).trim(),brand=String(p.brand).trim();
+   const {data:matches,error:checkError}=await supabaseClient.from('products').select('id,name,model').eq('brand',brand).or('model.eq.'+model.replace(/[(),]/g,'')+',name.eq.'+name.replace(/[(),]/g,'')).limit(5);
+   if(checkError)throw checkError;
+   if((matches||[]).some(x=>(x.model||'').toLowerCase()===model.toLowerCase()||(x.name||'').toLowerCase()===name.toLowerCase())){skipped++;continue;}
+   const images=[...new Set(p.image_urls.map(x=>x.trim()))];
+   if(images.length<3){failed.push(name+': একই ছবি/URL পুনরাবৃত্তি হয়েছে');continue;}
+   const payload={name,model,brand,category:String(p.category),subcategory:String(p.subcategory),price:Number(p.price),stock:Number(p.stock??0),discount_percent:Number(p.discount_percent??0),description:String(p.description||''),full_description:String(p.full_description||p.description||''),is_active:p.is_active!==false,image_url:images[0],image_urls:images};
+   const {data:created,error:insertError}=await supabaseClient.from('products').insert(payload).select('id').single();
+   if(insertError){failed.push(name+': '+insertError.message);continue;}
+   const {error:costError}=await supabaseClient.from('product_costs').upsert({product_id:created.id,cost_price:Number(p.cost_price),packaging_cost:Number(p.packaging_cost||0),courier_cost:0,other_cost:Number(p.other_cost||0),updated_at:new Date().toISOString()},{onConflict:'product_id'});
+   if(costError){failed.push(name+': পণ্য তৈরি হয়েছে, কিন্তু খরচের হিসাব যোগ হয়নি — '+costError.message);continue;}
+   added++;
+  }
+  report('সম্পন্ন: '+added+'টি যোগ হয়েছে, '+skipped+'টি আগে থেকেই ছিল, '+failed.length+'টিতে সমস্যা।'+(failed.length?' বিস্তারিত: '+failed.join(' | '):''),failed.length?'error':'success');
+  if(added){await loadAdminProducts();await loadProducts();}
+ }catch(error){report('Import বন্ধ হয়েছে: '+(error.message||'অজানা সমস্যা'),'error');}
+ finally{button.disabled=false;button.textContent='Import Products';}
 }
 async function loadAdminPermissions(){
  const box=document.getElementById('adminPermissionList');box.innerHTML='<p class="admin-help">Loading staff...</p>';
