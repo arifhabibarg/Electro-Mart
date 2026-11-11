@@ -757,7 +757,8 @@ async function loadAdminProducts(){
   groups.get(cat).get(sub).get(brand).push(p);
  });
  const categoryKeys=[...Object.keys(PRODUCT_TAXONOMY),...([...groups.keys()].filter(k=>!PRODUCT_TAXONOMY[k]))];
- const productRow=p=>`<div class="admin-product-row"><img src="${escapeHtml(p.image_url||'')}" alt=""><div><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.product_code||'')} · ${money(p.price)} · Stock ${Number(p.stock)} · ${p.is_active?'Active':'Hidden'}</small></div><div class="admin-actions">${(isAdminRole()||['product_manager','inventory_manager','marketing_manager'].includes(currentAdminRole)||currentProductPermissions.can_edit)?`<button class="admin-secondary" type="button" onclick="editAdminProduct('${escapeHtml(p.id)}')">Edit</button>`:''}${(isAdminRole()||currentAdminRole==='product_manager')? `<button class="admin-danger" type="button" onclick="deleteAdminProduct('${escapeHtml(p.id)}')">Delete</button>`:''}</div></div>`;
+ const canDeleteProducts=isAdminRole()||currentAdminRole==='product_manager';
+ const productRow=p=>`<div class="admin-product-row">${canDeleteProducts?`<label style="display:flex;align-items:center;gap:6px"><input class="admin-product-select" type="checkbox" data-product-id="${escapeHtml(p.id)}" aria-label="Select ${escapeHtml(p.name)}" onclick="event.stopPropagation()"></label>`:''}<img src="${escapeHtml(p.image_url||'')}" alt=""><div><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.product_code||'')} · ${money(p.price)} · Stock ${Number(p.stock)} · ${p.is_active?'Active':'Hidden'}</small></div><div class="admin-actions">${(isAdminRole()||['product_manager','inventory_manager','marketing_manager'].includes(currentAdminRole)||currentProductPermissions.can_edit)?`<button class="admin-secondary" type="button" onclick="editAdminProduct('${escapeHtml(p.id)}')">Edit</button>`:''}${canDeleteProducts? `<button class="admin-danger" type="button" onclick="deleteAdminProduct('${escapeHtml(p.id)}')">Delete</button>`:''}</div></div>`;
  const categoryHtml=categoryKeys.map(key=>{
   const subMap=groups.get(key)||new Map(),configured=PRODUCT_TAXONOMY[key]?.subs||[];
   const subKeys=[...new Set([...configured,...subMap.keys()])];
@@ -770,7 +771,8 @@ async function loadAdminProducts(){
   }).join('');
   return `<details class="admin-category-group"><summary class="admin-category-title"><span>${escapeHtml(key)}</span><span class="admin-category-count">${count} Product · ${subKeys.length} Subcategory</span></summary><div class="admin-category-inner"><div class="admin-category-content">${subHtml}</div></div></details>`;
  }).join('');
- box.innerHTML='<p class="admin-help">Total '+rows.length+' Product · Main Category → Subcategory → Brand → Product। All sections are collapsed by default; expand as needed.।</p>'+categoryHtml;
+ box.innerHTML=(canDeleteProducts?'<div class="admin-bulk-tools" style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px;margin:10px 0;border:1px solid #e5e5e5;border-radius:10px;background:#fff"><label style="display:flex;align-items:center;gap:7px"><input id="adminSelectAllProducts" type="checkbox" onchange="toggleAllAdminProducts(this.checked)"> সব পণ্য নির্বাচন</label><span id="adminSelectedProductCount" class="admin-help">০টি নির্বাচিত</span><button class="admin-danger" type="button" onclick="deleteSelectedAdminProducts()">Delete Selected</button></div>':'')+'<p class="admin-help">Total '+rows.length+' Product · Main Category → Subcategory → Brand → Product। All sections are collapsed by default; expand as needed.।</p>'+categoryHtml;
+ box.addEventListener('change',event=>{if(event.target.matches('.admin-product-select'))updateAdminSelectedProductCount();});
  if(!box.dataset.animationBound){
   box.addEventListener('click',event=>{
    const summary=event.target.closest('summary');
@@ -811,6 +813,31 @@ async function editAdminProduct(id){
  document.getElementById('apDescription').value=data.description||'';document.getElementById('apFullDescription').value=data.full_description||'';document.getElementById('apActive').value=String(data.is_active);
  document.getElementById('apImage').value='';document.getElementById('productFormTitle').textContent='✏️ Product Edit Please';
  document.getElementById('apSave').textContent='Save Changes';document.getElementById('adminProductManagementPanel').scrollIntoView({behavior:'smooth',block:'start'});document.getElementById('apName').focus({preventScroll:true});
+}
+function toggleAllAdminProducts(checked){
+ document.querySelectorAll('#adminProductList .admin-product-select').forEach(input=>{input.checked=checked;});
+ updateAdminSelectedProductCount();
+}
+function updateAdminSelectedProductCount(){
+ const selected=document.querySelectorAll('#adminProductList .admin-product-select:checked').length;
+ const label=document.getElementById('adminSelectedProductCount');
+ if(label)label.textContent=selected+'টি নির্বাচিত';
+ const all=[...document.querySelectorAll('#adminProductList .admin-product-select')];
+ const master=document.getElementById('adminSelectAllProducts');
+ if(master){master.checked=all.length>0&&selected===all.length;master.indeterminate=selected>0&&selected<all.length;}
+}
+async function deleteSelectedAdminProducts(){
+ if(!isAdminRole()&&currentAdminRole!=='product_manager'){alert('Product deletion is not allowed for this role.');return;}
+ const ids=[...document.querySelectorAll('#adminProductList .admin-product-select:checked')].map(input=>input.dataset.productId).filter(Boolean);
+ if(!ids.length){alert('আগে অন্তত একটি পণ্য নির্বাচন করুন।');return;}
+ if(!confirm('আপনি কি নিশ্চিত? নির্বাচিত '+ids.length+'টি পণ্য স্থায়ীভাবে Delete হবে। এই কাজ Undo করা যাবে না।'))return;
+ const button=[...document.querySelectorAll('#adminProductList button')].find(b=>b.textContent.trim()==='Delete Selected');
+ if(button){button.disabled=true;button.textContent='Deleting...';}
+ const {data,error}=await supabaseClient.from('products').delete().in('id',ids).select('id');
+ if(error){alert('Bulk delete সম্পন্ন হয়নি: '+error.message);await loadAdminProducts();return;}
+ const deleted=(data||[]).length;
+ alert(deleted+'টি পণ্য Delete হয়েছে।'+(deleted<ids.length?' '+(ids.length-deleted)+'টি পণ্য permission বা অন্য কারণে Delete হয়নি।':''));
+ await loadAdminProducts();await loadProducts();
 }
 async function deleteAdminProduct(id){
  if(!isAdminRole()&&currentAdminRole!=='product_manager'){alert('Product deletion is not allowed for this role.');return;}
