@@ -755,6 +755,19 @@ function applyCustomTaxonomy(){const data=readCustomTaxonomy();(data.categories|
 function isCustomTaxonomyOption(type,category,name){const d=readCustomTaxonomy();return type==='category'?(d.categories||[]).includes(name):((d[type==='subcategory'?'subcategories':'brands']||{})[category]||[]).includes(name);}
 function removeCustomTaxonomyOption(type,category,name){if(!confirm('“'+name+'” তালিকা থেকে সরাবেন?'))return;const d=readCustomTaxonomy();if(type==='category'){d.categories=(d.categories||[]).filter(x=>x!==name);delete d.subcategories[name];delete d.brands[name];delete PRODUCT_TAXONOMY[name];}else{const key=type==='subcategory'?'subcategories':'brands';d[key][category]=(d[key][category]||[]).filter(x=>x!==name);if(PRODUCT_TAXONOMY[category])PRODUCT_TAXONOMY[category][type==='subcategory'?'subs':'brands']=(PRODUCT_TAXONOMY[category][type==='subcategory'?'subs':'brands']||[]).filter(x=>x!==name);}saveCustomTaxonomy(d);if(type==='category'){const cat=document.getElementById('apCategory');if(cat?.value===name)cat.value='';updateProductSubcategories();}else if(document.getElementById('apCategory')?.value===category){updateProductSubcategories();}syncProductSearchSelect('apCategory');syncProductSearchSelect('apSubcategory');syncProductSearchSelect('apBrand');renderSideCategories();}
 applyCustomTaxonomy();
+async function loadAdminProductTaxonomy(){
+ const select=document.getElementById('apCategory');if(!select)return;
+ const {data,error}=await supabaseClient.from('products').select('category,subcategory,brand').limit(5000);
+ if(error){console.error('Admin category options load failed:',error);syncAdminProductTaxonomyFromProducts();return;}
+ const rows=data||[],custom=readCustomTaxonomy();
+ const categories=[...new Set([...CORE_PRODUCT_CATEGORIES,...rows.map(p=>String(p.category||'').trim()).filter(Boolean),...(custom.categories||[])])];
+ const previous=select.value;
+ select.innerHTML='<option value="">Select</option>'+categories.map(name=>'<option value="'+escapeHtml(name)+'">'+escapeHtml(name)+'</option>').join('');
+ if(categories.includes(previous))select.value=previous;
+ rows.forEach(p=>{const cat=String(p.category||'').trim();if(!cat)return;if(!PRODUCT_TAXONOMY[cat])PRODUCT_TAXONOMY[cat]={subs:[],brands:[]};const sub=String(p.subcategory||'').trim(),brand=String(p.brand||'').trim();if(sub&&!PRODUCT_TAXONOMY[cat].subs.includes(sub))PRODUCT_TAXONOMY[cat].subs.push(sub);if(brand&&!PRODUCT_TAXONOMY[cat].brands.includes(brand))PRODUCT_TAXONOMY[cat].brands.push(brand);});
+ syncProductSearchSelect('apCategory');
+ if(select.value)updateProductSubcategories();
+}
 function syncAdminProductTaxonomyFromProducts(){
  const select=document.getElementById('apCategory');if(!select)return;
  const rows=Array.isArray(allProducts)?allProducts:[];
@@ -826,6 +839,7 @@ async function toggleAdminPanel(){
  if(permissionError){alert('Permission check failed: '+permissionError.message);return;}
  currentProductPermissions={can_add:!!permission?.can_add,can_edit:!!permission?.can_edit,can_view_costs:!!permission?.can_view_costs};
  await refreshAdminAccess();
+ await loadAdminProductTaxonomy();
  if(currentAdminRole==='customer'&&!currentProductPermissions.can_add&&!currentProductPermissions.can_edit){alert('You are not authorized to use this panel।');return;}
  panel.classList.add('show');
  sessionStorage.setItem('electromart_admin_panel_open','1');
