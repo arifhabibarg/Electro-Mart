@@ -443,6 +443,28 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
  .all-categories-popup .all-categories-popup-item,.all-categories-popup .all-categories-popup-brand{font-size:10px!important;padding:8px 4px!important;line-height:1.3!important;}
 }
 @media(prefers-reduced-motion:reduce){.all-categories-popup,.all-categories-popup *{transition:none!important;animation:none!important;}}
+
+/* Requested All Categories popup size: 500px wide, half viewport height */
+.all-categories-popup,
+.all-categories-popup.has-brands{
+  box-sizing:border-box!important;
+  width:500px!important;
+  max-width:calc(100vw - 24px)!important;
+  height:50vh!important;
+  max-height:50vh!important;
+  min-height:0!important;
+}
+@media(max-width:600px){
+  .all-categories-popup,
+  .all-categories-popup.has-brands{
+    width:500px!important;
+    max-width:calc(100vw - 16px)!important;
+    height:50dvh!important;
+    max-height:50dvh!important;
+    min-height:0!important;
+  }
+}
+
 </style>
 </head>
 <body>
