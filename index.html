@@ -767,7 +767,7 @@ async function loadAdminProducts(){
   const subHtml=subKeys.map(sub=>{
    const brandMap=subMap.get(sub)||new Map();
    const subCount=[...brandMap.values()].reduce((n,list)=>n+list.length,0);
-   const configuredBrands=PRODUCT_TAXONOMY[key]?.brands||[];const brandNames=[...new Set([...configuredBrands,...brandMap.keys()])].sort((a,b)=>a.localeCompare(b));const brandHtml=brandNames.map(brand=>{const products=brandMap.get(brand)||[];return `<details class="admin-brand-group"><summary class="admin-brand-title"><span>${escapeHtml(brand)}</span><span class="admin-category-count">${products.length} Product</span></summary><div class="admin-brand-inner"><div class="admin-brand-content">${products.length?products.map(productRow).join(''):'<p class="admin-empty-sub">No products have been added for this brand yet।</p>'}</div></div></details>`;}).join('');
+   const configuredBrands=PRODUCT_TAXONOMY[key]?.brands||[];const brandNames=[...new Set([...configuredBrands,...brandMap.keys()])].sort((a,b)=>a.localeCompare(b));const brandHtml=brandNames.map(brand=>{const products=brandMap.get(brand)||[];return `<details class="admin-brand-group"><summary class="admin-brand-title"><span>${escapeHtml(brand)}</span><span class="admin-category-count">${products.length} Product</span></summary><div class="admin-brand-inner">${canSelectProducts&&products.length?`<label class="admin-brand-select-all" style="display:flex;align-items:center;gap:8px;padding:10px 12px;margin:8px 0;border:1px solid #eadca0;border-radius:8px;background:#fffdf2;font-weight:700"><input class="admin-brand-select-toggle" type="checkbox" onchange="toggleAdminBrandProducts(this)" style="width:18px;height:18px;accent-color:#f5c400"> এই ব্র্যান্ডের সব পণ্য নির্বাচন</label>`:'' }<div class="admin-brand-content">${products.length?products.map(productRow).join(''):'<p class="admin-empty-sub">No products have been added for this brand yet।</p>'}</div></div></details>`;}).join('');
    return `<details class="admin-subcategory-group"><summary class="admin-subcategory-title"><span>${escapeHtml(sub)}</span><span class="admin-category-count">${subCount} Product · ${brandMap.size} Brand</span></summary><div class="admin-subcategory-inner"><div class="admin-subcategory-content">${brandHtml}</div></div></details>`;
   }).join('');
   return `<details class="admin-category-group"><summary class="admin-category-title"><span>${escapeHtml(key)}</span><span class="admin-category-count">${count} Product · ${subKeys.length} Subcategory</span></summary><div class="admin-category-inner"><div class="admin-category-content">${subHtml}</div></div></details>`;
@@ -819,6 +819,11 @@ function toggleAllAdminProducts(checked){
  document.querySelectorAll('#adminProductList .admin-product-select').forEach(input=>{input.checked=checked;});
  updateAdminSelectedProductCount();
 }
+function toggleAdminBrandProducts(master){
+ const group=master.closest('.admin-brand-group');if(!group)return;
+ group.querySelectorAll('.admin-product-select').forEach(input=>{input.checked=master.checked;});
+ updateAdminSelectedProductCount();
+}
 function updateAdminSelectedProductCount(){
  const selected=document.querySelectorAll('#adminProductList .admin-product-select:checked').length;
  const label=document.getElementById('adminSelectedProductCount');
@@ -826,6 +831,10 @@ function updateAdminSelectedProductCount(){
  const all=[...document.querySelectorAll('#adminProductList .admin-product-select')];
  const master=document.getElementById('adminSelectAllProducts');
  if(master){master.checked=all.length>0&&selected===all.length;master.indeterminate=selected>0&&selected<all.length;}
+ document.querySelectorAll('#adminProductList .admin-brand-group').forEach(group=>{
+  const items=[...group.querySelectorAll('.admin-product-select')],toggle=group.querySelector('.admin-brand-select-toggle');
+  if(toggle){const count=items.filter(input=>input.checked).length;toggle.checked=items.length>0&&count===items.length;toggle.indeterminate=count>0&&count<items.length;}
+ });
 }
 async function deleteSelectedAdminProducts(){
  if(!isAdminRole()&&currentAdminRole!=='product_manager'){alert('Product deletion is not allowed for this role.');return;}
