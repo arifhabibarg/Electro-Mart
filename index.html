@@ -1067,46 +1067,70 @@ function ensureAllCategoriesPopup(){
  return popup;
 }
 function toggleAllCategoriesPopup(force){
- const popup=ensureAllCategoriesPopup(),btn=document.getElementById('allCategoriesNavBtn'),open=typeof force==='boolean'?force:popup.hidden;
- if(open&&popup.hidden){expandedSideCategory='';expandedSideSubcategory='';}
- popup.hidden=!open;if(btn)btn.setAttribute('aria-expanded',String(open));
- if(open){renderSideCategories();popup.style.animation='none';void popup.offsetWidth;popup.style.animation='';}
+ const popup=ensureAllCategoriesPopup(),btn=document.getElementById('allCategoriesNavBtn');
+ const open=typeof force==='boolean'?force:popup.hidden;
+ // Every fresh opening starts from the top-level category list.
+ expandedSideCategory='';expandedSideSubcategory='';
+ renderSideCategories();
+ popup.hidden=!open;
+ if(btn)btn.setAttribute('aria-expanded',String(open));
+ if(open){popup.style.animation='none';void popup.offsetWidth;popup.style.animation='';}
 }
 function renderSideCategories(){
- const popup=ensureAllCategoriesPopup(),list=document.getElementById('allCategoriesPopupList');
- popup.classList.toggle('has-brands',!!expandedSideCategory);popup.classList.toggle('has-category',!!expandedSideCategory);popup.classList.toggle('has-subcategory',!!expandedSideSubcategory);
+ const popup=ensureAllCategoriesPopup();
+ const list=document.getElementById('allCategoriesPopupList');
+ const subsPanel=document.getElementById('allCategoriesPopupSubs');
+ const subList=document.getElementById('allCategoriesPopupSubList');
+ const subsTitle=document.getElementById('allCategoriesPopupSubsTitle');
+ const brandsPanel=document.getElementById('allCategoriesPopupBrands');
+ const brandList=document.getElementById('allCategoriesPopupBrandList');
+ const brandsTitle=document.getElementById('allCategoriesPopupBrandsTitle');
+
+ popup.classList.toggle('has-brands',!!expandedSideCategory);
+ popup.classList.toggle('has-category',!!expandedSideCategory);
+ popup.classList.toggle('has-subcategory',!!expandedSideSubcategory);
+
  const dynamicCategories=[...new Set(allProducts.map(p=>String(p.category||p.category_name||'').trim()).filter(Boolean))];
  const categories=[...new Set([...Object.keys(SIDE_CATEGORY_META),...Object.keys(PRODUCT_TAXONOMY),...dynamicCategories])];
  const savedCategoryScroll=list.scrollTop;
  list.innerHTML=categories.map(cat=>'<button type="button" class="all-categories-popup-item '+(expandedSideCategory===cat?'active':'')+'" aria-pressed="'+(expandedSideCategory===cat)+'" onclick="event.stopPropagation();toggleSideCategory('+escapeHtml(JSON.stringify(cat))+')">'+escapeHtml((SIDE_CATEGORY_META[cat]||['',cat])[1])+'</button>').join('');
  list.scrollTop=savedCategoryScroll;
- const subsPanel=document.getElementById('allCategoriesPopupSubs'),subList=document.getElementById('allCategoriesPopupSubList'),subsTitle=document.getElementById('allCategoriesPopupSubsTitle');
- const brandsPanel=document.getElementById('allCategoriesPopupBrands'),brandList=document.getElementById('allCategoriesPopupBrandList'),title=document.getElementById('allCategoriesPopupBrandsTitle');
- if(!expandedSideCategory){subsPanel.hidden=true;subsPanel.setAttribute('aria-hidden','true');brandsPanel.hidden=true;brandsPanel.setAttribute('aria-hidden','true');subList.innerHTML='';brandList.innerHTML='';return;}
+
+ if(!expandedSideCategory){
+  subsPanel.hidden=true;brandsPanel.hidden=true;
+  subsPanel.setAttribute('aria-hidden','true');brandsPanel.setAttribute('aria-hidden','true');
+  subList.innerHTML='';brandList.innerHTML='';
+  return;
+ }
+
  const cfg=PRODUCT_TAXONOMY[expandedSideCategory]||{};
  const actualSubs=allProducts.filter(p=>String(p.category||p.category_name||'').trim()===expandedSideCategory).map(p=>String(p.subcategory||'').trim()).filter(Boolean);
  const subs=[...new Set([...(cfg.subs||[]),...actualSubs])];
  subsTitle.textContent=expandedSideCategory+' · Subcategories';
- subList.innerHTML=subs.length?subs.map(sub=>'<button type="button" class="all-categories-popup-brand '+(expandedSideSubcategory===sub?'active':'')+'" onclick="event.stopPropagation();toggleSideSubcategory('+escapeHtml(JSON.stringify(sub))+')">'+escapeHtml(sub)+'</button>').join(''):'<span style="color:#777;font-size:12px">এই ক্যাটাগরিতে এখনো কোনো সাব-ক্যাটাগরি যোগ করা হয়নি।</span>';
- subsPanel.hidden=false;
- const actualBrands=allProducts.filter(p=>String(p.category||p.category_name||'').trim()===expandedSideCategory).map(p=>String(p.brand||'').trim()).filter(Boolean);
- const brands=[...new Set([...(cfg.brands||[]),...actualBrands])];
- title.textContent=expandedSideCategory+' · Brands';
- const scopedBrands=expandedSideSubcategory?[...new Set(allProducts.filter(p=>String(p.category||p.category_name||'').trim()===expandedSideCategory&&String(p.subcategory||'').trim()===expandedSideSubcategory).map(p=>String(p.brand||'').trim()).filter(Boolean))]:[];const visibleBrands=scopedBrands.length?scopedBrands:brands;brandList.innerHTML=visibleBrands.length?visibleBrands.map(brand=>'<button type="button" class="all-categories-popup-brand" onclick="filterByBrand('+escapeHtml(JSON.stringify(expandedSideCategory))+','+escapeHtml(JSON.stringify(brand))+','+escapeHtml(JSON.stringify(expandedSideSubcategory))+');toggleAllCategoriesPopup(false)">'+escapeHtml(brand)+'</button>').join(''):'<span style="color:#777;font-size:12px">এই সাব-ক্যাটাগরিতে এখনো কোনো ব্র্যান্ড যোগ করা হয়নি।</span>';
- brandsPanel.hidden=false;brandsPanel.setAttribute('aria-hidden',String(!expandedSideSubcategory));
-}
-function renderCategoryDetailPanel(){}
-function toggleSideCategory(cat){if(expandedSideCategory===cat){expandedSideCategory='';expandedSideSubcategory='';}else{expandedSideCategory=cat;expandedSideSubcategory='';}renderSideCategories();}
-function toggleSideSubcategory(sub){
- expandedSideSubcategory=expandedSideSubcategory===sub?'':sub;
- renderSideCategories();
- const popup=document.getElementById('allCategoriesPopup');
- const panel=document.getElementById('allCategoriesPopupBrands');
- if(popup&&panel&&expandedSideSubcategory){
-  popup.classList.add('has-category','has-subcategory');
-  panel.hidden=false;panel.removeAttribute('hidden');panel.setAttribute('aria-hidden','false');
-  panel.style.display='block';panel.style.visibility='visible';panel.style.opacity='1';panel.style.pointerEvents='auto';
+ subList.innerHTML=subs.length?subs.map(sub=>'<button type="button" class="all-categories-popup-brand '+(expandedSideSubcategory===sub?'active':'')+'" aria-pressed="'+(expandedSideSubcategory===sub)+'" onclick="event.stopPropagation();toggleSideSubcategory('+escapeHtml(JSON.stringify(sub))+')">'+escapeHtml(sub)+'</button>').join(''):'<span style="color:#777;font-size:12px">এই ক্যাটাগরিতে এখনো কোনো সাব-ক্যাটাগরি যোগ করা হয়নি।</span>';
+ subsPanel.hidden=false;subsPanel.setAttribute('aria-hidden','false');
+
+ if(!expandedSideSubcategory){
+  brandsPanel.hidden=true;brandsPanel.setAttribute('aria-hidden','true');brandList.innerHTML='';
+  return;
  }
+
+ const actualBrands=allProducts.filter(p=>String(p.category||p.category_name||'').trim()===expandedSideCategory&&String(p.subcategory||'').trim()===expandedSideSubcategory).map(p=>String(p.brand||'').trim()).filter(Boolean);
+ const categoryBrands=[...(cfg.brands||[])];
+ const visibleBrands=[...new Set([...actualBrands,...categoryBrands])];
+ brandsTitle.textContent=expandedSideSubcategory+' · Brands';
+ brandList.innerHTML=visibleBrands.length?visibleBrands.map(brand=>'<button type="button" class="all-categories-popup-brand" onclick="filterByBrand('+escapeHtml(JSON.stringify(expandedSideCategory))+','+escapeHtml(JSON.stringify(brand))+','+escapeHtml(JSON.stringify(expandedSideSubcategory))+');toggleAllCategoriesPopup(false)">'+escapeHtml(brand)+'</button>').join(''):'<span style="color:#777;font-size:12px">এই সাব-ক্যাটাগরিতে এখনো কোনো ব্র্যান্ড যোগ করা হয়নি।</span>';
+ brandsPanel.hidden=false;brandsPanel.setAttribute('aria-hidden','false');
+}
+function toggleSideCategory(cat){
+ if(expandedSideCategory===cat){expandedSideCategory='';expandedSideSubcategory='';}
+ else{expandedSideCategory=cat;expandedSideSubcategory='';}
+ renderSideCategories();
+}
+function toggleSideSubcategory(sub){
+ // Selecting any subcategory always refreshes the brand pane for that selection.
+ expandedSideSubcategory=sub;
+ renderSideCategories();
 }
 function filterBySubcategory(cat,sub){activeCategory=cat;activeSubcategory=sub;activeBrand='';document.getElementById('searchCategory').value='';document.getElementById('searchInput').value='';refreshProducts();statusText.textContent=sub+' · '+visibleProducts().length+' Product';document.getElementById('featured').scrollIntoView({behavior:'smooth'});}
 function filterByBrand(cat,brand,sub=''){activeCategory=cat;activeSubcategory=sub||'';activeBrand=brand;document.getElementById('searchCategory').value='';document.getElementById('searchInput').value='';refreshProducts();statusText.textContent=brand+' · '+visibleProducts().length+' Product';document.getElementById('featured').scrollIntoView({behavior:'smooth'});}
