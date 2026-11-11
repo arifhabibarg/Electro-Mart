@@ -1219,7 +1219,8 @@ function renderSelectedProductVariant(){
  const detailImages=[...new Set([p.image_url,...(Array.isArray(p.image_urls)?p.image_urls:[])].filter(Boolean))].slice(0,5);activeDetailImageIndex=0;document.getElementById('detailImage').src=detailImages[0]||'';document.getElementById('detailImage').alt=p.name||'Product';document.getElementById('detailImageThumbs').innerHTML=detailImages.map((url,i)=>'<button type="button" class="detail-image-thumb '+(i===0?'active':'')+'" onclick="selectDetailImage('+i+')" aria-label="View product photo '+(i+1)+'"><img src="'+escapeHtml(url)+'" alt=""></button>').join('');document.getElementById('detailImageThumbs').hidden=detailImages.length<2;
  document.getElementById('detailCode').textContent='Product Code: '+(p.product_code||'');
  document.getElementById('detailName').textContent=p.name||'Unnamed product';
- const meta=[p.brand&&('Brand: '+p.brand),p.model&&('Model: '+p.model),p.category,p.subcategory].filter(Boolean);
+ const modelNumber=p.model_number||p.model||'';
+ const meta=[p.brand&&('Brand: '+p.brand),modelNumber&&('Model Number: '+modelNumber),p.category,p.subcategory].filter(Boolean);
  document.getElementById('detailMeta').innerHTML=meta.map(x=>'<span class="detail-chip">'+escapeHtml(x)+'</span>').join('');
  document.getElementById('detailPrice').innerHTML=priceMarkup(p);
  const inStock=Number(p.stock||0)>0;
