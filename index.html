@@ -492,6 +492,33 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
  .all-categories-popup.has-subcategory,.all-categories-popup.has-subcategory.has-brands{width:500px!important;max-width:calc(100vw - 16px)!important;}
 }
 
+
+/* Consistent smooth open/close motion for site overlays and panels */
+@supports (transition-behavior: allow-discrete){
+ .drawer-backdrop,.auth-backdrop,.profile-backdrop,.checkout-location-backdrop,.category-picker-backdrop,.admin-picker-backdrop,.profile-location-picker-backdrop,.detail-backdrop{
+  opacity:0;transition:opacity .24s ease,display .24s allow-discrete;
+ }
+ .drawer-backdrop.show,.auth-backdrop.show,.profile-backdrop.show,.checkout-location-backdrop.show,.detail-backdrop.show{opacity:1}
+ .category-picker-backdrop,.admin-picker-backdrop,.profile-location-picker-backdrop{transition:opacity .24s ease}
+ .drawer,.wishlist-panel,.tracking-panel,.auth-panel,.profile-panel,.checkout-location-picker,.category-picker,.admin-picker,.profile-location-picker{
+  transform:translateY(14px) scale(.985);opacity:0;
+  transition:transform .26s cubic-bezier(.2,.75,.25,1),opacity .22s ease;
+ }
+ .drawer-backdrop.show .drawer,.drawer-backdrop.show .wishlist-panel,.drawer-backdrop.show .tracking-panel,
+ .auth-backdrop.show .auth-panel,.profile-backdrop.show .profile-panel,
+ .checkout-location-backdrop.show .checkout-location-picker,
+ .category-picker-backdrop .category-picker,.admin-picker-backdrop .admin-picker,.profile-location-picker-backdrop .profile-location-picker{
+  transform:translateY(0) scale(1);opacity:1;
+ }
+ .drawer-backdrop:not(.show) .drawer,.drawer-backdrop:not(.show) .wishlist-panel,.drawer-backdrop:not(.show) .tracking-panel,
+ .auth-backdrop:not(.show) .auth-panel,.profile-backdrop:not(.show) .profile-panel,
+ .checkout-location-backdrop:not(.show) .checkout-location-picker{transform:translateY(12px) scale(.985);opacity:0}
+}
+@media(prefers-reduced-motion:reduce){
+ .drawer-backdrop,.auth-backdrop,.profile-backdrop,.checkout-location-backdrop,.category-picker-backdrop,.admin-picker-backdrop,.profile-location-picker-backdrop,
+ .drawer,.wishlist-panel,.tracking-panel,.auth-panel,.profile-panel,.checkout-location-picker,.category-picker,.admin-picker,.profile-location-picker{transition:none!important;animation:none!important}
+}
+
 </style>
 </head>
 <body>
