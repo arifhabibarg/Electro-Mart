@@ -62,7 +62,7 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
 .detail-image-thumbs{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;width:100%}.detail-image-thumb{width:62px;height:62px;border:1px solid #e5e5e5;border-radius:6px;background:#fff;padding:4px;cursor:pointer}.detail-image-thumb.active{border:2px solid #c49b00}.detail-image-thumb img{width:100%;height:100%;object-fit:contain}
 .product-photo-wrap .photo{transition:none}
 
-.brands-nav-btn{color:white;text-decoration:none;background:none;border:0;padding:12px 17px;font-size:12px;white-space:nowrap;cursor:pointer}.brands-nav-btn:hover,.brands-nav-btn[aria-expanded="true"]{color:var(--yellow)}.brands-popup{position:fixed;z-index:10002;top:122px;right:16px;width:min(520px,calc(100vw - 24px));max-height:65vh;overflow:auto;padding:16px;background:#fff;color:#222;border:1px solid #e5c000;border-radius:10px;box-shadow:0 18px 48px #0004}.brands-popup[hidden]{display:none}.brands-popup-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.brands-popup-head strong{font-size:15px}.brands-popup-close{width:30px;height:30px;border:0;border-radius:50%;background:#f1f1f1;font-size:20px}.brands-popup-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.brands-popup-item{min-width:0;padding:10px 8px;border:1px solid #e5e5e5;border-radius:6px;background:#fafafa;color:#222;font-size:12px;font-weight:700;overflow-wrap:anywhere}.brands-popup-item:hover{border-color:#c49b00;background:#fff6cf}@media(max-width:600px){.brands-nav-btn{padding:12px 10px;font-size:11px}.brands-popup{top:105px;right:8px;width:calc(100vw - 16px);max-height:65dvh;padding:12px}.brands-popup-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.brands-popup-item{padding:9px 6px;font-size:11px}}.all-categories-nav-btn{height:36px;padding:0 14px;border:1px solid #f5c400;border-radius:5px;background:#f5c400;color:#111;font-size:12px;font-weight:900;white-space:nowrap;cursor:pointer}
+.brands-nav-btn{color:white;text-decoration:none;background:none;border:0;padding:12px 17px;font-size:12px;white-space:nowrap;cursor:pointer}.brands-nav-btn:hover,.brands-nav-btn[aria-expanded="true"]{color:var(--yellow)}.brands-popup{position:fixed;top:auto;right:12px;bottom:12px;z-index:10002;width:min(820px,calc(100vw - 24px));max-height:72vh;overflow-y:auto;overflow-x:hidden;padding:16px;background:#fff;color:#222;border:1px solid #e5c000;border-radius:12px;box-shadow:0 18px 48px #0003;transform-origin:bottom right;animation:brandsPopupIn .26s ease-out}.brands-popup[hidden]{display:none}@keyframes brandsPopupIn{from{opacity:0;transform:translateY(22px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}.brands-popup-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.brands-popup-head strong{font-size:15px;color:#111}.brands-popup-close{border:0;background:#f1f1f1;border-radius:50%;width:30px;height:30px;font-size:19px}.brands-popup-list{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.brands-popup-item{min-width:0;padding:10px 8px;border:1px solid #e7e7e7;border-radius:7px;background:#fafafa;color:#222;font-size:12px;font-weight:700;overflow-wrap:anywhere;text-align:left;transition:background .18s,border-color .18s,transform .18s}.brands-popup-item:hover{border-color:#c49b00;background:#fff6cf;transform:translateY(-1px)}@media(max-width:600px){.brands-nav-btn{padding:12px 10px;font-size:11px}.brands-popup{right:8px;bottom:8px;width:calc(100vw - 16px);max-height:72dvh;padding:12px}.brands-popup-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.brands-popup-item{padding:9px 6px;font-size:11px}}.all-categories-nav-btn{height:36px;padding:0 14px;border:1px solid #f5c400;border-radius:5px;background:#f5c400;color:#111;font-size:12px;font-weight:900;white-space:nowrap;cursor:pointer}
 .nav-inner .all-categories-nav-btn{margin-left:auto;flex:0 0 auto}
 .all-categories-popup{position:fixed;top:auto;right:12px;bottom:12px;z-index:10001;width:min(820px,calc(100vw - 24px));max-height:72vh;overflow-y:auto;background:#fff;border:1px solid #e5c000;border-radius:12px;box-shadow:0 18px 48px #0003;padding:16px;transform-origin:bottom right;animation:allCategoriesPop .26s ease-out}
 @keyframes allCategoriesPop{from{opacity:0;transform:translateY(22px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
@@ -1119,29 +1119,27 @@ function ensureBrandsPopup(){
   popup=document.createElement('section');popup.id='brandsPopup';popup.className='brands-popup';popup.hidden=true;popup.setAttribute('aria-label','All brands');
   popup.innerHTML='<div class="brands-popup-head"><strong>Browse Brands</strong><button type="button" class="brands-popup-close" aria-label="Close brands">×</button></div><div class="brands-popup-list" id="brandsPopupList"></div>';
   document.body.appendChild(popup);
-  popup.querySelector('.brands-popup-close').addEventListener('click',()=>toggleBrandsPopup());
-  document.addEventListener('click',e=>{if(!popup.hidden&&!popup.contains(e.target)&&!e.target.closest('#brandsNavBtn'))toggleBrandsPopup();});
-  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!popup.hidden)toggleBrandsPopup();});
+  popup.querySelector('.brands-popup-close').addEventListener('click',()=>toggleBrandsPopup(false));
+  popup.querySelector('.brands-popup-list').addEventListener('click',e=>{const item=e.target.closest('[data-brand]');if(item)selectGlobalBrand(item.dataset.brand);});
+  document.addEventListener('click',e=>{if(!popup.hidden&&!popup.contains(e.target)&&!e.target.closest('#brandsNavBtn'))toggleBrandsPopup(false);});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!popup.hidden)toggleBrandsPopup(false);});
  }
  return popup;
 }
-function toggleBrandsPopup(event){
- if(event){event.preventDefault();event.stopPropagation();}
- const popup=ensureBrandsPopup(),btn=document.getElementById('brandsNavBtn'),open=popup.hidden;
+function toggleBrandsPopup(force){
+ const popup=ensureBrandsPopup(),btn=document.getElementById('brandsNavBtn');
+ const open=typeof force==='boolean'?force:popup.hidden;
  if(open){
   const brands=[...new Set([
    ...allProducts.map(p=>String(p.brand||'').trim()).filter(Boolean),
    ...Object.values(PRODUCT_TAXONOMY).flatMap(x=>x.brands||[])
   ])].sort((a,b)=>a.localeCompare(b));
-  document.getElementById('brandsPopupList').innerHTML=brands.length?brands.map(brand=>'<button type="button" class="brands-popup-item" onclick="selectGlobalBrand('+escapeHtml(JSON.stringify(brand))+')">'+escapeHtml(brand)+'</button>').join(''):'<span>No brands available yet.</span>';
-  const nav=document.querySelector('.navbar'),rect=btn?.getBoundingClientRect();
-  popup.style.top=Math.max(8,(nav?.getBoundingClientRect().bottom||122)+6)+'px';
-  if(rect)popup.style.right=Math.max(8,window.innerWidth-rect.right)+'px';
+  document.getElementById('brandsPopupList').innerHTML=brands.length?brands.map(brand=>'<button type="button" class="brands-popup-item" data-brand="'+escapeHtml(brand)+'">'+escapeHtml(brand)+'</button>').join(''):'<span>No brands available yet.</span>';
   popup.hidden=false;btn?.setAttribute('aria-expanded','true');
  }else{popup.hidden=true;btn?.setAttribute('aria-expanded','false');}
 }
 function selectGlobalBrand(brand){
- toggleBrandsPopup();
+ toggleBrandsPopup(false);
  activeCategory='';activeSubcategory='';activeBrand=brand;
  document.getElementById('searchCategory').value='';document.getElementById('searchInput').value='';
  refreshProducts();statusText.textContent=brand+' · '+visibleProducts().length+' Product';
