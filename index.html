@@ -547,7 +547,7 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
     </form>
    </section>
    <div class="admin-tab-content">
-    <section class="admin-card admin-tab-panel" id="adminManageProductsPanel"><h3>📦 Manage Products</h3><div style="margin:10px 0;padding:12px;border:1px solid #e7dca8;border-radius:8px;background:#fffdf3"><b>Xiaomi Watch Price Update</b><p class="admin-help">১০টি Xiaomi Watch পণ্যে অনলাইন বাজারদর + ৳২০০ ক্রয়মূল্য, তার ওপর ২০% লাভ এবং ৫% ছাড় প্রয়োগ করুন। এই কাজটি Admin লগইন সেশন দিয়ে হবে।</p><button class="admin-primary" type="button" id="updateXiaomiWatchPricesBtn" onclick="updateXiaomiWatchPrices()">১০টি Xiaomi Watch-এর দাম আপডেট করুন</button><p class="admin-msg" id="xiaomiWatchPriceUpdateStatus" aria-live="polite"></p></div><div id="adminProductList"><p class="admin-help">Loading...</p></div></section>
+    <section class="admin-card admin-tab-panel" id="adminManageProductsPanel"><h3>📦 Manage Products</h3><div id="adminProductList"><p class="admin-help">Loading...</p></div></section>
     <section class="admin-card admin-tab-panel" id="adminUserPermissionsPanel" style="margin-top:16px;display:none"><h3>👥 Staff & Role Management</h3><form id="adminPermissionForm"><div class="admin-field"><label for="newAdminEmail">Registered User Email</label><input id="newAdminEmail" type="email" required placeholder="user@example.com"></div><div class="admin-field" style="margin-top:12px"><label for="newStaffRole">Assign Role</label><select id="newStaffRole" required><option value="customer">Customer (Remove Staff Access)</option><option value="product_manager">Product Manager</option><option value="order_manager">Order Manager</option><option value="delivery_manager">Delivery Manager</option><option value="moderator">Moderator</option><option value="customer_support">Customer Support</option><option value="inventory_manager">Inventory Manager</option><option value="marketing_manager">Marketing Manager</option><option value="viewer">Viewer</option><option value="admin">Admin</option><option value="super_admin">Super Admin</option></select></div><div class="admin-actions"><button class="admin-primary" type="submit">Save Role</button></div><p class="admin-msg" id="permissionMessage"></p></form><div id="adminPermissionList"></div><p class="admin-help">User must already have an ElectroMart account. Admin/Super Admin roles require Super Admin authority.</p></section>
     <section class="admin-card admin-tab-panel" id="adminOrdersPanel" style="margin-top:16px"><h3>🧾 Order Management</h3><div id="adminOrdersList"><p class="admin-help">Loading orders...</p></div></section>
     <section class="admin-card admin-tab-panel" id="adminFinancePanel"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><h3>📊 Finance Report — ব্যবসার হিসাব ও লাভ-ক্ষতি</h3><button class="admin-secondary" type="button" onclick="loadFinanceReport()">হিসাব রিফ্রেশ</button></div><p class="admin-help">Delivered অর্ডারের মোট আদায় থেকে পণ্যের ক্রয়মূল্য, প্যাকেজিং, কুরিয়ার ডেলিভারি খরচ ও অন্যান্য খরচ বাদ দিয়ে নিট লাভ হিসাব হবে। অর্ডারের মোট টাকার মধ্যে ক্রেতার দেওয়া ডেলিভারি চার্জও অন্তর্ভুক্ত।</p><div id="financeSummary" class="admin-help">হিসাব লোড হচ্ছে...</div><div id="financeOrders"></div></section>
@@ -886,38 +886,6 @@ async function loadAdminProducts(){
   });
   box.dataset.animationBound='true';
  }
-}
-async function updateXiaomiWatchPrices(){
- const status=document.getElementById('xiaomiWatchPriceUpdateStatus'),button=document.getElementById('updateXiaomiWatchPricesBtn');
- const say=(m,type='')=>{if(status){status.textContent=m;status.className='admin-msg'+(type?' '+type);}};
- if(!isAdminRole()){say('এই কাজের জন্য Admin বা Super Admin লগইন প্রয়োজন।','error');return;}
- const prices=[
-  ['Redmi Watch 5',10999],['Redmi Watch 5 Active',4999],['Redmi Watch 5 Lite',5999],
-  ['Redmi Watch 4',9990],['Redmi Watch 3 Active',4290],['Redmi Watch 2 Lite',5990],
-  ['Xiaomi Watch 2',16499],['Xiaomi Watch 2 Pro',29925],['Xiaomi Watch S3',15500],['Xiaomi Watch S4',17499]
- ];
- if(!confirm('১০টি Xiaomi Watch-এর ক্রয়মূল্য ও বিক্রয়মূল্য নির্ধারিত নিয়মে আপডেট করবেন?'))return;
- button.disabled=true;say('Admin সেশন দিয়ে আপডেট হচ্ছে...');
- let updated=0,errors=[];
- try{
-  const models=prices.map(x=>x[0]);
-  const {data:products,error:findError}=await supabaseClient.from('products').select('id,model,name').in('model',models);
-  if(findError)throw findError;
-  if((products||[]).length!==10)throw new Error('১০টি পণ্য পাওয়া যায়নি। পাওয়া গেছে '+(products||[]).length+'টি; কোনো দাম পরিবর্তন করা হয়নি।');
-  for(const [model,onlinePrice] of prices){
-   const product=products.find(p=>(p.model||'').toLowerCase()===model.toLowerCase());
-   if(!product){errors.push(model+': পণ্য পাওয়া যায়নি');continue;}
-   const cost=onlinePrice,sale=Math.round(onlinePrice*1.20*100)/100;
-   const {error:updateError}=await supabaseClient.from('products').update({price:sale,discount_percent:5}).eq('id',product.id);
-   if(updateError){errors.push(model+': '+updateError.message);continue;}
-   const {error:costError}=await supabaseClient.from('product_costs').upsert({product_id:product.id,cost_price:cost,updated_at:new Date().toISOString()},{onConflict:'product_id'});
-   if(costError){errors.push(model+': বিক্রয়মূল্য হয়েছে, ক্রয়মূল্য সংরক্ষণ হয়নি — '+costError.message);continue;}
-   updated++;
-  }
-  if(errors.length)say(updated+'টি আপডেট হয়েছে; '+errors.length+'টিতে সমস্যা: '+errors.join(' | '),'error');
-  else {say('সফল! ১০টি Xiaomi Watch-এর ক্রয়মূল্য, বিক্রয়মূল্য ও ৫% ছাড় আপডেট হয়েছে।','success');await loadAdminProducts();await loadProducts();}
- }catch(error){say(error.message||'আপডেট করা যায়নি।','error');}
- finally{button.disabled=false;}
 }
 function calculateProductSalePrice(){
  const costInput=document.getElementById('apCostPrice')?.value.trim(),percentInput=document.getElementById('apProfitPercent')?.value.trim(),priceInput=document.getElementById('apPrice');
