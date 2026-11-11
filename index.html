@@ -534,7 +534,7 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
       <div class="admin-field full"><label for="apName">Product Name *</label><input id="apName" required maxlength="150" placeholder="e.g.: Samsung Galaxy A55"></div>
       <div class="admin-field"><label for="apModel">Model Number</label><input id="apModel" maxlength="100" placeholder="e.g.: SM-A556E"></div>
       <div class="admin-field"><label for="apDiscount">Product Discount</label><select id="apDiscount"><option value="0">No Discount (0%)</option><option value="5">5% OFF</option><option value="10">10% OFF</option><option value="15">15% OFF</option><option value="20">20% OFF</option><option value="25">25% OFF</option><option value="30">30% OFF</option><option value="35">35% OFF</option><option value="40">40% OFF</option><option value="45">45% OFF</option><option value="50">50% OFF</option><option value="60">60% OFF</option><option value="70">70% OFF</option></select></div>
-      <div class="admin-field" id="apCostField"><label for="apCostPrice">ক্রয়/তৈরির মোট খরচ (৳)</label><input id="apCostPrice" type="number" min="0" step="0.01" placeholder="যেমন: 1000" oninput="calculateProductSalePrice()"><small class="admin-help">এই খরচ শুধু অ্যাডমিনের হিসাবের জন্য; ক্রেতারা দেখবে না।</small></div><div class="admin-field" id="apProfitPercentField"><label for="apProfitPercent">খরচের ওপর লাভ যোগ (%)</label><input id="apProfitPercent" type="number" min="0" step="0.01" placeholder="যেমন: 20" oninput="calculateProductSalePrice()"><small class="admin-help">যেমন ১০০০ টাকা খরচে ২০% দিলে বিক্রয় মূল্য হবে ১২০০ টাকা।</small></div><div class="admin-field"><label for="apPrice">অটোমেটিক বিক্রয় মূল্য (৳)</label><input id="apPrice" type="number" min="0" step="0.01" required readonly aria-readonly="true" placeholder="খরচ ও লাভের % দিলেই হিসাব হবে"><small class="admin-help">এই ঘরে টাইপ করতে হবে না; নিচের দুইটি তথ্য থেকে মূল্য নিজে হিসাব হবে।</small></div>
+      <div class="admin-field" id="apCostField"><label for="apCostPrice">অনলাইন বাজারদর (৳)</label><input id="apCostPrice" type="number" min="0" step="0.01" placeholder="যেমন: 1000" oninput="calculateProductSalePrice()"><small class="admin-help">নতুন অনলাইন পণ্যে এখানে অনলাইন দাম দিন; সিস্টেম ২০০ টাকা যোগ করে ক্রয়মূল্য এবং তার ওপর ২০% যোগ করে বিক্রয়মূল্য হিসাব করবে।</small></div><div class="admin-field" id="apProfitPercentField"><label for="apProfitPercent">খরচের ওপর লাভ যোগ (%)</label><input id="apProfitPercent" type="number" min="0" step="0.01" placeholder="যেমন: 20" oninput="calculateProductSalePrice()"><small class="admin-help">যেমন ১০০০ টাকা খরচে ২০% দিলে বিক্রয় মূল্য হবে ১২০০ টাকা।</small></div><div class="admin-field"><label for="apPrice">অটোমেটিক বিক্রয় মূল্য (৳)</label><input id="apPrice" type="number" min="0" step="0.01" required readonly aria-readonly="true" placeholder="খরচ ও লাভের % দিলেই হিসাব হবে"><small class="admin-help">এই ঘরে টাইপ করতে হবে না; নিচের দুইটি তথ্য থেকে মূল্য নিজে হিসাব হবে।</small></div>
       <div class="admin-field"><label for="apStock">Stock *</label><input id="apStock" type="number" min="0" step="1" required value="1"></div>
       <div class="admin-field"><label for="apCategory">Category *</label><div class="admin-select-with-add"><button type="button" class="admin-search-select" data-search-select="apCategory" onclick="openProductSearchSelect(&quot;apCategory&quot;)"><span>Select</span><span>⌄</span></button><select id="apCategory" class="admin-native-select" onchange="updateProductSubcategories()"><option value="">Select</option><option>Audio</option><option>Smartwatches</option><option>Accessories</option></select></div></div><div class="admin-field"><label for="apSubcategory">Subcategory *</label><div class="admin-select-with-add"><button type="button" class="admin-search-select" data-search-select="apSubcategory" onclick="openProductSearchSelect(&quot;apSubcategory&quot;)"><span>First Category Select</span><span>⌄</span></button><select id="apSubcategory" class="admin-native-select"><option value="">First Category Select</option></select></div></div><div class="admin-field"><label for="apBrand">Brand *</label><div class="admin-select-with-add"><button type="button" class="admin-search-select" data-search-select="apBrand" onclick="openProductSearchSelect(&quot;apBrand&quot;)"><span>First Category Select</span><span>⌄</span></button><select id="apBrand" class="admin-native-select"><option value="">First Category Select</option></select></div></div>
       <div class="admin-field"><label for="apImage">Product Photos (maximum 8) *</label><input id="apImage" type="file" accept="image/jpeg,image/png,image/webp" multiple><small class="admin-help">একসঙ্গে সর্বোচ্চ ৮টি JPG, PNG বা WebP ছবি দিন। প্রতিটি ছবি সর্বোচ্চ 5 MB।</small></div>
@@ -891,9 +891,9 @@ function calculateProductSalePrice(){
  const costInput=document.getElementById('apCostPrice')?.value.trim(),percentInput=document.getElementById('apProfitPercent')?.value.trim(),priceInput=document.getElementById('apPrice');
  if(!priceInput)return;
  if(costInput===''||percentInput===''){priceInput.value='';return;}
- const cost=Number(costInput),percent=Number(percentInput);
+ const rawCost=Number(costInput),percent=Number(percentInput);const cost=editingProductId?rawCost:rawCost+200;
  if(!Number.isFinite(cost)||cost<0||!Number.isFinite(percent)||percent<0){priceInput.value='';return;}
- priceInput.value=(cost*(1+percent/100)).toFixed(2);
+ priceInput.value=(cost*(1+percent/100)).toFixed(2);if(!editingProductId){const discount=document.getElementById('apDiscount');if(discount)discount.value='5';}
 }
 let editingProductImageUrls=[];
 function resetAdminProductForm(){
@@ -976,8 +976,9 @@ async function saveAdminProduct(event){
   if(result.error)throw result.error;
   if(isAdminRole()){
    const costValue=document.getElementById('apCostPrice').value.trim();
-   if(costValue==='')throw new Error('অ্যাডমিন হিসাবের জন্য পণ্যের ক্রয়/তৈরির খরচ লিখুন।');
-   const {error:costError}=await supabaseClient.from('product_costs').upsert({product_id:result.data.id,cost_price:Number(costValue),updated_at:new Date().toISOString()},{onConflict:'product_id'});
+   if(costValue==='')throw new Error('অনলাইন বাজারদর লিখুন।');
+   const finalCost=editingProductId?Number(costValue):Number(costValue)+200;
+   const {error:costError}=await supabaseClient.from('product_costs').upsert({product_id:result.data.id,cost_price:finalCost,updated_at:new Date().toISOString()},{onConflict:'product_id'});
    if(costError)throw costError;
   }
   adminMessage('apMessage',editingProductId?'Product updated successfully।':'New product added successfully।','success');
@@ -992,12 +993,12 @@ async function importAdminProductsBulk(){
  let rows;
  try{rows=JSON.parse(input.value);}catch(error){report('JSON ফরম্যাট ঠিক নেই: '+error.message,'error');return;}
  if(!Array.isArray(rows)||!rows.length||rows.length>10){report('একবারে ১ থেকে ১০টি পণ্য দিতে হবে।','error');return;}
- const required=['name','model','brand','category','subcategory','price','cost_price','image_urls'];
+ const required=['name','model','brand','category','subcategory','price','image_urls'];
  for(let i=0;i<rows.length;i++){
   const p=rows[i];
   if(!p||required.some(k=>p[k]===undefined||p[k]===null||p[k]==='')){report('পণ্য '+(i+1)+': প্রয়োজনীয় তথ্য অনুপস্থিত।','error');return;}
   if(!Array.isArray(p.image_urls)||p.image_urls.length<3||p.image_urls.length>5||p.image_urls.some(u=>typeof u!=='string'||!/^https?:\/\//i.test(u))){report('পণ্য '+(i+1)+': ৩–৫টি সঠিক ছবির URL দিতে হবে।','error');return;}
-  if(!Number.isFinite(Number(p.price))||Number(p.price)<=0||!Number.isFinite(Number(p.cost_price))||Number(p.cost_price)<0||!Number.isFinite(Number(p.stock??0))||Number(p.stock??0)<0){report('পণ্য '+(i+1)+': মূল্য, ক্রয়মূল্য বা স্টক সঠিক নয়।','error');return;}
+  if(!Number.isFinite(Number(p.price))||Number(p.price)<=0||!Number.isFinite(Number(p.stock??0))||Number(p.stock??0)<0){report('পণ্য '+(i+1)+': মূল্য, ক্রয়মূল্য বা স্টক সঠিক নয়।','error');return;}
  }
  button.disabled=true;button.textContent='Importing...';let added=0,skipped=0,failed=[];
  try{
@@ -1008,10 +1009,10 @@ async function importAdminProductsBulk(){
    if((matches||[]).some(x=>(x.model||'').toLowerCase()===model.toLowerCase()||(x.name||'').toLowerCase()===name.toLowerCase())){skipped++;continue;}
    const images=[...new Set(p.image_urls.map(x=>x.trim()))];
    if(images.length<3){failed.push(name+': একই ছবি/URL পুনরাবৃত্তি হয়েছে');continue;}
-   const payload={name,model,brand,category:String(p.category),subcategory:String(p.subcategory),price:Number(p.price),stock:Number(p.stock??0),discount_percent:Number(p.discount_percent??0),description:String(p.description||''),full_description:String(p.full_description||p.description||''),is_active:p.is_active!==false,image_url:images[0],image_urls:images};
+   const onlinePrice=Number(p.price),calculatedCost=onlinePrice+200,calculatedSale=Math.round(calculatedCost*1.20*100)/100;const payload={name,model,brand,category:String(p.category),subcategory:String(p.subcategory),price:calculatedSale,stock:Number(p.stock??0),discount_percent:5,description:String(p.description||''),full_description:String(p.full_description||p.description||''),is_active:p.is_active!==false,image_url:images[0],image_urls:images};
    const {data:created,error:insertError}=await supabaseClient.from('products').insert(payload).select('id').single();
    if(insertError){failed.push(name+': '+insertError.message);continue;}
-   const {error:costError}=await supabaseClient.from('product_costs').upsert({product_id:created.id,cost_price:Number(p.cost_price),packaging_cost:Number(p.packaging_cost||0),courier_cost:0,other_cost:Number(p.other_cost||0),updated_at:new Date().toISOString()},{onConflict:'product_id'});
+   const {error:costError}=await supabaseClient.from('product_costs').upsert({product_id:created.id,cost_price:calculatedCost,packaging_cost:Number(p.packaging_cost||0),courier_cost:0,other_cost:Number(p.other_cost||0),updated_at:new Date().toISOString()},{onConflict:'product_id'});
    if(costError){failed.push(name+': পণ্য তৈরি হয়েছে, কিন্তু খরচের হিসাব যোগ হয়নি — '+costError.message);continue;}
    added++;
   }
