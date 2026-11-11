@@ -1009,7 +1009,7 @@ const money=n=>'৳'+Number(n||0).toLocaleString('en-BD');
 const discountPercent=p=>Math.max(0,Math.min(90,Number(p?.discount_percent??0)||0));
 const markedPrice=p=>Math.round(Number(p?.compare_at_price??p?.price??0));
 const discountedPrice=p=>p?.compare_at_price!=null?Math.round(Number(p.price||0)):Math.round(markedPrice(p)*(1-discountPercent(p)/100));
-const priceMarkup=p=>discountPercent(p)>0?'<del class="old-price" style="display:inline-block;color:#888;text-decoration:line-through;text-decoration-thickness:2px;text-decoration-color:#888;margin-right:9px">'+money(markedPrice(p))+'</del> <strong>'+money(discountedPrice(p))+'</strong><small class="discount-card-label">'+discountPercent(p)+'% OFF</small>':'<strong>'+money(markedPrice(p))+'</strong>';
+const priceMarkup=p=>discountPercent(p)>0?'<del class="old-price" style="display:inline-block;color:#888;text-decoration:line-through;text-decoration-thickness:2px;text-decoration-color:#888;margin-right:9px">'+money(markedPrice(p))+'</del> <span style="display:inline-flex;align-items:center;gap:4px;white-space:nowrap;vertical-align:middle"><strong>'+money(discountedPrice(p))+'</strong><small class="discount-card-label" style="display:inline-block!important;font-size:9px!important;line-height:1!important;padding:2px 4px!important;margin:0!important;vertical-align:middle">'+discountPercent(p)+'% OFF</small></span>':'<strong>'+money(markedPrice(p))+'</strong>';
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
 const SIDE_CATEGORY_META={"Smartwatches":["◷","Smartwatches"],"Accessories":["♡","Accessories"],"Audio":["♫","Audio"]};
