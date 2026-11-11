@@ -744,7 +744,7 @@ async function updateOrderStatus(id,status){
 }
 async function loadAdminProducts(){
  const box=document.getElementById('adminProductList');box.innerHTML='<p class="admin-help">Loading...</p>';
- const {data,error}=await supabaseClient.from('products').select('id,product_code,name,price,stock,image_url,is_active,category,subcategory,brand').order('created_at',{ascending:false}).limit(500);
+ const {data,error}=await supabaseClient.from('products').select('id,product_code,name,price,stock,image_url,is_active,category,subcategory,brand').order('created_at',{ascending:false}).range(0,999);
  if(error){box.innerHTML='<p class="admin-help">Product ANo could not: '+escapeHtml(error.message)+'</p>';return;}
  const rows=data||[],groups=new Map();
  rows.forEach(p=>{
