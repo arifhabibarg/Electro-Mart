@@ -546,6 +546,10 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible),[role="button"]:foc
 .all-categories-popup:not([hidden]){animation:allCategoriesPopupIn .26s cubic-bezier(.2,.75,.25,1) both;transform-origin:bottom right}
 .brands-popup:not([hidden]){animation:brandsPopupIn .26s cubic-bezier(.2,.75,.25,1) both}
 @media(prefers-reduced-motion:reduce){.all-categories-popup:not([hidden]),.brands-popup:not([hidden]){animation:none!important}}
+
+@keyframes popupGrowFromTrigger{0%{opacity:0;transform:scale(.08)}65%{opacity:1;transform:scale(1.025)}100%{opacity:1;transform:scale(1)}}
+.brands-popup:not([hidden]),.all-categories-popup:not([hidden]){animation:popupGrowFromTrigger .34s cubic-bezier(.2,.8,.2,1) both}
+@media(prefers-reduced-motion:reduce){.brands-popup:not([hidden]),.all-categories-popup:not([hidden]){animation:none!important}}
 </style>
 </head>
 <body>
@@ -1117,6 +1121,15 @@ const discountedPrice=p=>p?.compare_at_price!=null?Math.round(Number(p.price||0)
 const priceMarkup=p=>discountPercent(p)>0?'<del class="old-price">'+money(markedPrice(p))+'</del><strong>'+money(discountedPrice(p))+'</strong><small class="discount-card-label">'+discountPercent(p)+'% OFF</small>':'<strong>'+money(markedPrice(p))+'</strong>';
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
+
+function animatePopupFromButton(popup,button,animationName){
+ if(!popup||!button)return;
+ const p=popup.getBoundingClientRect(),b=button.getBoundingClientRect();
+ popup.style.transformOrigin=(b.left+b.width/2-p.left)+'px '+(b.top+b.height/2-p.top)+'px';
+ popup.style.animation='none';void popup.offsetWidth;
+ popup.style.animation=animationName+' .34s cubic-bezier(.2,.8,.2,1) both';
+}
+
 const SIDE_CATEGORY_META={"Smartwatches":["◷","Smartwatches"],"Accessories":["♡","Accessories"],"Audio":["♫","Audio"]};
 let expandedSideCategory='',expandedSideSubcategory='';
 function ensureBrandsPopup(){
@@ -1141,7 +1154,7 @@ function toggleBrandsPopup(force){
    ...Object.values(PRODUCT_TAXONOMY).flatMap(x=>x.brands||[])
   ])].sort((a,b)=>a.localeCompare(b));
   document.getElementById('brandsPopupList').innerHTML=brands.length?brands.map(brand=>'<button type="button" class="brands-popup-item" data-brand="'+escapeHtml(brand)+'">'+escapeHtml(brand)+'</button>').join(''):'<span>No brands available yet.</span>';
-  popup.hidden=false;btn?.setAttribute('aria-expanded','true');
+  popup.hidden=false;btn?.setAttribute('aria-expanded','true');animatePopupFromButton(popup,btn,'popupGrowFromTrigger');
  }else{popup.hidden=true;btn?.setAttribute('aria-expanded','false');}
 }
 function selectGlobalBrand(brand){
@@ -1171,7 +1184,7 @@ function toggleAllCategoriesPopup(force){
  renderSideCategories();
  popup.hidden=!open;
  if(btn)btn.setAttribute('aria-expanded',String(open));
- if(open){popup.style.animation='none';void popup.offsetWidth;popup.style.animation='';}
+ if(open){animatePopupFromButton(popup,btn,'popupGrowFromTrigger');}
 }
 function renderSideCategories(){
  const popup=ensureAllCategoriesPopup();
