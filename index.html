@@ -390,6 +390,26 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
 
 
 .cancel-order-box{margin-top:14px;padding:12px;border:1px solid #eee;border-radius:9px;background:#fff}.cancel-order-label{display:block;font-weight:700;margin-bottom:8px}.cancel-reason-wrap{position:relative}.cancel-reason-trigger{width:100%;display:flex;justify-content:space-between;align-items:center;text-align:left;padding:11px 12px;border:1px solid #ddd;border-radius:6px;background:#fff;color:#222;font:inherit;font-size:13px}.cancel-chevron{color:#8a6b00;font-size:17px}.cancel-reason-menu{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:8;max-height:220px;overflow:auto;background:#fff;border:1px solid #e5e5e5;border-radius:7px;box-shadow:0 8px 24px #0002}.cancel-reason-option{display:block;width:100%;padding:10px 12px;border:0;border-bottom:1px solid #f1f1f1;background:#fff;color:#222;text-align:left;font:inherit;font-size:13px}.cancel-reason-option:last-child{border-bottom:0}.cancel-reason-option:hover{background:#fff8d8}.cancel-order-actions{display:flex;justify-content:flex-end;margin-top:10px}.cancel-order-button{width:auto;min-width:0;border:0;border-radius:5px;background:#c62828;color:#fff;padding:8px 13px;font-size:12px;font-weight:700}.cancel-order-button:disabled{opacity:.6}.cancel-order-note{display:block;margin-top:7px;color:#777;font-size:11px}
+
+/* All Categories: stable three-step accordion with smooth column transitions */
+.all-categories-popup{width:min(760px,calc(100vw - 24px));height:min(68vh,620px);max-height:68vh;display:flex;flex-direction:column;overflow:hidden;transition:width .32s cubic-bezier(.2,.75,.25,1),height .32s ease;}
+.all-categories-popup.has-brands{width:min(760px,calc(100vw - 24px));min-width:0;flex-direction:column;flex-wrap:nowrap;align-content:stretch;}
+.all-categories-popup .all-categories-popup-head{flex:0 0 auto;width:100%;margin-bottom:12px;}
+.all-categories-popup .all-categories-popup-workspace{display:grid;grid-template-columns:minmax(0,1fr);gap:0;flex:1;min-height:0;overflow:hidden;transition:grid-template-columns .32s cubic-bezier(.2,.75,.25,1);}
+.all-categories-popup.has-category .all-categories-popup-workspace{grid-template-columns:minmax(125px,.72fr) minmax(0,1.28fr);}
+.all-categories-popup.has-subcategory .all-categories-popup-workspace{grid-template-columns:minmax(105px,.62fr) minmax(125px,.78fr) minmax(0,1.2fr);}
+.all-categories-popup .all-categories-popup-list,.all-categories-popup .all-categories-popup-brands{min-width:0;max-height:none!important;min-height:0;overflow-y:auto;overflow-x:hidden;padding:4px 10px;overscroll-behavior:contain;}
+.all-categories-popup .all-categories-popup-list{border-right:1px solid #eee;}
+.all-categories-popup .all-categories-popup-brands{border:0;border-right:1px solid #eee;padding-top:4px;opacity:1;transform:translateX(0);transition:opacity .24s ease,transform .32s ease;}
+.all-categories-popup .all-categories-popup-brands[hidden]{display:block!important;visibility:hidden;opacity:0;pointer-events:none;overflow:hidden;padding-left:0;padding-right:0;border:0;}
+.all-categories-popup.has-category #allCategoriesPopupSubs:not([hidden]),.all-categories-popup.has-subcategory #allCategoriesPopupBrands:not([hidden]){visibility:visible;}
+.all-categories-popup .all-categories-popup-brand-list{display:flex;flex-direction:column;flex-wrap:nowrap;gap:7px;max-height:none;overflow:visible;}
+.all-categories-popup .all-categories-popup-item,.all-categories-popup .all-categories-popup-brand{width:100%;text-align:left;border-radius:9px;padding:11px 12px;background:#fff;border:1px solid #e9e9e9;color:#222;font-size:12px;font-weight:700;transition:background .2s,border-color .2s,transform .2s,box-shadow .2s;}
+.all-categories-popup .all-categories-popup-item.active{background:#fff4c2;border-color:#d6ad00;box-shadow:inset 3px 0 #d6ad00;transform:scale(.975);}
+.all-categories-popup .all-categories-popup-brand:hover,.all-categories-popup .all-categories-popup-item:hover{background:#fff8df;border-color:#d6ad00;}
+.all-categories-popup .all-categories-popup-brands-title{position:sticky;top:-4px;background:#fff;padding:7px 2px 10px;z-index:1;}
+@media(max-width:600px){.all-categories-popup,.all-categories-popup.has-brands{right:8px;bottom:8px;left:8px;width:auto;min-width:0;max-width:none;height:65dvh;max-height:65dvh;padding:12px;border-radius:15px;}.all-categories-popup.has-category .all-categories-popup-workspace{grid-template-columns:minmax(88px,.68fr) minmax(0,1.32fr);}.all-categories-popup.has-subcategory .all-categories-popup-workspace{grid-template-columns:minmax(66px,.55fr) minmax(88px,.75fr) minmax(0,1.1fr);}.all-categories-popup .all-categories-popup-list,.all-categories-popup .all-categories-popup-brands{padding:3px 6px;}.all-categories-popup .all-categories-popup-item,.all-categories-popup .all-categories-popup-brand{font-size:10px;padding:9px 7px;overflow-wrap:anywhere;}.all-categories-popup .all-categories-popup-brands-title{font-size:10px;}}
+@media(prefers-reduced-motion:reduce){.all-categories-popup,.all-categories-popup *{transition:none!important;animation:none!important;}}
 </style>
 </head>
 <body>
@@ -952,10 +972,10 @@ const priceMarkup=p=>discountPercent(p)>0?'<del class="old-price" style="display
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
 const SIDE_CATEGORY_META={"Smartwatches":["◷","Smartwatches"],"Accessories":["♡","Accessories"],"Audio":["♫","Audio"]};
-let expandedSideCategory='';
+let expandedSideCategory='',expandedSideSubcategory='';
 function ensureAllCategoriesPopup(){
  let popup=document.getElementById('allCategoriesPopup');
- if(!popup){popup=document.createElement('section');popup.id='allCategoriesPopup';popup.className='all-categories-popup';popup.hidden=true;popup.setAttribute('aria-label','All product categories');popup.innerHTML='<div class="all-categories-popup-head"><strong>All Categories</strong><button type="button" class="all-categories-popup-close" aria-label="Close categories" onclick="toggleAllCategoriesPopup(false)">×</button></div><div class="all-categories-popup-list" id="allCategoriesPopupList"></div><div class="all-categories-popup-brands" id="allCategoriesPopupSubs" hidden><div class="all-categories-popup-brands-title" id="allCategoriesPopupSubsTitle">Subcategories</div><div class="all-categories-popup-brand-list" id="allCategoriesPopupSubList"></div></div><div class="all-categories-popup-brands" id="allCategoriesPopupBrands" hidden><div class="all-categories-popup-brands-title" id="allCategoriesPopupBrandsTitle">Brands</div><div class="all-categories-popup-brand-list" id="allCategoriesPopupBrandList"></div></div>';document.body.appendChild(popup);document.addEventListener('click',e=>{if(!popup.hidden&&!popup.contains(e.target)&&!e.target.closest('#allCategoriesNavBtn'))toggleAllCategoriesPopup(false);});}
+ if(!popup){popup=document.createElement('section');popup.id='allCategoriesPopup';popup.className='all-categories-popup';popup.hidden=true;popup.setAttribute('aria-label','All product categories');popup.innerHTML='<div class="all-categories-popup-head"><strong>All Categories</strong><button type="button" class="all-categories-popup-close" aria-label="Close categories" onclick="toggleAllCategoriesPopup(false)">×</button></div><div class="all-categories-popup-workspace"><div class="all-categories-popup-list" id="allCategoriesPopupList"></div><div class="all-categories-popup-brands" id="allCategoriesPopupSubs" hidden><div class="all-categories-popup-brands-title" id="allCategoriesPopupSubsTitle">Subcategories</div><div class="all-categories-popup-brand-list" id="allCategoriesPopupSubList"></div></div><div class="all-categories-popup-brands" id="allCategoriesPopupBrands" hidden><div class="all-categories-popup-brands-title" id="allCategoriesPopupBrandsTitle">Brands</div><div class="all-categories-popup-brand-list" id="allCategoriesPopupBrandList"></div></div></div>';document.body.appendChild(popup);document.addEventListener('click',e=>{if(!popup.hidden&&!popup.contains(e.target)&&!e.target.closest('#allCategoriesNavBtn'))toggleAllCategoriesPopup(false);});}
  return popup;
 }
 function toggleAllCategoriesPopup(force){
@@ -965,7 +985,7 @@ function toggleAllCategoriesPopup(force){
 }
 function renderSideCategories(){
  const popup=ensureAllCategoriesPopup(),list=document.getElementById('allCategoriesPopupList');
- popup.classList.toggle('has-brands',!!expandedSideCategory);
+ popup.classList.toggle('has-brands',!!expandedSideCategory);popup.classList.toggle('has-category',!!expandedSideCategory);popup.classList.toggle('has-subcategory',!!expandedSideSubcategory);
  const dynamicCategories=[...new Set(allProducts.map(p=>String(p.category||p.category_name||'').trim()).filter(Boolean))];
  const categories=[...new Set([...Object.keys(SIDE_CATEGORY_META),...Object.keys(PRODUCT_TAXONOMY),...dynamicCategories])];
  list.innerHTML=categories.map(cat=>'<button type="button" class="all-categories-popup-item '+(expandedSideCategory===cat?'active':'')+'" aria-pressed="'+(expandedSideCategory===cat)+'" onclick="event.stopPropagation();toggleSideCategory('+escapeHtml(JSON.stringify(cat))+')">'+escapeHtml((SIDE_CATEGORY_META[cat]||['',cat])[1])+'</button>').join('');
@@ -976,16 +996,17 @@ function renderSideCategories(){
  const actualSubs=allProducts.filter(p=>String(p.category||p.category_name||'').trim()===expandedSideCategory).map(p=>String(p.subcategory||'').trim()).filter(Boolean);
  const subs=[...new Set([...(cfg.subs||[]),...actualSubs])];
  subsTitle.textContent=expandedSideCategory+' · Subcategories';
- subList.innerHTML=subs.length?subs.map(sub=>'<button type="button" class="all-categories-popup-brand" onclick="filterBySubcategory('+escapeHtml(JSON.stringify(expandedSideCategory))+','+escapeHtml(JSON.stringify(sub))+');toggleAllCategoriesPopup(false)">'+escapeHtml(sub)+'</button>').join(''):'<span style="color:#777;font-size:12px">এই ক্যাটাগরিতে এখনো কোনো সাব-ক্যাটাগরি যোগ করা হয়নি।</span>';
+ subList.innerHTML=subs.length?subs.map(sub=>'<button type="button" class="all-categories-popup-brand '+(expandedSideSubcategory===sub?'active':'')+'" onclick="event.stopPropagation();toggleSideSubcategory('+escapeHtml(JSON.stringify(sub))+')">'+escapeHtml(sub)+'</button>').join(''):'<span style="color:#777;font-size:12px">এই ক্যাটাগরিতে এখনো কোনো সাব-ক্যাটাগরি যোগ করা হয়নি।</span>';
  subsPanel.hidden=false;
  const actualBrands=allProducts.filter(p=>String(p.category||p.category_name||'').trim()===expandedSideCategory).map(p=>String(p.brand||'').trim()).filter(Boolean);
  const brands=[...new Set([...(cfg.brands||[]),...actualBrands])];
  title.textContent=expandedSideCategory+' · Brands';
  brandList.innerHTML=brands.length?brands.map(brand=>'<button type="button" class="all-categories-popup-brand" onclick="filterByBrand('+escapeHtml(JSON.stringify(expandedSideCategory))+','+escapeHtml(JSON.stringify(brand))+');toggleAllCategoriesPopup(false)">'+escapeHtml(brand)+'</button>').join(''):'<span style="color:#777;font-size:12px">এই ক্যাটাগরিতে এখনো কোনো ব্র্যান্ড যোগ করা হয়নি।</span>';
- brandsPanel.hidden=false;
+ brandsPanel.hidden=!expandedSideSubcategory;
 }
 function renderCategoryDetailPanel(){}
-function toggleSideCategory(cat){expandedSideCategory=expandedSideCategory===cat?'':cat;renderSideCategories();}
+function toggleSideCategory(cat){if(expandedSideCategory===cat){expandedSideCategory='';expandedSideSubcategory='';}else{expandedSideCategory=cat;expandedSideSubcategory='';}renderSideCategories();}
+function toggleSideSubcategory(sub){expandedSideSubcategory=expandedSideSubcategory===sub?'':sub;renderSideCategories();}
 function filterBySubcategory(cat,sub){activeCategory=cat;activeSubcategory=sub;activeBrand='';document.getElementById('searchCategory').value='';document.getElementById('searchInput').value='';refreshProducts();statusText.textContent=sub+' · '+visibleProducts().length+' Product';document.getElementById('featured').scrollIntoView({behavior:'smooth'});}
 function filterByBrand(cat,brand){activeCategory=cat;activeSubcategory='';activeBrand=brand;document.getElementById('searchCategory').value='';document.getElementById('searchInput').value='';refreshProducts();statusText.textContent=brand+' · '+visibleProducts().length+' Product';document.getElementById('featured').scrollIntoView({behavior:'smooth'});}
 function productCategory(p){return String(p.category||p.category_name||'').toLowerCase();}
@@ -1000,7 +1021,7 @@ function refreshProducts(){const items=visibleProducts();const grouped=getProduc
 function applySearch(){activeCategory='';activeSubcategory='';activeBrand='';refreshProducts();document.getElementById('featured').scrollIntoView({behavior:'smooth'});}
 function filterByCategory(cat){activeCategory=cat;activeSubcategory='';activeBrand='';document.getElementById('searchCategory').value='';refreshProducts();document.getElementById('featured').scrollIntoView({behavior:'smooth'});}
 function clearCategory(){activeCategory='';activeSubcategory='';activeBrand='';document.getElementById('searchCategory').value='';document.getElementById('searchInput').value='';refreshProducts();}
- function goHome(event){if(event)event.preventDefault();clearCategory();expandedSideCategory='';renderSideCategories();if(location.hash!=='#home')history.replaceState(null,'','#home');window.scrollTo({top:0,behavior:'smooth'});}
+ function goHome(event){if(event)event.preventDefault();clearCategory();expandedSideCategory='';expandedSideSubcategory='';renderSideCategories();if(location.hash!=='#home')history.replaceState(null,'','#home');window.scrollTo({top:0,behavior:'smooth'});}
 function addToCart(id){const p=allProducts.find(x=>String(x.id)===String(id));if(!p)return;const stock=Math.max(0,Number(p.stock)||0);if(stock<=0){alert('দুঃখিত, এই পণ্যটি বর্তমানে স্টকে নেই।');return;}if((cart[id]||0)>=stock){alert('দুঃখিত, স্টকে থাকা সর্বোচ্চ '+stock+'টি পণ্যই কার্টে যোগ করা যাবে।');return;}cart[id]=(cart[id]||0)+1;updateCart();}
 function changeQty(id,n){const p=allProducts.find(x=>String(x.id)===String(id));if(!p){delete cart[id];updateCart();return;}const next=(cart[id]||0)+n;if(next<=0)delete cart[id];else if(next>Math.max(0,Number(p.stock)||0)){alert('স্টকের চেয়ে বেশি পরিমাণ যোগ করা যাবে না।');return;}else cart[id]=next;updateCart();}
 const DELIVERY_CHARGE=150;
