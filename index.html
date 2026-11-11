@@ -465,6 +465,32 @@ footer{background:#111;color:#aaa;padding:28px 18px;text-align:center;font-size:
   }
 }
 
+
+/* All Categories: staged width and reliable close behavior */
+.all-categories-popup[hidden]{display:none!important;}
+.all-categories-popup{
+ box-sizing:border-box!important;
+ width:300px!important;max-width:calc(100vw - 24px)!important;
+ height:50vh!important;max-height:50vh!important;min-height:0!important;
+ transition:width .28s ease!important;
+}
+.all-categories-popup.has-category{
+ width:400px!important;max-width:calc(100vw - 24px)!important;
+}
+.all-categories-popup.has-subcategory{
+ width:500px!important;max-width:calc(100vw - 24px)!important;
+}
+.all-categories-popup.has-brands{width:400px!important;max-width:calc(100vw - 24px)!important;}
+.all-categories-popup.has-subcategory.has-brands{width:500px!important;max-width:calc(100vw - 24px)!important;}
+@media(max-width:600px){
+ .all-categories-popup,.all-categories-popup.has-brands{
+  width:300px!important;max-width:calc(100vw - 16px)!important;
+  height:50dvh!important;max-height:50dvh!important;min-height:0!important;
+ }
+ .all-categories-popup.has-category{width:400px!important;max-width:calc(100vw - 16px)!important;}
+ .all-categories-popup.has-subcategory,.all-categories-popup.has-subcategory.has-brands{width:500px!important;max-width:calc(100vw - 16px)!important;}
+}
+
 </style>
 </head>
 <body>
