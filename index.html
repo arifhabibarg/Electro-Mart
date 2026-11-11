@@ -936,7 +936,7 @@ document.getElementById('apCategory').addEventListener('change',()=>updateProduc
 ['apCategory','apSubcategory','apBrand'].forEach(syncProductSearchSelect);document.getElementById('adminProductForm').addEventListener('submit',saveAdminProduct);
 document.getElementById('adminPermissionForm').addEventListener('submit',addAdminPermission);
 
-async function initAuth(){const {data}=await supabaseClient.auth.getSession();updateAuthUI(data.session?.user||null);if(!data.session?.user){sessionStorage.removeItem('electromart_admin_panel_open');}else if(sessionStorage.getItem('electromart_admin_panel_open')==='1'){await toggleAdminPanel();}supabaseClient.auth.onAuthStateChange((_event,session)=>{updateAuthUI(session?.user||null);if(!session)sessionStorage.removeItem('electromart_admin_panel_open');});}
+async function initAuth(){const {data}=await supabaseClient.auth.getSession();const user=data.session?.user||null;updateAuthUI(user);if(!user){sessionStorage.removeItem('electromart_admin_panel_open');await refreshAdminAccess();}else{await refreshAdminAccess();if(sessionStorage.getItem('electromart_admin_panel_open')==='1'){await toggleAdminPanel();}}supabaseClient.auth.onAuthStateChange(async(_event,session)=>{updateAuthUI(session?.user||null);if(!session){sessionStorage.removeItem('electromart_admin_panel_open');}await refreshAdminAccess();});}
 
 let allProducts=[],activeCategory='',activeSubcategory='',activeBrand='',cart={},wishlist=new Set(JSON.parse(localStorage.getItem('electromart_wishlist')||'[]').map(String));
 const money=n=>'৳'+Number(n||0).toLocaleString('en-BD');
