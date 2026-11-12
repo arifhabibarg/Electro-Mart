@@ -1442,11 +1442,11 @@ async function saveStaffMemberRole(userId,email){
   if(targetEmail.trim().toLowerCase()===String(currentAuthUser.email||'').toLowerCase()){await showElectroMartNotice('নিজের ইমেইল দেওয়া যাবে না। অন্য একজনকে নির্বাচন করো।','নতুন Super Admin প্রয়োজন');return;}
   if(!await showElectroMartConfirm(targetEmail.trim()+'-কে আগে Super Admin করা হবে। তারপর তোমার Role হবে '+roleLabel+'. এই কাজটি চালিয়ে যাবে?','Super Admin হস্তান্তর','হ্যাঁ, OTP পাঠাও'))return;
 
-  const {error:sendError}=await supabaseClient.auth.reauthenticate();
-  if(sendError){await showElectroMartNotice('তোমার ইমেইলে OTP পাঠানো যায়নি: '+sendError.message,'OTP পাঠানো হয়নি');return;}
+  const {data:sendData,error:sendError}=await supabaseClient.functions.invoke('verify-super-admin-handoff',{body:{action:'send'}});
+  if(sendError||!sendData?.success){await showElectroMartNotice('তোমার ইমেইলে OTP পাঠানো যায়নি: '+(sendData?.error||sendError?.message||'অনুগ্রহ করে পরে চেষ্টা করো'),'OTP পাঠানো হয়নি');return;}
   const otp=window.prompt('তোমার নিবন্ধিত ইমেইলে পাঠানো ৬ সংখ্যার OTP লিখো:');
   if(!otp)return;
-  const {data:handoffData,error:handoffError}=await supabaseClient.functions.invoke('verify-super-admin-handoff',{body:{targetEmail:targetEmail.trim(),newRole:role,otp:otp.trim()}});
+  const {data:handoffData,error:handoffError}=await supabaseClient.functions.invoke('verify-super-admin-handoff',{body:{action:'complete',targetEmail:targetEmail.trim(),newRole:role,otp:otp.trim()}});
   if(handoffError||!handoffData?.success){await showElectroMartNotice('Role পরিবর্তন হয়নি: '+(handoffData?.error||handoffError?.message||'OTP যাচাই ব্যর্থ'),'নিরাপত্তা যাচাই ব্যর্থ');return;}
   await refreshAdminAccess();
   await showElectroMartNotice('নতুন Super Admin তৈরি হয়েছে এবং তোমার Role পরিবর্তন হয়েছে।','হস্তান্তর সফল');
