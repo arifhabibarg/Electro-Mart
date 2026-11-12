@@ -1236,13 +1236,38 @@ function buildAutoProductDescriptions({name,brand,model,category,subcategory,sho
  const productName=clean(name),brandName=clean(brand),modelName=clean(model),cat=clean(category),sub=clean(subcategory);
  const short=clean(shortText)||[brandName,productName,modelName].filter(Boolean).join(' — ')+'। '+[cat,sub].filter(Boolean).join(' · ')+' ক্যাটাগরির পণ্য।';
  const supplied=clean(fullText);
+ const sections=[
+  ['Display & Screen',/display|screen|resolution|refresh rate|\bhz\b|hdr|brightness|পর্দা|স্ক্রিন|ডিসপ্লে|রেজোলিউশন|রিফ্রেশ/i],
+  ['Performance & Processor',/processor|chipset|\bcpu\b|\bgpu\b|\bram\b|\brom\b|storage|memory|core|প্রসেসর|চিপসেট|র‍্যাম|রম|স্টোরেজ|মেমোরি|পারফরম্যান্স/i],
+  ['Camera & Audio',/camera|megapixel|\bmp\b|lens|speaker|microphone|audio|sound|ক্যামেরা|মেগাপিক্সেল|লেন্স|স্পিকার|মাইক্রোফোন|অডিও|সাউন্ড/i],
+  ['Battery & Charging',/battery|\bmah\b|charging|charger|watt|ব্যাটারি|চার্জিং|চার্জার|দ্রুত চার্জ/i],
+  ['Connectivity',/bluetooth|wi-?fi|\b5g\b|\b4g\b|\bnfc\b|usb|type-?c|gps|hdmi|connectivity|ব্লুটুথ|ওয়াই-?ফাই|কানেক্টিভিটি/i],
+  ['Design & Build',/weight|weighs|dimension|material|metal|plastic|water.?resistan|dust.?resistan|\bip\d|ওজন|মাত্রা|ডিজাইন|বডি|উপাদান|পানি|ধুলা/i],
+  ['Features & Compatibility',/feature|support|compatible|compatibility|app\b|control|sensor|operating system|ফিচার|সুবিধা|সাপোর্ট|সামঞ্জস্য|অ্যাপ|কন্ট্রোল|সেন্সর/i],
+  ['Warranty & In the Box',/warranty|guarantee|in the box|package|included|বক্সে|প্যাকেজ|ওয়ারেন্টি|গ্যারান্টি|সাথে থাকছে/i]
+ ];
+ const buckets=sections.map(x=>({title:x[0],test:x[1],items:[]}));
+ const other=[];
+ if(supplied){
+  const chunks=supplied.split(/\r?\n+/).map(x=>x.trim()).filter(Boolean);
+  for(const chunk of chunks){
+   if(/^(important|note|warning|দ্রষ্টব্য|বিশেষ দ্রষ্টব্য)\s*:/i.test(chunk)){other.push(chunk);continue;}
+   const parts=chunk.split(/(?<=[।!?])\s+|(?<=\.)\s+(?=[A-Z0-9])/u).map(x=>x.trim()).filter(Boolean);
+   for(const part of parts){
+    const colon=part.indexOf(':');const label=colon>0&&colon<55?part.slice(0,colon).trim():'';const probe=(label+' '+part).toLowerCase();
+    const bucket=buckets.find(x=>x.test.test(probe));
+    (bucket?bucket.items:other).push(part);
+   }
+  }
+ }
  const lines=['Brief Introduction: '+short,'Product Overview','Product Name: '+productName];
  if(brandName)lines.push('Brand: '+brandName);
  if(modelName)lines.push('Model: '+modelName);
  if(cat)lines.push('Category: '+cat);
  if(sub)lines.push('Subcategory: '+sub);
- if(supplied){lines.push('Product Details');lines.push(supplied);}
- else lines.push('Important: পণ্যের নির্দিষ্ট ফিচার, স্পেসিফিকেশন, ওয়ারেন্টি এবং বক্সের উপকরণ নিশ্চিত তথ্য অনুযায়ী যোগ করুন।');
+ for(const bucket of buckets)if(bucket.items.length){lines.push(bucket.title);lines.push(...bucket.items);}
+ if(other.length){lines.push('Additional Information');lines.push(...other);}
+ if(!supplied)lines.push('Important: পণ্যের নির্দিষ্ট ফিচার, স্পেসিফিকেশন, ওয়ারেন্টি এবং বক্সের উপকরণ নিশ্চিত তথ্য অনুযায়ী যোগ করুন।');
  return {short,full:lines.join('\n')};
 }
 async function saveAdminProduct(event){
