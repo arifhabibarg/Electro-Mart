@@ -1431,6 +1431,28 @@ async function saveStaffMemberRole(userId,email){
  const select=document.getElementById('staffRole_'+userId);if(!select)return;
  const role=select.value,roleLabel=select.options[select.selectedIndex]?.textContent||role;
  if(!await showElectroMartConfirm((email||'এই মেম্বার')+'-কে '+roleLabel+' Role দিতে চান?','Role পরিবর্তন নিশ্চিত করুন','হ্যাঁ, পরিবর্তন করুন'))return;
+
+ // A Super Admin cannot demote themself through the ordinary role RPC.
+ // The handoff requires a different registered account to become Super Admin first,
+ // followed by a fresh email reauthentication OTP verified server-side.
+ if(userId===currentAuthUser?.id && currentAdminRole==='super_admin' && role!=='super_admin'){
+  const targetEmail=window.prompt('তোমার পরিবর্তে যাকে Super Admin বানাবে, তার নিবন্ধিত ইমেইল ঠিকানা দাও:');
+  if(!targetEmail)return;
+  if(!/^\\S+@\\S+\\.\\S+$/.test(targetEmail.trim())){await showElectroMartNotice('সঠিক ইমেইল ঠিকানা দাও।','ইমেইল ভুল');return;}
+  if(targetEmail.trim().toLowerCase()===String(currentAuthUser.email||'').toLowerCase()){await showElectroMartNotice('নিজের ইমেইল দেওয়া যাবে না। অন্য একজনকে নির্বাচন করো।','নতুন Super Admin প্রয়োজন');return;}
+  if(!await showElectroMartConfirm(targetEmail.trim()+'-কে আগে Super Admin করা হবে। তারপর তোমার Role হবে '+roleLabel+'. এই কাজটি চালিয়ে যাবে?','Super Admin হস্তান্তর','হ্যাঁ, OTP পাঠাও'))return;
+
+  const {error:sendError}=await supabaseClient.auth.reauthenticate();
+  if(sendError){await showElectroMartNotice('তোমার ইমেইলে OTP পাঠানো যায়নি: '+sendError.message,'OTP পাঠানো হয়নি');return;}
+  const otp=window.prompt('তোমার নিবন্ধিত ইমেইলে পাঠানো ৬ সংখ্যার OTP লিখো:');
+  if(!otp)return;
+  const {data:handoffData,error:handoffError}=await supabaseClient.functions.invoke('verify-super-admin-handoff',{body:{targetEmail:targetEmail.trim(),newRole:role,otp:otp.trim()}});
+  if(handoffError||!handoffData?.success){await showElectroMartNotice('Role পরিবর্তন হয়নি: '+(handoffData?.error||handoffError?.message||'OTP যাচাই ব্যর্থ'),'নিরাপত্তা যাচাই ব্যর্থ');return;}
+  await refreshAdminAccess();
+  await showElectroMartNotice('নতুন Super Admin তৈরি হয়েছে এবং তোমার Role পরিবর্তন হয়েছে।','হস্তান্তর সফল');
+  return;
+ }
+
  const {error}=await supabaseClient.rpc('admin_set_user_role',{p_email:email,p_role:role});
  if(error){await showElectroMartNotice('Role পরিবর্তন হয়নি: '+error.message,'সমস্যা হয়েছে');return;}
  await showElectroMartNotice('Role সফলভাবে আপডেট হয়েছে।','সফল');await loadAdminPermissions();
