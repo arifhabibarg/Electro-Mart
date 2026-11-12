@@ -1080,7 +1080,7 @@ async function loadAdminProducts(){
  const categoryKeys=[...new Set([...Object.keys(PRODUCT_TAXONOMY),...groups.keys()])].sort((a,b)=>compareRecent(a,b,latestProductTime([...(groups.get(a)?.values()||[])].flatMap(brandMap=>[...brandMap.values()].flat())),latestProductTime([...(groups.get(b)?.values()||[])].flatMap(brandMap=>[...brandMap.values()].flat()))));
  const canDeleteProducts=isAdminRole()||currentAdminRole==='product_manager';
  const canSelectProducts=canManageProducts()||currentAdminRole==='moderator';
- const productRow=p=>`<div class="admin-product-row">${canSelectProducts?`<label class="admin-product-check"><input class="admin-product-select" type="checkbox" data-product-id="${escapeHtml(p.id)}" aria-label="Select ${escapeHtml(p.name)}" onclick="event.stopPropagation()"></label>`:'<span class="admin-product-check-spacer"></span>'}<img src="${escapeHtml(p.image_url||'')}" alt=""><div class="admin-product-info"><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.product_code||'')} · ${money(p.price)} · Stock ${Number(p.stock)} · ${p.is_active?'Active':'Hidden'}</small></div>${canViewProductCosts()?`<div class="admin-product-cost"><small>ক্রয়মূল্য</small><b>${costByProduct.has(p.id)?money(costByProduct.get(p.id)):'—'}</b></div>`:''}<div class="admin-actions">${(isAdminRole()||['product_manager','inventory_manager','marketing_manager'].includes(currentAdminRole)||currentProductPermissions.can_edit)?`<button class="admin-secondary" type="button" onclick="editAdminProduct('${escapeHtml(p.id)}')">Edit</button>`:''}${canDeleteProducts? `<button class="admin-danger" type="button" onclick="deleteAdminProduct('${escapeHtml(p.id)}')">Delete</button>`:''}</div></div>`;
+ const productRow=p=>`<div class="admin-product-row">${canSelectProducts?`<label class="admin-product-check"><input class="admin-product-select" type="checkbox" data-product-id="${escapeHtml(p.id)}" aria-label="Select ${escapeHtml(p.name)}" onclick="event.stopPropagation()"></label>`:'<span class="admin-product-check-spacer"></span>'}<img src="${escapeHtml(p.image_url||'')}" alt=""><div class="admin-product-info"><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.product_code||'')} · ${money(p.price)} · Stock ${Number(p.stock)} · ${p.is_active?'Active':'Hidden'}</small></div>${canViewProductCosts()?`<div class="admin-product-cost"><small>ক্রয়মূল্য</small><b>${costByProduct.has(p.id)?money(costByProduct.get(p.id)):'—'}</b></div>`:''}<div class="admin-actions">${(isAdminRole()||['product_manager','inventory_manager','marketing_manager'].includes(currentAdminRole)||currentProductPermissions.can_edit)?`<button class="admin-secondary" type="button" onclick="editAdminProduct('${escapeHtml(p.id)}')">Edit</button>`:''}${canManageProducts()?`<div class="admin-stock-editor" style="display:flex;align-items:center;gap:5px"><input id="stock-${escapeHtml(p.id)}" type="number" min="0" step="1" value="${Math.max(0,Number(p.stock)||0)}" aria-label="${escapeHtml(p.name)} stock" style="width:68px;padding:7px;border:1px solid #ddd;border-radius:6px"><button class="admin-secondary" type="button" onclick="saveProductStock('${escapeHtml(p.id)}')">স্টক সেভ</button></div>`:''}${canDeleteProducts? `<button class="admin-danger" type="button" onclick="deleteAdminProduct('${escapeHtml(p.id)}')">Delete</button>`:''}</div></div>`;
  const categoryHtml=categoryKeys.map(key=>{
   const subMap=groups.get(key)||new Map(),configured=PRODUCT_TAXONOMY[key]?.subs||[];
   const subKeys=[...new Set([...configured,...subMap.keys()])].sort((a,b)=>compareRecent(a,b,latestProductTime([...(subMap.get(a)?.values()||[])].flat()),latestProductTime([...(subMap.get(b)?.values()||[])].flat())));
@@ -1112,6 +1112,21 @@ async function loadAdminProducts(){
   box.dataset.animationBound='true';
  }
 }
+async function saveProductStock(productId){
+ if(!canManageProducts()){alert('স্টক পরিবর্তনের অনুমতি নেই।');return;}
+ const input=document.getElementById('stock-'+productId);if(!input)return;
+ const value=Number(input.value);
+ if(!Number.isInteger(value)||value<0){alert('স্টক ০ বা তার বেশি পূর্ণসংখ্যা হতে হবে।');return;}
+ const button=input.parentElement.querySelector('button');const original=button.textContent;button.disabled=true;button.textContent='সেভ হচ্ছে...';
+ try{
+  const {data,error}=await supabaseClient.from('products').update({stock:value}).eq('id',productId).select('id,stock').single();
+  if(error)throw error;
+  input.value=data.stock;button.textContent='সেভ হয়েছে';button.style.background='#e7f7ed';button.style.color='#167342';
+  const product=allProducts.find(p=>String(p.id)===String(productId));if(product)product.stock=data.stock;
+  await loadAdminProducts();
+ }catch(e){alert('স্টক সেভ হয়নি: '+(e?.message||'Unknown error'));button.disabled=false;button.textContent=original;}
+}
+
 function calculateProductSalePrice(){
  const costInput=document.getElementById('apCostPrice')?.value.trim(),percentInput=document.getElementById('apProfitPercent')?.value.trim(),priceInput=document.getElementById('apPrice');
  if(!priceInput)return;
