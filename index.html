@@ -1234,8 +1234,8 @@ async function optimizeProductImage(file){
 function buildAutoProductDescriptions({name,brand,model,category,subcategory,shortText,fullText}){
  const clean=v=>String(v||'').trim();
  const productName=clean(name),brandName=clean(brand),modelName=clean(model),cat=clean(category),sub=clean(subcategory);
- const short=clean(shortText)||[brandName,productName,modelName].filter(Boolean).join(' — ')+'। '+[cat,sub].filter(Boolean).join(' · ')+' ক্যাটাগরির পণ্য।';
- const supplied=clean(fullText);
+ const suppliedShort=clean(shortText),supplied=clean(fullText);
+ const short=suppliedShort||[brandName,productName,modelName].filter(Boolean).join(' — ')+'। '+[cat,sub].filter(Boolean).join(' · ')+' ক্যাটাগরির পণ্য।';
  const sections=[
   ['Display & Screen',/display|screen|resolution|refresh rate|\bhz\b|hdr|brightness|পর্দা|স্ক্রিন|ডিসপ্লে|রেজোলিউশন|রিফ্রেশ/i],
   ['Performance & Processor',/processor|chipset|\bcpu\b|\bgpu\b|\bram\b|\brom\b|storage|memory|core|প্রসেসর|চিপসেট|র‍্যাম|রম|স্টোরেজ|মেমোরি|পারফরম্যান্স/i],
@@ -1246,18 +1246,23 @@ function buildAutoProductDescriptions({name,brand,model,category,subcategory,sho
   ['Features & Compatibility',/feature|support|compatible|compatibility|app\b|control|sensor|operating system|ফিচার|সুবিধা|সাপোর্ট|সামঞ্জস্য|অ্যাপ|কন্ট্রোল|সেন্সর/i],
   ['Warranty & In the Box',/warranty|guarantee|in the box|package|included|বক্সে|প্যাকেজ|ওয়ারেন্টি|গ্যারান্টি|সাথে থাকছে/i]
  ];
- const buckets=sections.map(x=>({title:x[0],test:x[1],items:[]}));
+ const buckets=sections.map(([title,test])=>({title,test,items:[]}));
  const other=[];
  if(supplied){
   const chunks=supplied.split(/\r?\n+/).map(x=>x.trim()).filter(Boolean);
+  const parts=[];
   for(const chunk of chunks){
    if(/^(important|note|warning|দ্রষ্টব্য|বিশেষ দ্রষ্টব্য)\s*:/i.test(chunk)){other.push(chunk);continue;}
-   const parts=chunk.split(/(?<=[।!?])\s+|(?<=\.)\s+(?=[A-Z0-9])/u).map(x=>x.trim()).filter(Boolean);
-   for(const part of parts){
-    const colon=part.indexOf(':');const label=colon>0&&colon<55?part.slice(0,colon).trim():'';const probe=(label+' '+part).toLowerCase();
-    const bucket=buckets.find(x=>x.test.test(probe));
-    (bucket?bucket.items:other).push(part);
-   }
+   const split=chunk.split(/\s*[•|;؛]\s*|(?<=[।!?])\s+|(?<=\.)\s+(?=[A-Z0-9])/u).map(x=>x.trim()).filter(Boolean);
+   parts.push(...split);
+  }
+  for(const part of parts){
+   const colon=part.indexOf(':');
+   const label=colon>0&&colon<65?part.slice(0,colon).trim():'';
+   const probe=(label+' '+part).toLowerCase();
+   const matches=buckets.map((bucket,index)=>({bucket,index,score:(probe.match(new RegExp(bucket.test.source,'gi'))||[]).length})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score||a.index-b.index);
+   if(matches.length)matches[0].bucket.items.push(part);
+   else other.push(part);
   }
  }
  const lines=['Brief Introduction: '+short,'Product Overview','Product Name: '+productName];
@@ -1278,8 +1283,8 @@ async function saveAdminProduct(event){
   if(document.getElementById('apCostPrice').value.trim()===''||document.getElementById('apProfitPercent').value.trim()===''||document.getElementById('apPrice').value==='')throw new Error('ক্রয়/তৈরির খরচ এবং লাভের শতাংশ—দুটিই লিখুন; বিক্রয় মূল্য অটোমেটিক হিসাব হবে।');
   const payload={name,last_updated_at:new Date().toISOString(),model:document.getElementById('apModel').value.trim(),discount_percent:editingProductId?Number(document.getElementById('apDiscount').value):5,
    price:Number(document.getElementById('apPrice').value)*(1-Number(document.getElementById('apDiscount').value)/100),compare_at_price:Number(document.getElementById('apDiscount').value)>0?Number(document.getElementById('apPrice').value):null,stock:Number(document.getElementById('apStock').value),
-   category:document.getElementById('apCategory').value,subcategory:document.getElementById('apSubcategory').value,brand:document.getElementById('apBrand').value,description:document.getElementById('apDescription').value.trim(),
-   full_description:document.getElementById('apFullDescription').value.trim()||document.getElementById('apDescription').value.trim(),
+   category:document.getElementById('apCategory').value,subcategory:document.getElementById('apSubcategory').value,brand:document.getElementById('apBrand').value,description:autoDescription.short,
+   full_description:autoDescription.full,
    is_active:document.getElementById('apActive').value==='true'};
   const files=[...document.getElementById('apImage').files];
   if(files.length+(editingProductImageUrls.length||0)>8)throw new Error('আগের ছবিসহ একটি প্রোডাক্টে সর্বোচ্চ ৮টি ছবি রাখা যাবে।');
