@@ -703,7 +703,7 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible),[role="button"]:foc
     </form>
    </section>
    <div class="admin-tab-content">
-    <section class="admin-card admin-tab-panel" id="adminManageProductsPanel"><h3>📦 Manage Products</h3><div id="adminProductList"><p class="admin-help">Loading...</p></div></section>
+    <section class="admin-card admin-tab-panel" id="adminManageProductsPanel"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><h3>📦 Manage Products</h3><button class="admin-secondary" id="repairProductCodesBtn" type="button" onclick="repairProductCodes()" style="display:none">Product Code ঠিক করুন</button></div><div id="adminProductList"><p class="admin-help">Loading...</p></div></section>
     <section class="admin-card admin-tab-panel" id="adminUserPermissionsPanel" style="margin-top:16px;display:none"><h3>👥 Staff & Role Management</h3><form id="adminPermissionForm"><div class="admin-field"><label for="newAdminEmail">Registered User Email</label><input id="newAdminEmail" type="email" required placeholder="user@example.com"></div><div class="admin-field" style="margin-top:12px"><label for="newStaffRole">Assign Role</label><select id="newStaffRole" required><option value="customer">Customer (Remove Staff Access)</option><option value="product_manager">Product Manager</option><option value="order_manager">Order Manager</option><option value="delivery_manager">Delivery Manager</option><option value="moderator">Moderator</option><option value="customer_support">Customer Support</option><option value="inventory_manager">Inventory Manager</option><option value="marketing_manager">Marketing Manager</option><option value="viewer">Viewer</option><option value="admin">Admin</option><option value="super_admin">Super Admin</option></select></div><div class="admin-actions"><button class="admin-primary" type="submit">Save Role</button></div><p class="admin-msg" id="permissionMessage"></p></form><div id="adminPermissionList"></div><p class="admin-help">User must already have an ElectroMart account. Admin/Super Admin roles require Super Admin authority.</p></section>
     <section class="admin-card admin-tab-panel" id="adminOrdersPanel" style="margin-top:16px"><h3>🧾 Order Management</h3><div id="adminOrdersList"><p class="admin-help">Loading orders...</p></div></section>
     <section class="admin-card admin-tab-panel" id="adminFinancePanel"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><h3>📊 Finance Report — ব্যবসার হিসাব ও লাভ-ক্ষতি</h3><button class="admin-secondary" type="button" onclick="loadFinanceReport()">হিসাব রিফ্রেশ</button></div><p class="admin-help">Delivered অর্ডারের মোট আদায় থেকে পণ্যের ক্রয়মূল্য, প্যাকেজিং, কুরিয়ার ডেলিভারি খরচ ও অন্যান্য খরচ বাদ দিয়ে নিট লাভ হিসাব হবে। অর্ডারের মোট টাকার মধ্যে ক্রেতার দেওয়া ডেলিভারি চার্জও অন্তর্ভুক্ত।</p><div id="financeSummary" class="admin-help">হিসাব লোড হচ্ছে...</div><div id="financeOrders"></div></section>
@@ -957,7 +957,7 @@ async function refreshAdminAccess(){
   if(nav){nav.classList.toggle('show',allowed);nav.style.display=allowed?'inline-flex':'none';}
   const setDisplay=(selector,value)=>{const el=document.querySelector(selector);if(el)el.style.display=value;};
   const setId=(id,value)=>{const el=document.getElementById(id);if(el)el.style.display=value;};
-  setId('adminPermissionCard',isAdminRole()?'block':'none');
+  setId('adminPermissionCard',isAdminRole()?'block':'none');setId('repairProductCodesBtn',isAdminRole()?'':'none');
   setId('adminPermissionMenuBtn',isAdminRole()?'':'none');setId('adminFinanceMenuBtn',isAdminRole()?'':'none');setId('adminBlogMenuBtn',isAdminRole()?'':'none');setId('apCostField',isAdminRole()?'':'none');
   setDisplay('#newStaffRole option[value="admin"]',currentAdminRole==='super_admin'?'':'none');
   setDisplay('#newStaffRole option[value="super_admin"]',currentAdminRole==='super_admin'?'':'none');
@@ -1054,6 +1054,18 @@ async function updateOrderStatus(id,status){
  const {error}=await supabaseClient.from('orders').update({order_status:status}).eq('id',id);
  if(error){alert('Order Status Update not completed: '+error.message);await loadAdminOrders();return;}
  await Promise.all([loadAdminOrders(),loadDeliveredOrders()]);
+}
+async function repairProductCodes(){
+ if(!isAdminRole()){alert('শুধু Admin বা Super Admin Product Code ঠিক করতে পারবেন।');return;}
+ if(!confirm('যেসব পণ্যের Product Code EM- সিরিয়ালে নেই, সেগুলোকে পরবর্তী ধারাবাহিক EM কোড দেওয়া হবে। এগোবেন?'))return;
+ const button=document.getElementById('repairProductCodesBtn');if(button){button.disabled=true;button.textContent='ঠিক করা হচ্ছে...';}
+ try{
+  const {data,error}=await supabaseClient.rpc('admin_repair_product_codes');
+  if(error)throw error;
+  alert(Number(data||0)+'টি পণ্যের Product Code ধারাবাহিক EM সিরিয়ালে ঠিক হয়েছে।');
+  await loadAdminProducts();await loadProducts();
+ }catch(error){alert('Product Code ঠিক করা যায়নি: '+(error.message||error));}
+ finally{if(button){button.disabled=false;button.textContent='Product Code ঠিক করুন';}}
 }
 async function loadAdminProducts(){
  const box=document.getElementById('adminProductList');box.innerHTML='<p class="admin-help">Loading...</p>';
