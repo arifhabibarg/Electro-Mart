@@ -1422,40 +1422,41 @@ async function loadAdminPermissions(){
   const options=roleChoices.map(([value,label])=>'<option value="'+value+'" '+(a.role===value?'selected':'')+'>'+label+'</option>').join('');
   const protectedRole=currentAdminRole!=='super_admin'&&(a.role==='super_admin'||a.role==='admin');
   const costControl=isAdminRole()?'<label class="admin-cost-permission"><input type="checkbox" '+(costPermission.get(a.user_id)?'checked':'')+' onchange="setStaffCostPermission(\''+escapeHtml(a.user_id)+'\',this.checked)"> ক্রয়মূল্য দেখার অনুমতি</label>':'';
-  return '<div class="admin-permission-row" style="align-items:flex-start;flex-wrap:wrap"><div style="min-width:190px;flex:1"><b>'+escapeHtml(a.full_name||a.email||'Member')+'</b><br><small>'+escapeHtml(a.email||'')+' · বর্তমান Role: '+escapeHtml(labels[a.role]||a.role||'Customer')+'</small>'+costControl+'</div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><select id="staffRole_'+escapeHtml(a.user_id)+'" aria-label="মেম্বারের Role" style="max-width:180px;padding:8px;border:1px solid #ddd;border-radius:7px" '+(protectedRole?'disabled':'')+'>'+options+'</select><button class="admin-primary" type="button" style="padding:8px 12px" onclick="saveStaffMemberRole(\''+escapeHtml(a.user_id)+'\','+escapeHtml(JSON.stringify(a.email||''))+')" '+(protectedRole?'disabled':'')+'>Role Save</button></div></div>';
+  const roleId='staffRole_'+escapeHtml(a.user_id);
+  return '<div class="admin-permission-row" style="align-items:flex-start;flex-wrap:wrap"><div style="min-width:190px;flex:1"><b>'+escapeHtml(a.full_name||a.email||'Member')+'</b><br><small>'+escapeHtml(a.email||'')+' · বর্তমান Role: '+escapeHtml(labels[a.role]||a.role||'Customer')+'</small>'+costControl+'</div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><select id="'+roleId+'" class="admin-native-select" aria-label="মেম্বারের Role" '+(protectedRole?'disabled':'')+'>'+options+'</select><button class="admin-search-select staff-role-trigger" type="button" data-staff-role-select="'+escapeHtml(a.user_id)+'" '+(protectedRole?'disabled':'')+'><span>'+escapeHtml(labels[a.role]||a.role||'Customer')+'</span><span aria-hidden="true">⌄</span></button><button class="admin-primary" type="button" style="padding:8px 12px" onclick="saveStaffMemberRole(\''+escapeHtml(a.user_id)+'\','+escapeHtml(JSON.stringify(a.email||''))+')" '+(protectedRole?'disabled':'')+'>Role Save</button></div></div>';
  }).join('')||'<p class="admin-help">এখনো কোনো মেম্বার অ্যাকাউন্ট তৈরি করেননি।</p>';
 }
 async function saveStaffMemberRole(userId,email){
- if(!isAdminRole()){alert('শুধু Admin ও Super Admin Role দিতে পারবেন।');return;}
+ if(!isAdminRole()){await showElectroMartNotice('শুধু Admin ও Super Admin Role দিতে পারবেন।','অনুমতি নেই');return;}
  const select=document.getElementById('staffRole_'+userId);if(!select)return;
- const role=select.value;
- if(!confirm((email||'এই মেম্বার')+'-কে '+(select.options[select.selectedIndex]?.textContent||role)+' Role দিতে চান?'))return;
+ const role=select.value,roleLabel=select.options[select.selectedIndex]?.textContent||role;
+ if(!await showElectroMartConfirm((email||'এই মেম্বার')+'-কে '+roleLabel+' Role দিতে চান?','Role পরিবর্তন নিশ্চিত করুন','হ্যাঁ, পরিবর্তন করুন'))return;
  const {error}=await supabaseClient.rpc('admin_set_user_role',{p_email:email,p_role:role});
- if(error){alert('Role পরিবর্তন হয়নি: '+error.message);return;}
- alert('Role সফলভাবে আপডেট হয়েছে।');await loadAdminPermissions();
+ if(error){await showElectroMartNotice('Role পরিবর্তন হয়নি: '+error.message,'সমস্যা হয়েছে');return;}
+ await showElectroMartNotice('Role সফলভাবে আপডেট হয়েছে।','সফল');await loadAdminPermissions();
 }
 async function setStaffCostPermission(userId,allowed){
- if(!isAdminRole()){alert('শুধু Admin এই অনুমতি দিতে পারবেন।');await loadAdminPermissions();return;}
+ if(!isAdminRole()){await showElectroMartNotice('শুধু Admin ও Super Admin এই অনুমতি দিতে পারবেন।','অনুমতি নেই');await loadAdminPermissions();return;}
  const {data:existing,error:readError}=await supabaseClient.from('product_permissions').select('can_add,can_edit').eq('user_id',userId).maybeSingle();
- if(readError){alert('Permission read failed: '+readError.message);await loadAdminPermissions();return;}
+ if(readError){await showElectroMartNotice('Permission পড়া যায়নি: '+readError.message,'সমস্যা হয়েছে');await loadAdminPermissions();return;}
  const {error}=await supabaseClient.from('product_permissions').upsert({user_id:userId,can_add:!!existing?.can_add,can_edit:!!existing?.can_edit,can_view_costs:!!allowed,granted_by:currentAuthUser.id,updated_at:new Date().toISOString()},{onConflict:'user_id'});
- if(error){alert('ক্রয়মূল্যের অনুমতি সংরক্ষণ হয়নি: '+error.message);await loadAdminPermissions();return;}
+ if(error){await showElectroMartNotice('ক্রয়মূল্যের অনুমতি সংরক্ষণ হয়নি: '+error.message,'সমস্যা হয়েছে');await loadAdminPermissions();return;}
  if(userId===currentAuthUser.id){currentProductPermissions.can_view_costs=!!allowed;await loadAdminProducts();}
+ await showElectroMartNotice(allowed?'ক্রয়মূল্য দেখার অনুমতি দেওয়া হয়েছে।':'ক্রয়মূল্য দেখার অনুমতি সরিয়ে নেওয়া হয়েছে।','অনুমতি আপডেট হয়েছে');
 }
-async function addAdminPermission(event){
- event.preventDefault();const email=document.getElementById('newAdminEmail').value.trim().toLowerCase(),role=document.getElementById('newStaffRole').value;
- const {error}=await supabaseClient.rpc('admin_set_user_role',{p_email:email,p_role:role});
- if(error){adminMessage('permissionMessage','Role save failed: '+error.message,'error');return;}
- document.getElementById('adminPermissionForm').reset();adminMessage('permissionMessage','Role updated successfully.','success');await loadAdminPermissions();
-}
-async function removeStaffRole(email){
- if(!confirm(email+' — এই ইউজারের Staff Role সরিয়ে Customer করতে চান?'))return;
- const {error}=await supabaseClient.rpc('admin_set_user_role',{p_email:email,p_role:'customer'});
- if(error){alert('Role removal failed: '+error.message);return;}await loadAdminPermissions();
+function openStaffMemberRolePicker(userId){
+ const select=document.getElementById('staffRole_'+userId);if(!select||select.disabled)return;
+ const descriptions={customer:'স্টাফ অ্যাক্সেস সরিয়ে সাধারণ Customer হিসেবে রাখবে।',product_manager:'পণ্য যোগ, সম্পাদনা ও মুছে ফেলতে পারবে।',order_manager:'অর্ডার দেখা ও অর্ডারের ব্যবস্থাপনা করতে পারবে।',delivery_manager:'ডেলিভারি আপডেট করবে; Shipped ও Delivered স্ট্যাটাস পরিবর্তন করতে পারবে।',moderator:'পণ্য ও অর্ডার শুধু দেখতে পারবে; পরিবর্তন করতে পারবে না।',customer_support:'ক্রেতার অর্ডার দেখে সহায়তা করতে পারবে।',inventory_manager:'পণ্যের স্টক ও মজুতের পরিমাণ পরিচালনা করতে পারবে।',marketing_manager:'পণ্যের ডিসকাউন্ট ও অফার পরিচালনা করতে পারবে।',viewer:'রিপোর্ট ও অর্ডার শুধু দেখতে পারবে; কোনো পরিবর্তন করতে পারবে না।',admin:'অ্যাডমিন প্যানেলের অধিকাংশ ব্যবস্থাপনা করতে পারবে; Super Admin নিয়ন্ত্রণ করতে পারবে না।',super_admin:'সর্বোচ্চ অ্যাক্সেস; সব Staff Role ও প্রশাসনিক কাজ নিয়ন্ত্রণ করতে পারবে।'};
+ const back=document.createElement('div');back.className='admin-picker-backdrop show';back.innerHTML='<div class="admin-picker" role="dialog" aria-modal="true" aria-label="মেম্বারের Role নির্বাচন"><div class="admin-picker-head"><strong>Role নির্বাচন করুন</strong><button type="button" class="admin-picker-close" aria-label="বন্ধ করুন">×</button></div><div class="admin-picker-list"></div></div>';document.body.appendChild(back);
+ const list=back.querySelector('.admin-picker-list');
+ list.innerHTML=[...select.options].map(o=>'<button type="button" class="admin-picker-option admin-role-option '+(o.value===select.value?'selected':'')+'" data-role-value="'+escapeHtml(o.value)+'"><span class="admin-role-option-copy"><strong>'+escapeHtml(o.textContent)+'</strong><small>'+escapeHtml(descriptions[o.value]||'এই Role-এর নির্ধারিত অ্যাক্সেস প্রযোজ্য হবে।')+'</small></span>'+(o.value===select.value?'<span class="admin-role-option-mark">নির্বাচিত ✓</span>':'')+'</button>').join('');
+ const close=()=>back.remove();
+ list.addEventListener('click',e=>{const option=e.target.closest('[data-role-value]');if(!option)return;select.value=option.dataset.roleValue;const trigger=back.ownerDocument.querySelector('[data-staff-role-select="'+userId+'"]');if(trigger)trigger.querySelector('span').textContent=option.querySelector('strong').textContent;close();});
+ back.querySelector('.admin-picker-close').onclick=close;back.addEventListener('click',e=>{if(e.target===back)close();});
 }
 function syncAdminRoleSelect(){const select=document.getElementById('newStaffRole'),button=document.querySelector('[data-role-select="newStaffRole"]');if(!select||!button)return;const option=select.options[select.selectedIndex];button.querySelector('span').textContent=option?option.textContent:'Assign Role';}
 function openAdminRolePicker(){const select=document.getElementById('newStaffRole');if(!select)return;const descriptions={customer:'স্টাফ অ্যাক্সেস সরিয়ে সাধারণ Customer হিসেবে রাখবে।',product_manager:'পণ্য যোগ, সম্পাদনা ও মুছে ফেলতে পারবে।',order_manager:'অর্ডার দেখা ও অর্ডারের ব্যবস্থাপনা করতে পারবে।',delivery_manager:'ডেলিভারি আপডেট করবে; Shipped ও Delivered স্ট্যাটাস পরিবর্তন করতে পারবে।',moderator:'পণ্য ও অর্ডার শুধু দেখতে পারবে; পরিবর্তন করতে পারবে না।',customer_support:'ক্রেতার অর্ডার দেখে সহায়তা করতে পারবে।',inventory_manager:'পণ্যের স্টক ও মজুতের পরিমাণ পরিচালনা করতে পারবে।',marketing_manager:'পণ্যের ডিসকাউন্ট ও অফার পরিচালনা করতে পারবে।',viewer:'রিপোর্ট ও অর্ডার শুধু দেখতে পারবে; কোনো পরিবর্তন করতে পারবে না।',admin:'অ্যাডমিন প্যানেলের অধিকাংশ ব্যবস্থাপনা করতে পারবে; Super Admin নিয়ন্ত্রণ করতে পারবে না।',super_admin:'সর্বোচ্চ অ্যাক্সেস; সব Staff Role ও প্রশাসনিক কাজ নিয়ন্ত্রণ করতে পারবে।'};const back=document.createElement('div');back.className='admin-picker-backdrop show';back.innerHTML='<div class="admin-picker" role="dialog" aria-modal="true" aria-label="Assign Role"><div class="admin-picker-head"><strong>Assign Role নির্বাচন করুন</strong><button type="button" class="admin-picker-close" aria-label="বন্ধ করুন">×</button></div><div class="admin-picker-list"></div></div>';document.body.appendChild(back);const list=back.querySelector('.admin-picker-list');list.innerHTML=[...select.options].map(o=>'<button type="button" class="admin-picker-option admin-role-option '+(o.value===select.value?'selected':'')+'" data-role-value="'+escapeHtml(o.value)+'"><span class="admin-role-option-copy"><strong>'+escapeHtml(o.textContent)+'</strong><small>'+escapeHtml(descriptions[o.value]||'এই Role-এর নির্ধারিত অ্যাক্সেস প্রযোজ্য হবে।')+'</small></span>'+(o.value===select.value?'<span class="admin-role-option-mark">নির্বাচিত ✓</span>':'')+'</button>').join('');list.addEventListener('click',e=>{const option=e.target.closest('[data-role-value]');if(!option)return;select.value=option.dataset.roleValue;syncAdminRoleSelect();back.remove();});back.querySelector('.admin-picker-close').onclick=()=>back.remove();back.addEventListener('click',e=>{if(e.target===back)back.remove();});}
-document.addEventListener('click',event=>{const trigger=event.target.closest('[data-role-select="newStaffRole"]');if(trigger){event.preventDefault();openAdminRolePicker();}});
+document.addEventListener('click',event=>{const staffTrigger=event.target.closest('[data-staff-role-select]');if(staffTrigger){event.preventDefault();openStaffMemberRolePicker(staffTrigger.dataset.staffRoleSelect);return;}const trigger=event.target.closest('[data-role-select="newStaffRole"]');if(trigger){event.preventDefault();openAdminRolePicker();}});
 document.getElementById('adminPermissionForm').addEventListener('reset',()=>{requestAnimationFrame(syncAdminRoleSelect);});
 syncAdminRoleSelect();
 document.getElementById('apCategory').addEventListener('change',()=>updateProductSubcategories());
