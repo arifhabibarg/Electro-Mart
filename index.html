@@ -925,7 +925,7 @@ async function updateOrderStatus(id,status){
 }
 async function loadAdminProducts(){
  const box=document.getElementById('adminProductList');box.innerHTML='<p class="admin-help">Loading...</p>';
- const {data,error}=await supabaseClient.from('products').select('id,product_code,name,price,stock,image_url,is_active,category,subcategory,brand,created_at').order('created_at',{ascending:false}).range(0,999);
+ const {data,error}=await supabaseClient.from('products').select('id,product_code,name,price,stock,image_url,is_active,category,subcategory,brand,created_at,last_updated_at').order('created_at',{ascending:false}).range(0,999);
  if(error){box.innerHTML='<p class="admin-help">Product ANo could not: '+escapeHtml(error.message)+'</p>';return;}
  let costByProduct=new Map();
  if(canViewProductCosts()){
@@ -943,7 +943,7 @@ async function loadAdminProducts(){
   if(!groups.get(cat).get(sub).has(brand))groups.get(cat).get(sub).set(brand,[]);
   groups.get(cat).get(sub).get(brand).push(p);
  });
- const latestProductTime=list=>list.reduce((latest,p)=>Math.max(latest,Date.parse(p.created_at||'')||0),0);
+ const latestProductTime=list=>list.reduce((latest,p)=>Math.max(latest,Date.parse(p.last_updated_at||p.created_at||'')||0),0);
  const compareRecent=(a,b,timeA,timeB)=>timeB-timeA||a.localeCompare(b);
  const categoryKeys=[...new Set([...Object.keys(PRODUCT_TAXONOMY),...groups.keys()])].sort((a,b)=>compareRecent(a,b,latestProductTime([...(groups.get(a)?.values()||[])].flatMap(brandMap=>[...brandMap.values()].flat())),latestProductTime([...(groups.get(b)?.values()||[])].flatMap(brandMap=>[...brandMap.values()].flat()))));
  const canDeleteProducts=isAdminRole()||currentAdminRole==='product_manager';
@@ -1050,7 +1050,7 @@ async function saveAdminProduct(event){
  try{
   const name=document.getElementById('apName').value.trim();
   if(document.getElementById('apCostPrice').value.trim()===''||document.getElementById('apProfitPercent').value.trim()===''||document.getElementById('apPrice').value==='')throw new Error('ক্রয়/তৈরির খরচ এবং লাভের শতাংশ—দুটিই লিখুন; বিক্রয় মূল্য অটোমেটিক হিসাব হবে।');
-  const payload={name,model:document.getElementById('apModel').value.trim(),discount_percent:editingProductId?Number(document.getElementById('apDiscount').value):5,
+  const payload={name,last_updated_at:new Date().toISOString(),model:document.getElementById('apModel').value.trim(),discount_percent:editingProductId?Number(document.getElementById('apDiscount').value):5,
    price:Number(document.getElementById('apPrice').value)*(1-Number(document.getElementById('apDiscount').value)/100),compare_at_price:Number(document.getElementById('apDiscount').value)>0?Number(document.getElementById('apPrice').value):null,stock:Number(document.getElementById('apStock').value),
    category:document.getElementById('apCategory').value,subcategory:document.getElementById('apSubcategory').value,brand:document.getElementById('apBrand').value,description:document.getElementById('apDescription').value.trim(),
    full_description:document.getElementById('apFullDescription').value.trim()||document.getElementById('apDescription').value.trim(),
