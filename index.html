@@ -1057,12 +1057,12 @@ async function updateOrderStatus(id,status){
 }
 async function repairProductCodes(){
  if(!isAdminRole()){alert('শুধু Admin বা Super Admin Product Code ঠিক করতে পারবেন।');return;}
- if(!confirm('যেসব পণ্যের Product Code EM- সিরিয়ালে নেই, সেগুলোকে পরবর্তী ধারাবাহিক EM কোড দেওয়া হবে। এগোবেন?'))return;
+ if(!confirm('সব ৩১টি পণ্যের Product Code নতুন করে EM-0001 থেকে EM-0031 পর্যন্ত ধারাবাহিকভাবে দেওয়া হবে। পুরোনো কোডগুলো বদলে যাবে। এগোবেন?'))return;
  const button=document.getElementById('repairProductCodesBtn');if(button){button.disabled=true;button.textContent='ঠিক করা হচ্ছে...';}
  try{
   const {data,error}=await supabaseClient.rpc('admin_repair_product_codes');
   if(error)throw error;
-  alert(Number(data||0)+'টি পণ্যের Product Code ধারাবাহিক EM সিরিয়ালে ঠিক হয়েছে।');
+  alert(Number(data||0)+'টি পণ্যের Product Code EM-0001 থেকে ধারাবাহিকভাবে ঠিক হয়েছে।');
   await loadAdminProducts();await loadProducts();
  }catch(error){alert('Product Code ঠিক করা যায়নি: '+(error.message||error));}
  finally{if(button){button.disabled=false;button.textContent='Product Code ঠিক করুন';}}
