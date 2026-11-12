@@ -1420,7 +1420,7 @@ async function loadAdminPermissions(){
  box.innerHTML='<div class="admin-help" style="margin:8px 0 12px"><b>মোট নিবন্ধিত মেম্বার: '+rows.length+'</b> · প্রত্যেক মেম্বারের পাশ থেকেই Role পরিবর্তন করতে পারবেন।</div>'+
  rows.map(a=>{
   const options=roleChoices.map(([value,label])=>'<option value="'+value+'" '+(a.role===value?'selected':'')+'>'+label+'</option>').join('');
-  const protectedRole=a.role==='super_admin'||(a.role==='admin'&&currentAdminRole!=='super_admin');
+  const protectedRole=currentAdminRole!=='super_admin'&&(a.role==='super_admin'||a.role==='admin');
   const costControl=isAdminRole()?'<label class="admin-cost-permission"><input type="checkbox" '+(costPermission.get(a.user_id)?'checked':'')+' onchange="setStaffCostPermission(\\''+escapeHtml(a.user_id)+'\\',this.checked)"> ক্রয়মূল্য দেখার অনুমতি</label>':'';
   return '<div class="admin-permission-row" style="align-items:flex-start;flex-wrap:wrap"><div style="min-width:190px;flex:1"><b>'+escapeHtml(a.full_name||a.email||'Member')+'</b><br><small>'+escapeHtml(a.email||'')+' · বর্তমান Role: '+escapeHtml(labels[a.role]||a.role||'Customer')+'</small>'+costControl+'</div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><select id="staffRole_'+escapeHtml(a.user_id)+'" aria-label="মেম্বারের Role" style="max-width:180px;padding:8px;border:1px solid #ddd;border-radius:7px" '+(protectedRole?'disabled':'')+'>'+options+'</select><button class="admin-primary" type="button" style="padding:8px 12px" onclick="saveStaffMemberRole(\\''+escapeHtml(a.user_id)+'\\','+escapeHtml(JSON.stringify(a.email||''))+')" '+(protectedRole?'disabled':'')+'>Role Save</button></div></div>';
  }).join('')||'<p class="admin-help">এখনো কোনো মেম্বার অ্যাকাউন্ট তৈরি করেননি।</p>';
