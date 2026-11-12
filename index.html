@@ -1429,6 +1429,20 @@ function initCategoryPicker(){
 }
 initCategoryPicker();
 
+/* Keep the profile in its original header position on mobile only. */
+(function(){
+ const group=document.getElementById('profileHeaderGroup');
+ const header=document.querySelector('.header-inner');
+ const nav=document.querySelector('.nav-inner');
+ const search=header?.querySelector('.searchbar');
+ const actions=header?.querySelector('.header-actions');
+ if(!group||!header||!nav||!search||!actions)return;
+ const mq=window.matchMedia('(max-width:600px)');
+ const place=()=>{if(mq.matches){header.insertBefore(group,actions);}else{nav.insertBefore(group,nav.firstChild);}};
+ place();
+ if(mq.addEventListener)mq.addEventListener('change',place);else mq.addListener(place);
+})();
+
 /* Reliable mobile category, profile and data initialization */
 try{renderSideCategories();}catch(e){console.error('Category menu render failed:',e);}
 const profileButton=document.getElementById('authButton');
