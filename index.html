@@ -925,7 +925,7 @@ async function updateOrderStatus(id,status){
 }
 async function loadAdminProducts(){
  const box=document.getElementById('adminProductList');box.innerHTML='<p class="admin-help">Loading...</p>';
- const {data,error}=await supabaseClient.from('products').select('id,product_code,name,price,stock,image_url,is_active,category,subcategory,brand').order('created_at',{ascending:false}).range(0,999);
+ const {data,error}=await supabaseClient.from('products').select('id,product_code,name,price,stock,image_url,is_active,category,subcategory,brand,created_at').order('created_at',{ascending:false}).range(0,999);
  if(error){box.innerHTML='<p class="admin-help">Product ANo could not: '+escapeHtml(error.message)+'</p>';return;}
  let costByProduct=new Map();
  if(canViewProductCosts()){
@@ -943,18 +943,20 @@ async function loadAdminProducts(){
   if(!groups.get(cat).get(sub).has(brand))groups.get(cat).get(sub).set(brand,[]);
   groups.get(cat).get(sub).get(brand).push(p);
  });
- const categoryKeys=[...Object.keys(PRODUCT_TAXONOMY),...([...groups.keys()].filter(k=>!PRODUCT_TAXONOMY[k]))];
+ const latestProductTime=list=>list.reduce((latest,p)=>Math.max(latest,Date.parse(p.created_at||'')||0),0);
+ const compareRecent=(a,b,timeA,timeB)=>timeB-timeA||a.localeCompare(b);
+ const categoryKeys=[...new Set([...Object.keys(PRODUCT_TAXONOMY),...groups.keys()])].sort((a,b)=>compareRecent(a,b,latestProductTime([...(groups.get(a)?.values()||[])].flatMap(brandMap=>[...brandMap.values()].flat())),latestProductTime([...(groups.get(b)?.values()||[])].flatMap(brandMap=>[...brandMap.values()].flat()))));
  const canDeleteProducts=isAdminRole()||currentAdminRole==='product_manager';
  const canSelectProducts=canManageProducts()||currentAdminRole==='moderator';
  const productRow=p=>`<div class="admin-product-row">${canSelectProducts?`<label class="admin-product-check"><input class="admin-product-select" type="checkbox" data-product-id="${escapeHtml(p.id)}" aria-label="Select ${escapeHtml(p.name)}" onclick="event.stopPropagation()"></label>`:'<span class="admin-product-check-spacer"></span>'}<img src="${escapeHtml(p.image_url||'')}" alt=""><div class="admin-product-info"><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.product_code||'')} · ${money(p.price)} · Stock ${Number(p.stock)} · ${p.is_active?'Active':'Hidden'}</small></div>${canViewProductCosts()?`<div class="admin-product-cost"><small>ক্রয়মূল্য</small><b>${costByProduct.has(p.id)?money(costByProduct.get(p.id)):'—'}</b></div>`:''}<div class="admin-actions">${(isAdminRole()||['product_manager','inventory_manager','marketing_manager'].includes(currentAdminRole)||currentProductPermissions.can_edit)?`<button class="admin-secondary" type="button" onclick="editAdminProduct('${escapeHtml(p.id)}')">Edit</button>`:''}${canDeleteProducts? `<button class="admin-danger" type="button" onclick="deleteAdminProduct('${escapeHtml(p.id)}')">Delete</button>`:''}</div></div>`;
  const categoryHtml=categoryKeys.map(key=>{
   const subMap=groups.get(key)||new Map(),configured=PRODUCT_TAXONOMY[key]?.subs||[];
-  const subKeys=[...new Set([...configured,...subMap.keys()])];
+  const subKeys=[...new Set([...configured,...subMap.keys()])].sort((a,b)=>compareRecent(a,b,latestProductTime([...(subMap.get(a)?.values()||[])].flat()),latestProductTime([...(subMap.get(b)?.values()||[])].flat())));
   const count=[...subMap.values()].reduce((n,brands)=>n+[...brands.values()].reduce((a,list)=>a+list.length,0),0);
   const subHtml=subKeys.map(sub=>{
    const brandMap=subMap.get(sub)||new Map();
    const subCount=[...brandMap.values()].reduce((n,list)=>n+list.length,0);
-   const configuredBrands=PRODUCT_TAXONOMY[key]?.brands||[];const brandNames=[...new Set([...configuredBrands,...brandMap.keys()])].sort((a,b)=>a.localeCompare(b));const brandHtml=brandNames.map(brand=>{const products=brandMap.get(brand)||[];return `<details class="admin-brand-group"><summary class="admin-brand-title"><span>${escapeHtml(brand)}</span><span class="admin-category-count">${products.length} Product</span></summary><div class="admin-brand-inner">${canSelectProducts&&products.length?`<label class="admin-brand-select-all" style="display:flex;align-items:center;gap:8px;padding:10px 12px;margin:8px 0;border:1px solid #eadca0;border-radius:8px;background:#fffdf2;font-weight:700"><input class="admin-brand-select-toggle" type="checkbox" onchange="toggleAdminBrandProducts(this)" style="width:18px;height:18px;accent-color:#f5c400"> এই ব্র্যান্ডের সব পণ্য নির্বাচন</label>`:'' }<div class="admin-brand-content">${products.length?products.map(productRow).join(''):'<p class="admin-empty-sub">No products have been added for this brand yet।</p>'}</div></div></details>`;}).join('');
+   const configuredBrands=PRODUCT_TAXONOMY[key]?.brands||[];const brandNames=[...new Set([...configuredBrands,...brandMap.keys()])].sort((a,b)=>compareRecent(a,b,latestProductTime(brandMap.get(a)||[]),latestProductTime(brandMap.get(b)||[])));const brandHtml=brandNames.map(brand=>{const products=brandMap.get(brand)||[];return `<details class="admin-brand-group"><summary class="admin-brand-title"><span>${escapeHtml(brand)}</span><span class="admin-category-count">${products.length} Product</span></summary><div class="admin-brand-inner">${canSelectProducts&&products.length?`<label class="admin-brand-select-all" style="display:flex;align-items:center;gap:8px;padding:10px 12px;margin:8px 0;border:1px solid #eadca0;border-radius:8px;background:#fffdf2;font-weight:700"><input class="admin-brand-select-toggle" type="checkbox" onchange="toggleAdminBrandProducts(this)" style="width:18px;height:18px;accent-color:#f5c400"> এই ব্র্যান্ডের সব পণ্য নির্বাচন</label>`:'' }<div class="admin-brand-content">${products.length?products.map(productRow).join(''):'<p class="admin-empty-sub">No products have been added for this brand yet।</p>'}</div></div></details>`;}).join('');
    return `<details class="admin-subcategory-group"><summary class="admin-subcategory-title"><span>${escapeHtml(sub)}</span><span class="admin-category-count">${subCount} Product · ${brandMap.size} Brand</span></summary><div class="admin-subcategory-inner"><div class="admin-subcategory-content">${brandHtml}</div></div></details>`;
   }).join('');
   return `<details class="admin-category-group"><summary class="admin-category-title"><span>${escapeHtml(key)}</span><span class="admin-category-count">${count} Product · ${subKeys.length} Subcategory</span></summary><div class="admin-category-inner"><div class="admin-category-content">${subHtml}</div></div></details>`;
