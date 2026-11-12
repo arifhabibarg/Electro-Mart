@@ -1088,7 +1088,7 @@ async function loadAdminProducts(){
   const subHtml=subKeys.map(sub=>{
    const brandMap=subMap.get(sub)||new Map();
    const subCount=[...brandMap.values()].reduce((n,list)=>n+list.length,0);
-   const configuredBrands=PRODUCT_TAXONOMY[key]?.brands||[];const brandNames=[...new Set([...configuredBrands,...brandMap.keys()])].sort((a,b)=>compareRecent(a,b,latestProductTime(brandMap.get(a)||[]),latestProductTime(brandMap.get(b)||[])));const brandHtml=brandNames.map(brand=>{const products=brandMap.get(brand)||[];return `<details class="admin-brand-group"><summary class="admin-brand-title"><span>${escapeHtml(brand)}</span><span class="admin-category-count">${products.length} Product</span></summary><div class="admin-brand-inner">${canSelectProducts&&products.length?`<label class="admin-brand-select-all" style="display:flex;align-items:center;gap:8px;padding:10px 12px;margin:8px 0;border:1px solid #eadca0;border-radius:8px;background:#fffdf2;font-weight:700"><input class="admin-brand-select-toggle" type="checkbox" onchange="toggleAdminBrandProducts(this)" style="width:18px;height:18px;accent-color:#f5c400"> এই ব্র্যান্ডের সব পণ্য নির্বাচন</label>`:'' }<div class="admin-brand-content">${products.length?products.map(productRow).join(''):'<p class="admin-empty-sub">No products have been added for this brand yet।</p>'}</div></div></details>`;}).join('');
+   const configuredBrands=PRODUCT_TAXONOMY[key]?.brands||[];const brandNames=[...new Set([...configuredBrands,...brandMap.keys()])].sort((a,b)=>compareRecent(a,b,latestProductTime(brandMap.get(a)||[]),latestProductTime(brandMap.get(b)||[])));const brandHtml=brandNames.map(brand=>{const products=brandMap.get(brand)||[];return `<details class="admin-brand-group"><summary class="admin-brand-title"><span>${escapeHtml(brand)}</span><span class="admin-category-count">${products.length} Product</span></summary><div class="admin-brand-inner">${canSelectProducts&&products.length?`<div class="admin-brand-select-all" style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:10px 12px;margin:8px 0;border:1px solid #eadca0;border-radius:8px;background:#fffdf2"><label style="display:flex;align-items:center;gap:8px;font-weight:700"><input class="admin-brand-select-toggle" type="checkbox" onchange="toggleAdminBrandProducts(this)" style="width:18px;height:18px;accent-color:#f5c400"> এই ব্র্যান্ডের সব পণ্য নির্বাচন</label>${canManageProducts()?`<span style="font-size:13px;font-weight:700">একসাথে স্টক:</span><input class="admin-brand-stock-value" type="number" min="0" step="1" value="10" aria-label="${escapeHtml(brand)} bulk stock" style="width:78px;padding:7px;border:1px solid #ddd;border-radius:6px"><button class="admin-secondary" type="button" onclick="saveAdminBrandStock(this)">সব পণ্যের স্টক সেভ</button>`:''}</div>`:'' }<div class="admin-brand-content">${products.length?products.map(productRow).join(''):'<p class="admin-empty-sub">No products have been added for this brand yet।</p>'}</div></div></details>`;}).join('');
    return `<details class="admin-subcategory-group"><summary class="admin-subcategory-title"><span>${escapeHtml(sub)}</span><span class="admin-category-count">${subCount} Product · ${brandMap.size} Brand</span></summary><div class="admin-subcategory-inner"><div class="admin-subcategory-content">${brandHtml}</div></div></details>`;
   }).join('');
   return `<details class="admin-category-group"><summary class="admin-category-title"><span>${escapeHtml(key)}</span><span class="admin-category-count">${count} Product · ${subKeys.length} Subcategory</span></summary><div class="admin-category-inner"><div class="admin-category-content">${subHtml}</div></div></details>`;
@@ -1111,6 +1111,25 @@ async function loadAdminProducts(){
   });
   box.dataset.animationBound='true';
  }
+}
+async function saveAdminBrandStock(button){
+ if(!canManageProducts()){alert('স্টক পরিবর্তনের অনুমতি নেই।');return;}
+ const group=button.closest('.admin-brand-group');if(!group)return;
+ const input=group.querySelector('.admin-brand-stock-value'),value=Number(input?.value);
+ if(!Number.isInteger(value)||value<0){alert('স্টক ০ বা তার বেশি পূর্ণসংখ্যা হতে হবে।');return;}
+ const ids=[...group.querySelectorAll('.admin-product-select')].map(el=>el.dataset.productId).filter(Boolean);
+ if(!ids.length){alert('এই ব্র্যান্ডে কোনো পণ্য নেই।');return;}
+ if(!confirm('এই ব্র্যান্ডের '+ids.length+'টি পণ্যের স্টক '+value+' করে সেট করবেন?'))return;
+ const original=button.textContent;button.disabled=true;button.textContent='সবগুলো সেভ হচ্ছে...';
+ try{
+  const {data,error}=await supabaseClient.from('products').update({stock:value}).in('id',ids).select('id,stock');
+  if(error)throw error;
+  const updated=new Map((data||[]).map(p=>[String(p.id),p.stock]));
+  allProducts.forEach(p=>{if(updated.has(String(p.id)))p.stock=updated.get(String(p.id));});
+  if(updated.size!==ids.length)throw new Error(updated.size+'টি পণ্য আপডেট হয়েছে; '+(ids.length-updated.size)+'টি আপডেট হয়নি।');
+  alert('সফল! '+updated.size+'টি পণ্যের স্টক '+value+' করা হয়েছে।');
+  await loadAdminProducts();
+ }catch(e){alert('একসাথে স্টক সেভ হয়নি: '+(e?.message||'Unknown error'));button.disabled=false;button.textContent=original;}
 }
 async function saveProductStock(productId){
  if(!canManageProducts()){alert('স্টক পরিবর্তনের অনুমতি নেই।');return;}
