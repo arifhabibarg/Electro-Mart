@@ -1819,7 +1819,7 @@ async function loadMyOrders(){
    const items=(o.order_items||[]).map(i=>{
     const req=byItem.get(i.id);
     let action='';
-    if(req){action=renderReturnTimeline(req);}
+    if(req){action=renderReturnTimeline(req)+'<div class="return-policy-note">এই পণ্যের জন্য একবারই রিটার্ন / রিপ্লেসমেন্ট আবেদন করা যায়। দ্বিতীয়বার আবেদন গ্রহণ করা হবে না।</div>';}
     else if(eligible){action='<button type="button" class="my-order-track return-request-btn" onclick="openReturnRequest(\''+profileAddressEscape(id)+'\',\''+profileAddressEscape(i.id)+'\',\''+profileAddressEscape(i.product_name)+'\')">রিটার্ন / রিপ্লেসমেন্ট</button>';}
     return '<div class="my-order-item-return"><div>'+profileAddressEscape(i.product_name)+' × '+Number(i.quantity)+' <b>'+money(Number(i.unit_price)*Number(i.quantity))+'</b></div>'+action+'</div>';
    }).join('')||'পণ্যের বিবরণ পাওয়া যায়নি';
@@ -2291,7 +2291,7 @@ document.getElementById('returnRequestForm')?.addEventListener('submit',async e=
   const {error}=await supabaseClient.from('return_requests').insert({order_id:orderId,order_item_id:itemId,user_id:currentAuthUser.id,reason:document.getElementById('returnRequestReason').value,details:document.getElementById('returnRequestDetails').value.trim(),photo_paths:paths});
   if(error)throw error;
   msg.textContent='আপনার আবেদন জমা হয়েছে। Admin যাচাই করে জানাবেন।';await loadMyOrders();setTimeout(closeReturnRequest,900);
- }catch(err){msg.textContent='আবেদন জমা হয়নি: '+(err.message||'আবার চেষ্টা করুন।');}
+ }catch(err){msg.textContent=(err.code==='23505'?'এই পণ্যের জন্য আগে একবার রিটার্ন / রিপ্লেসমেন্ট আবেদন করা হয়েছে। দ্বিতীয়বার আবেদন করা যাবে না।':'আবেদন জমা হয়নি: '+(err.message||'আবার চেষ্টা করুন।'));}
  finally{button.disabled=false;button.textContent='আবেদন পাঠান';}
 });
 async function loadAdminReturnRequests(){
