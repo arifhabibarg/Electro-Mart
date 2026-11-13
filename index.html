@@ -1090,6 +1090,7 @@ async function refreshAdminAccess(){
   if(nav){nav.classList.toggle('show',allowed);nav.style.display=allowed?'inline-flex':'none';}
   const setDisplay=(selector,value)=>{const el=document.querySelector(selector);if(el)el.style.display=value;};
   const setId=(id,value)=>{const el=document.getElementById(id);if(el)el.style.display=value;};
+  setId('adminReturnsMenuBtn',isAdminRole()?'':'none');setId('adminReplacementRecordsMenuBtn',isAdminRole()?'':'none');
   setId('adminPermissionCard',isAdminRole()?'block':'none');setId('repairProductCodesBtn',isAdminRole()?'':'none');
   setId('adminPermissionMenuBtn',isAdminRole()?'':'none');setId('adminFinanceMenuBtn',isAdminRole()?'':'none');setId('adminBlogMenuBtn',isAdminRole()?'':'none');setId('apCostField',isAdminRole()?'':'none');
   setDisplay('#newStaffRole option[value="admin"]',currentAdminRole==='super_admin'?'':'none');
