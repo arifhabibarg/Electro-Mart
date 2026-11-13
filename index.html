@@ -761,7 +761,7 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible),[role="button"]:foc
 <section class="admin-wrap" id="adminPanel">
  <div class="admin-shell">
   <div class="admin-top"><div><h2>ElectroMart Admin Panel</h2><p>Only authorized administrators can manage products and access.</p></div><button class="admin-close" type="button" onclick="toggleAdminPanel()">Close ✕</button></div>
-  <nav class="admin-menu" aria-label="Admin menu"><button type="button" class="active" data-admin-tab="adminProductManagementPanel" onclick="switchAdminTab(this)">🛍 Product Management</button><button type="button" data-admin-tab="adminManageProductsPanel" onclick="switchAdminTab(this)">📦 Manage Products</button><button type="button" data-admin-tab="adminDeliveredPanel" onclick="switchAdminTab(this)">🚚 Product Delivery Report</button><button type="button" data-admin-tab="adminOrdersPanel" onclick="switchAdminTab(this)">🧾 Order Management</button><button type="button" id="adminPermissionMenuBtn" data-admin-tab="adminUserPermissionsPanel" onclick="switchAdminTab(this)">👥 Staff & Roles</button><button type="button" id="adminFinanceMenuBtn" data-admin-tab="adminFinancePanel" onclick="switchAdminTab(this)">📊 Finance Report</button> <button type="button" id="adminBlogMenuBtn" data-admin-tab="adminBlogPanel" onclick="switchAdminTab(this)">✍️ Blog Management</button></nav>
+  <nav class="admin-menu" aria-label="Admin menu"><button type="button" class="active" data-admin-tab="adminProductManagementPanel" onclick="switchAdminTab(this)">🛍 Product Management</button><button type="button" data-admin-tab="adminManageProductsPanel" onclick="switchAdminTab(this)">📦 Manage Products</button><button type="button" data-admin-tab="adminDeliveredPanel" onclick="switchAdminTab(this)">🚚 Product Delivery Report</button><button type="button" data-admin-tab="adminOrdersPanel" onclick="switchAdminTab(this)">🧾 Order Management</button><button type="button" id="adminReturnsMenuBtn" data-admin-tab="adminReturnsPanel" onclick="switchAdminTab(this)" style="display:none">↩️ Return / Replacement</button><button type="button" id="adminPermissionMenuBtn" data-admin-tab="adminUserPermissionsPanel" onclick="switchAdminTab(this)">👥 Staff & Roles</button><button type="button" id="adminFinanceMenuBtn" data-admin-tab="adminFinancePanel" onclick="switchAdminTab(this)">📊 Finance Report</button> <button type="button" id="adminBlogMenuBtn" data-admin-tab="adminBlogPanel" onclick="switchAdminTab(this)">✍️ Blog Management</button></nav>
   <div class="admin-grid">
    <section class="admin-card admin-tab-panel active" id="adminProductManagementPanel">
 
@@ -787,6 +787,7 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible),[role="button"]:foc
     <section class="admin-card admin-tab-panel" id="adminManageProductsPanel"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><h3>📦 Manage Products</h3><button class="admin-secondary" id="repairProductCodesBtn" type="button" onclick="repairProductCodes()" style="display:none">Product Code ঠিক করুন</button></div><div id="adminProductList"><p class="admin-help">Loading...</p></div></section>
     <section class="admin-card admin-tab-panel" id="adminUserPermissionsPanel" style="margin-top:16px;display:none"><h3>👥 Staff & Role Management — All Members</h3><form id="adminPermissionForm"><div class="admin-field"><label for="newAdminEmail">Registered User Email</label><input id="newAdminEmail" type="email" required placeholder="user@example.com"></div><div class="admin-field" style="margin-top:12px"><label for="newStaffRole">Assign Role</label><div class="admin-select-with-add"><button type="button" class="admin-search-select" data-role-select="newStaffRole"><span>Customer (Remove Staff Access)</span><span>⌄</span></button><select id="newStaffRole" class="admin-native-select" required><option value="customer">Customer (Remove Staff Access)</option><option value="product_manager">Product Manager</option><option value="order_manager">Order Manager</option><option value="delivery_manager">Delivery Manager</option><option value="moderator">Moderator</option><option value="customer_support">Customer Support</option><option value="inventory_manager">Inventory Manager</option><option value="marketing_manager">Marketing Manager</option><option value="viewer">Viewer</option><option value="admin">Admin</option><option value="super_admin">Super Admin</option></select></div></div><div class="admin-actions"><button class="admin-primary" type="submit">Save Role</button></div><p class="admin-msg" id="permissionMessage"></p></form><div id="adminPermissionList"></div><p class="admin-help">সব নিবন্ধিত মেম্বার এখানে দেখা যাবে। শুধু Admin ও Super Admin তালিকা দেখতে এবং Role/অনুমতি পরিবর্তন করতে পারবেন। Admin, Super Admin Role দিতে পারবেন শুধু Super Admin।</p></section>
     <section class="admin-card admin-tab-panel" id="adminOrdersPanel" style="margin-top:16px"><h3>🧾 Order Management</h3><div id="adminOrdersList"><p class="admin-help">Loading orders...</p></div></section>
+    <section class="admin-card admin-tab-panel" id="adminReturnsPanel"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><h3>↩️ Return / Replacement Requests</h3><button class="admin-secondary" type="button" onclick="loadAdminReturnRequests()">রিফ্রেশ</button></div><p class="admin-help">গ্রাহকের আবেদন যাচাই করে Approve/Reject করুন। পণ্য হাতে পাওয়ার পর Received, আর টাকা ফেরত বা নতুন পণ্য পাঠানো সম্পন্ন হলে Refund/Replacement Completed নির্বাচন করুন।</p><div id="adminReturnRequests"><p class="admin-help">আবেদন লোড হচ্ছে...</p></div></section>
     <section class="admin-card admin-tab-panel" id="adminFinancePanel"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><h3>📊 Finance Report — ব্যবসার হিসাব ও লাভ-ক্ষতি</h3><button class="admin-secondary" type="button" onclick="loadFinanceReport()">হিসাব রিফ্রেশ</button></div><p class="admin-help">Delivered অর্ডারের মোট আদায় থেকে পণ্যের ক্রয়মূল্য, প্যাকেজিং, কুরিয়ার ডেলিভারি খরচ ও অন্যান্য খরচ বাদ দিয়ে নিট লাভ হিসাব হবে। অর্ডারের মোট টাকার মধ্যে ক্রেতার দেওয়া ডেলিভারি চার্জও অন্তর্ভুক্ত।</p><div id="financeSummary" class="admin-help">হিসাব লোড হচ্ছে...</div><div id="financeOrders"></div></section>
    <section class="admin-card admin-tab-panel" id="adminDeliveredPanel" style="margin-top:16px"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><h3>📦 Delivered Products Report</h3><button class="admin-secondary" type="button" onclick="loadDeliveredOrders()">Refresh Report</button></div><div id="adminDeliveredSummary" class="admin-help">Loading delivered orders...</div><div id="adminDeliveredList"></div></section>
     <section class="admin-card admin-tab-panel" id="adminBlogPanel"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><h3>✍️ Blog Management</h3><button class="admin-secondary" type="button" onclick="loadAdminBlogPosts()">Refresh Posts</button></div><form id="adminBlogForm"><input type="hidden" id="blogPostId"><div class="admin-form-grid"><div class="admin-field full"><label for="blogTitle">Post Title *</label><input id="blogTitle" maxlength="180" required placeholder="Write a clear blog title"></div><div class="admin-field full"><label for="blogExcerpt">Short Summary</label><textarea id="blogExcerpt" maxlength="500" placeholder="A short introduction shown on the Blog page"></textarea></div><div class="admin-field full"><label for="blogCoverUrl">Cover Image URL</label><input id="blogCoverUrl" type="url" maxlength="1000" placeholder="https://example.com/image.jpg"><small class="admin-help">ছবির সরাসরি URL দিন। পরে চাইলে Storage upload সুবিধাও যোগ করা যাবে।</small></div><div class="admin-field full"><label for="blogContent">Full Article *</label><textarea id="blogContent" required maxlength="50000" style="min-height:220px" placeholder="Write the full blog article here..."></textarea></div><div class="admin-field"><label for="blogStatus">Publish Status</label><select id="blogStatus"><option value="draft">Save as Draft</option><option value="published">Publish Now</option></select></div></div><div class="admin-actions"><button class="admin-primary" id="blogSaveBtn" type="submit">Save Blog Post</button><button class="admin-secondary" type="button" onclick="resetBlogForm()">Clear Form</button></div><p class="admin-msg" id="blogAdminMessage" aria-live="polite"></p></form><div id="adminBlogPosts" class="blog-admin-list"><p class="admin-help">Loading blog posts...</p></div></section>
@@ -1783,14 +1784,27 @@ async function loadMyOrders(){
  const box=document.getElementById('profileMyOrders');if(!box)return;if(!currentAuthUser){box.innerHTML='<p class="profile-address-empty">অর্ডার দেখতে লগইন করুন।</p>';return;}
  box.innerHTML='<p class="profile-address-empty">আপনার অর্ডার লোড হচ্ছে...</p>';
  try{
-  const {data:orders,error}=await supabaseClient.from('orders').select('id,order_number,customer_name,phone,order_status,payment_method,payment_status,total_amount,created_at,order_items(product_name,quantity,unit_price)').eq('user_id',currentAuthUser.id).order('created_at',{ascending:false}).limit(100);
+  const {data:orders,error}=await supabaseClient.from('orders').select('id,order_number,customer_name,phone,order_status,payment_method,payment_status,total_amount,created_at,delivered_at,order_items(id,product_name,quantity,unit_price)').eq('user_id',currentAuthUser.id).order('created_at',{ascending:false}).limit(100);
   if(error)throw error;
   if(!orders?.length){box.innerHTML='<p class="profile-address-empty">আপনি এখনো কোনো অর্ডার করেননি। পণ্য অর্ডার করলে এখানে দেখা যাবে।</p>';return;}
+  const itemIds=orders.flatMap(o=>(o.order_items||[]).map(i=>i.id));
+  let requestRows=[];
+  if(itemIds.length){const rr=await supabaseClient.from('return_requests').select('id,order_item_id,status,admin_note,created_at').in('order_item_id',itemIds);if(rr.error)throw rr.error;requestRows=rr.data||[];}
+  const byItem=new Map(requestRows.map(r=>[r.order_item_id,r]));
   const labels={pending:'অর্ডার গ্রহণ করা হয়েছে',confirmed:'অর্ডার নিশ্চিত',shipped:'ডেলিভারির পথে',delivered:'ডেলিভারি সম্পন্ন',cancelled:'বাতিল'};
+  const requestLabels={pending:'পর্যালোচনাধীন',approved:'অনুমোদিত',rejected:'বাতিল',received:'পণ্য ফেরত পাওয়া গেছে',refunded:'টাকা ফেরত সম্পন্ন',replaced:'পণ্য রিপ্লেসমেন্ট সম্পন্ন'};
   box.innerHTML='<div class="my-order-list">'+orders.map(o=>{
-   const id=String(o.id),displayOrderNumber=String(o.order_number||o.id),items=(o.order_items||[]).map(i=>'<div>'+profileAddressEscape(i.product_name)+' × '+Number(i.quantity)+' <b>'+money(Number(i.unit_price)*Number(i.quantity))+'</b></div>').join('')||'পণ্যের বিবরণ পাওয়া যায়নি';
-   const status=o.order_status||'pending';
-   return '<article class="my-order-card"><div class="my-order-head"><span class="my-order-number">অর্ডার #'+profileAddressEscape(displayOrderNumber)+'</span><span class="my-order-status">'+profileAddressEscape(labels[status]||status)+'</span></div><div class="my-order-meta"><span>'+profileAddressEscape(new Date(o.created_at).toLocaleString('bn-BD'))+'</span><span>'+(o.payment_method==='cod'?'ক্যাশ অন ডেলিভারি':'bKash')+' · '+(o.payment_status==='paid'?'পরিশোধিত':'বাকি')+'</span></div><div class="my-order-items">'+items+'</div><div class="my-order-charges" style="font-size:13px;line-height:1.7;margin:8px 0;color:#555"><div style="display:flex;justify-content:space-between"><span>ডেলিভারি চার্জ</span><b>'+money(o.customer_delivery_charge||0)+'</b></div><div style="display:flex;justify-content:space-between"><span>COD চার্জ</span><b>'+money(o.customer_cod_fee||0)+'</b></div></div><div class="my-order-foot"><span class="my-order-total">মোট: '+money(o.total_amount)+'</span><button type="button" class="my-order-track" onclick="openOrderTracking(\''+profileAddressEscape(id)+'\')">অর্ডার ট্র্যাক করুন</button></div></article>';
+   const id=String(o.id),displayOrderNumber=String(o.order_number||o.id),status=o.order_status||'pending';
+   const deliveredAt=o.delivered_at?new Date(o.delivered_at):null,deadline=deliveredAt?new Date(deliveredAt.getTime()+7*86400000):null,eligible=status==='delivered'&&deadline&&Date.now()<=deadline.getTime();
+   const items=(o.order_items||[]).map(i=>{
+    const req=byItem.get(i.id);
+    let action='';
+    if(req){action='<div class="return-request-state">রিটার্ন/রিপ্লেসমেন্ট: <b>'+profileAddressEscape(requestLabels[req.status]||req.status)+'</b>'+(req.admin_note?'<small>'+profileAddressEscape(req.admin_note)+'</small>':'')+'</div>';}
+    else if(eligible){action='<button type="button" class="my-order-track return-request-btn" onclick="openReturnRequest(\''+profileAddressEscape(id)+'\',\''+profileAddressEscape(i.id)+'\',\''+profileAddressEscape(i.product_name)+'\')">রিটার্ন / রিপ্লেসমেন্ট</button>';}
+    return '<div class="my-order-item-return"><div>'+profileAddressEscape(i.product_name)+' × '+Number(i.quantity)+' <b>'+money(Number(i.unit_price)*Number(i.quantity))+'</b></div>'+action+'</div>';
+   }).join('')||'পণ্যের বিবরণ পাওয়া যায়নি';
+   const policy=status==='delivered'?(deliveredAt?(eligible?'<div class="return-policy-note">পণ্য হাতে পাওয়ার তারিখ: '+profileAddressEscape(deliveredAt.toLocaleDateString('bn-BD'))+' · আবেদন করার শেষ দিন: '+profileAddressEscape(deadline.toLocaleDateString('bn-BD'))+'</div>':'<div class="return-policy-note">রিটার্ন/রিপ্লেসমেন্টের ৭ দিনের সময়সীমা শেষ হয়েছে।</div>'):'<div class="return-policy-note">ডেলিভারির তারিখ রেকর্ড নেই; এই অর্ডারের জন্য অনলাইন রিটার্ন আবেদন করা যাবে না।</div>'):'';
+   return '<article class="my-order-card"><div class="my-order-head"><span class="my-order-number">অর্ডার #'+profileAddressEscape(displayOrderNumber)+'</span><span class="my-order-status">'+profileAddressEscape(labels[status]||status)+'</span></div><div class="my-order-meta"><span>'+profileAddressEscape(new Date(o.created_at).toLocaleString('bn-BD'))+'</span><span>'+(o.payment_method==='cod'?'ক্যাশ অন ডেলিভারি':'bKash')+' · '+(o.payment_status==='paid'?'পরিশোধিত':'বাকি')+'</span></div><div class="my-order-items">'+items+'</div>'+policy+'<div class="my-order-foot"><span class="my-order-total">মোট: '+money(o.total_amount)+'</span><button type="button" class="my-order-track" onclick="openOrderTracking(\''+profileAddressEscape(id)+'\')">অর্ডার ট্র্যাক করুন</button></div></article>';
   }).join('')+'</div>';
  }catch(e){console.error('My orders:',e);box.innerHTML='<p class="profile-address-empty">অর্ডার লোড হয়নি: '+profileAddressEscape(e.message||'আবার চেষ্টা করুন।')+'</p>';}
 }
@@ -2170,4 +2184,86 @@ function sendContactEmail(event){
  window.location.href='mailto:arif.habib.arg@gmail.com?subject='+encodeURIComponent('[ElectroMart] '+subject)+'&body='+encodeURIComponent(body);
 }
 </script>
+
+<style>
+.return-request-btn{margin-top:8px;background:#0755c9!important;color:#fff!important;border:0!important}
+.my-order-item-return{padding:7px 0;border-bottom:1px solid #eee}
+.return-policy-note,.return-request-state{font-size:12px;color:#555;margin-top:7px;line-height:1.6}
+.return-request-state b{color:#0755c9}
+.return-request-state small{display:block;color:#666}
+.return-modal-backdrop{position:fixed;inset:0;background:#0009;z-index:10020;display:none;align-items:center;justify-content:center;padding:14px}
+.return-modal-backdrop.show{display:flex}
+.return-modal{background:#fff;width:min(560px,100%);max-height:90vh;overflow:auto;border-radius:12px;padding:18px;box-shadow:0 15px 50px #0004}
+.return-modal h3{margin:0 0 12px;font-size:18px}
+.return-modal label{display:block;font-size:13px;font-weight:700;margin:12px 0 6px}
+.return-modal input,.return-modal select,.return-modal textarea{width:100%;padding:11px;border:1px solid #ddd;border-radius:7px;background:#fff}
+.return-modal textarea{min-height:100px;resize:vertical}
+.return-modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.return-modal-actions button{padding:10px 14px;border:0;border-radius:7px;font-weight:700}
+.return-admin-card{border:1px solid #e5e5e5;border-radius:9px;padding:13px;margin:10px 0}
+.return-admin-card img{width:76px;height:76px;object-fit:cover;border-radius:6px;margin:5px 5px 0 0}
+.return-admin-card select,.return-admin-card textarea{width:100%;padding:9px;border:1px solid #ddd;border-radius:6px;margin-top:7px}
+@media(max-width:600px){.return-modal{padding:14px}.return-modal-actions{flex-direction:column}.return-modal-actions button{width:100%}}
+</style>
+<div class="return-modal-backdrop" id="returnRequestBackdrop" onclick="if(event.target===this)closeReturnRequest()"><section class="return-modal" role="dialog" aria-modal="true" aria-labelledby="returnRequestTitle"><h3 id="returnRequestTitle">রিটার্ন / রিপ্লেসমেন্ট আবেদন</h3><p id="returnRequestProduct" class="admin-help"></p><form id="returnRequestForm"><input type="hidden" id="returnRequestOrderId"><input type="hidden" id="returnRequestItemId"><label for="returnRequestReason">সমস্যার ধরন *</label><select id="returnRequestReason" required><option value="">নির্বাচন করুন</option><option value="পণ্য নষ্ট / কাজ করছে না">পণ্য নষ্ট / কাজ করছে না</option><option value="ভুল পণ্য পেয়েছি">ভুল পণ্য পেয়েছি</option><option value="পণ্য ক্ষতিগ্রস্ত অবস্থায় এসেছে">পণ্য ক্ষতিগ্রস্ত অবস্থায় এসেছে</option><option value="পণ্যের বর্ণনার সঙ্গে মিল নেই">পণ্যের বর্ণনার সঙ্গে মিল নেই</option><option value="অন্যান্য">অন্যান্য</option></select><label for="returnRequestDetails">সমস্যার বিস্তারিত *</label><textarea id="returnRequestDetails" required maxlength="1500" placeholder="সমস্যাটি বিস্তারিত লিখুন..."></textarea><label for="returnRequestPhotos">পণ্যের ছবি (সর্বোচ্চ ৩টি, প্রতিটি ৫ MB)</label><input id="returnRequestPhotos" type="file" accept="image/jpeg,image/png,image/webp" multiple><p class="admin-help" id="returnRequestMessage" aria-live="polite"></p><div class="return-modal-actions"><button type="button" class="admin-secondary" onclick="closeReturnRequest()">বন্ধ করুন</button><button type="submit" class="admin-primary" id="returnRequestSubmit">আবেদন পাঠান</button></div></form></section></div>
+<script>
+function openReturnRequest(orderId,itemId,productName){
+ if(!currentAuthUser){openAuth();return;}
+ document.getElementById('returnRequestOrderId').value=orderId;
+ document.getElementById('returnRequestItemId').value=itemId;
+ document.getElementById('returnRequestProduct').textContent='পণ্য: '+productName;
+ document.getElementById('returnRequestMessage').textContent='ডেলিভারির দিন থেকে ৭ দিনের মধ্যে আবেদন করতে হবে।';
+ document.getElementById('returnRequestForm').reset();
+ document.getElementById('returnRequestOrderId').value=orderId;
+ document.getElementById('returnRequestItemId').value=itemId;
+ document.getElementById('returnRequestBackdrop').classList.add('show');
+}
+function closeReturnRequest(){document.getElementById('returnRequestBackdrop')?.classList.remove('show');}
+document.getElementById('returnRequestForm')?.addEventListener('submit',async e=>{
+ e.preventDefault();if(!currentAuthUser?.id)return;
+ const button=document.getElementById('returnRequestSubmit'),msg=document.getElementById('returnRequestMessage'),files=[...(document.getElementById('returnRequestPhotos').files||[])];
+ if(files.length>3){msg.textContent='সর্বোচ্চ ৩টি ছবি দিতে পারবেন।';return;}
+ if(files.some(f=>f.size>5*1024*1024||!['image/jpeg','image/png','image/webp'].includes(f.type))){msg.textContent='শুধু JPG, PNG বা WebP ছবি দিন; প্রতিটি সর্বোচ্চ ৫ MB।';return;}
+ button.disabled=true;button.textContent='পাঠানো হচ্ছে...';msg.textContent='ছবি আপলোড হচ্ছে...';
+ const orderId=document.getElementById('returnRequestOrderId').value,itemId=document.getElementById('returnRequestItemId').value,paths=[];
+ try{
+  for(const file of files){
+   const ext=file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg';
+   const path=currentAuthUser.id+'/'+orderId+'/'+itemId+'/'+crypto.randomUUID()+'.'+ext;
+   const {error}=await supabaseClient.storage.from('return-evidence').upload(path,file,{contentType:file.type,upsert:false});
+   if(error)throw error;paths.push(path);
+  }
+  const {error}=await supabaseClient.from('return_requests').insert({order_id:orderId,order_item_id:itemId,user_id:currentAuthUser.id,reason:document.getElementById('returnRequestReason').value,details:document.getElementById('returnRequestDetails').value.trim(),photo_paths:paths});
+  if(error)throw error;
+  msg.textContent='আপনার আবেদন জমা হয়েছে। Admin যাচাই করে জানাবেন।';await loadMyOrders();setTimeout(closeReturnRequest,900);
+ }catch(err){msg.textContent='আবেদন জমা হয়নি: '+(err.message||'আবার চেষ্টা করুন।');}
+ finally{button.disabled=false;button.textContent='আবেদন পাঠান';}
+});
+async function loadAdminReturnRequests(){
+ const box=document.getElementById('adminReturnRequests');if(!box)return;
+ if(!isAdminRole()){box.innerHTML='<p class="admin-help">শুধু Admin বা Super Admin আবেদন পরিচালনা করতে পারবেন।</p>';return;}
+ box.innerHTML='<p class="admin-help">আবেদন লোড হচ্ছে...</p>';
+ const {data,error}=await supabaseClient.from('return_requests').select('id,order_id,order_item_id,user_id,reason,details,photo_paths,status,admin_note,created_at,orders(order_number,customer_name,phone,delivery_address),order_items(product_name,quantity)').order('created_at',{ascending:false}).limit(300);
+ if(error){box.innerHTML='<p class="admin-help">আবেদন লোড হয়নি: '+escapeHtml(error.message)+'</p>';return;}
+ if(!data?.length){box.innerHTML='<p class="admin-help">এখনও কোনো রিটার্ন/রিপ্লেসমেন্ট আবেদন আসেনি।</p>';return;}
+ const labels={pending:'Pending — যাচাই বাকি',approved:'Approved — অনুমোদিত',rejected:'Rejected — বাতিল',received:'Received — পণ্য হাতে এসেছে',refunded:'Refunded — টাকা ফেরত সম্পন্ন',replaced:'Replaced — নতুন পণ্য পাঠানো হয়েছে'};
+ const cards=await Promise.all(data.map(async r=>{
+  const urls=await Promise.all((r.photo_paths||[]).map(async path=>{const x=await supabaseClient.storage.from('return-evidence').createSignedUrl(path,3600);return x.data?.signedUrl||'';}));
+  const o=Array.isArray(r.orders)?r.orders[0]:r.orders,oi=Array.isArray(r.order_items)?r.order_items[0]:r.order_items;
+  return '<article class="return-admin-card"><div><b>অর্ডার #'+escapeHtml(o?.order_number||r.order_id)+'</b> · '+escapeHtml(oi?.product_name||'পণ্য')+' × '+Number(oi?.quantity||1)+'</div><div class="admin-help">'+escapeHtml(o?.customer_name||'')+' · '+escapeHtml(o?.phone||'')+'<br>'+escapeHtml(o?.delivery_address||'')+'<br>আবেদনের সময়: '+escapeHtml(new Date(r.created_at).toLocaleString('bn-BD'))+'</div><p><b>সমস্যা:</b> '+escapeHtml(r.reason)+'</p><p style="white-space:pre-wrap">'+escapeHtml(r.details)+'</p><div>'+urls.filter(Boolean).map(u=>'<a href="'+escapeHtml(u)+'" target="_blank" rel="noopener"><img src="'+escapeHtml(u)+'" alt="Return evidence"></a>').join('')+'</div><label class="admin-help">আবেদনের অবস্থা</label><select id="returnStatus_'+r.id+'">'+Object.entries(labels).map(([v,l])=>'<option value="'+v+'" '+(r.status===v?'selected':'')+'>'+l+'</option>').join('')+'</select><label class="admin-help">Admin-এর মন্তব্য</label><textarea id="returnNote_'+r.id+'" rows="2" maxlength="1000" placeholder="গ্রাহককে জানান...">'+escapeHtml(r.admin_note||'')+'</textarea><button type="button" class="admin-primary" style="margin-top:8px" onclick="saveReturnRequestStatus(\''+r.id+'\')">অবস্থা সেভ করুন</button></article>';
+ }));
+ box.innerHTML=cards.join('');
+}
+async function saveReturnRequestStatus(id){
+ if(!isAdminRole()){alert('শুধু Admin বা Super Admin এটি করতে পারবেন।');return;}
+ const status=document.getElementById('returnStatus_'+id)?.value,note=document.getElementById('returnNote_'+id)?.value||'';
+ if(!['pending','approved','rejected','received','refunded','replaced'].includes(status))return;
+ const {error}=await supabaseClient.from('return_requests').update({status,admin_note:note,updated_at:new Date().toISOString()}).eq('id',id);
+ if(error){alert('সেভ হয়নি: '+error.message);return;}
+ await loadAdminReturnRequests();alert('রিটার্ন/রিপ্লেসমেন্ট আবেদনের অবস্থা আপডেট হয়েছে।');
+}
+const originalElectroToggleAdminPanel=toggleAdminPanel;
+toggleAdminPanel=async function(){await originalElectroToggleAdminPanel();const panel=document.getElementById('adminPanel');const nav=document.getElementById('adminReturnsMenuBtn');if(nav)nav.style.display=isAdminRole()?'':'none';if(panel?.classList.contains('show')&&isAdminRole())await loadAdminReturnRequests();};
+</script>
+
 </body></html>
