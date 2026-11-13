@@ -729,10 +729,22 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible),[role="button"]:foc
 .replacement-record-print{border:1px solid #d6ad00;border-radius:8px;background:#f5c400;color:#171717;font-weight:800;padding:8px 12px;cursor:pointer}
 @media(max-width:600px){.replacement-record-grid{grid-template-columns:1fr}.replacement-profile-card{padding:11px}}
 @media print{body *{visibility:hidden!important}#replacementPrintRoot,#replacementPrintRoot *{visibility:visible!important}#replacementPrintRoot{position:absolute;inset:0;width:100%;padding:24px;color:#111;background:#fff}}
-/* Reliable search category control: use the native select so the menu always opens on tap/click. */
-.searchbar .category-native-select{position:relative!important;inset:auto!important;width:auto!important;height:43px!important;min-width:130px!important;max-width:165px!important;flex:0 0 150px!important;opacity:1!important;pointer-events:auto!important;z-index:2!important;padding:0 30px 0 12px!important;border:0!important;border-right:1px solid #e8e8e8!important;border-radius:5px 0 0 5px!important;background:#fff!important;color:#222!important;font-size:12px!important;font-weight:700!important;cursor:pointer!important;appearance:auto!important;-webkit-appearance:menulist!important}
-.searchbar .category-trigger{display:none!important}
-@media(max-width:600px){.searchbar .category-native-select{min-width:105px!important;max-width:115px!important;flex:0 0 112px!important;padding:0 5px!important;font-size:10px!important}}
+/* Inline category dropdown: expands directly below the search category control. */
+.searchbar{position:relative;overflow:visible!important;z-index:60}
+.searchbar .category-native-select{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}
+.searchbar .category-trigger{display:flex!important;position:relative;z-index:2;min-width:145px;max-width:180px}
+.search-category-inline{position:absolute;left:0;top:calc(100% + 7px);width:min(310px,calc(100vw - 24px));max-height:min(65vh,470px);overflow-y:auto;overflow-x:hidden;background:#fff;border:1px solid #e8d27a;border-top:3px solid var(--yellow);border-radius:0 0 9px 9px;box-shadow:0 12px 28px #0002;padding:7px;z-index:100001;transform-origin:top left;animation:searchCategoryDrop .28s cubic-bezier(.2,.75,.25,1) both}
+.search-category-inline[hidden]{display:none!important}
+.search-category-inline .inline-category-option{display:flex;width:100%;align-items:center;gap:11px;min-height:43px;padding:9px 12px;border:0;border-bottom:1px solid #f0f0f0;background:#fff;color:#222;text-align:left;font-size:12px;font-weight:650;opacity:0;transform:translateY(-9px);animation:searchCategoryItem .34s cubic-bezier(.2,.75,.25,1) forwards;animation-delay:var(--item-delay,0ms)}
+.search-category-inline .inline-category-option:last-child{border-bottom:0}
+.search-category-inline .inline-category-option:hover,.search-category-inline .inline-category-option.selected{background:#fff8d9;color:#8a6b00}
+.search-category-inline .inline-category-option .inline-cat-icon{width:27px;height:27px;display:grid;place-items:center;border-radius:6px;background:#191919;color:var(--yellow);font-size:15px;flex:0 0 27px}
+.search-category-inline .inline-category-option .inline-cat-count{margin-left:auto;color:#999;font-size:10px;font-weight:400;white-space:nowrap}
+.search-category-inline .inline-category-option.selected .inline-cat-icon{background:var(--yellow);color:#111}
+@keyframes searchCategoryDrop{from{opacity:0;transform:translateY(-8px) scaleY(.94)}to{opacity:1;transform:translateY(0) scaleY(1)}}
+@keyframes searchCategoryItem{to{opacity:1;transform:translateY(0)}}
+@media(max-width:600px){.searchbar .category-trigger{min-width:105px;max-width:115px;padding:0 7px;font-size:10px;gap:4px}.search-category-inline{width:min(270px,calc(100vw - 20px));max-height:58vh}.search-category-inline .inline-category-option{min-height:40px;padding:8px 9px}}
+@media(prefers-reduced-motion:reduce){.search-category-inline,.search-category-inline .inline-category-option{animation:none!important;opacity:1!important;transform:none!important}}
 </style>
 </head>
 <body>
@@ -2059,32 +2071,27 @@ async function loadProducts(){statusText.textContent='Loading products...';try{c
 function refreshSearchCategoryOptions(){const select=document.getElementById('searchCategory');if(!select)return;const current=select.value;const custom=readCustomTaxonomy();const cats=[...new Set([...CORE_PRODUCT_CATEGORIES,...Object.keys(PRODUCT_TAXONOMY||{}),...(custom.categories||[]),...allProducts.map(p=>String(p.category||p.category_name||'').trim()).filter(Boolean)])].filter(Boolean).sort((a,b)=>a.localeCompare(b));select.innerHTML='<option value="">All Categories</option>'+cats.map(cat=>'<option value="'+escapeHtml(cat)+'">'+escapeHtml(cat)+'</option>').join('');if(cats.includes(current))select.value=current;const label=document.getElementById('categoryTriggerLabel');if(label)label.textContent=select.options[select.selectedIndex]?.textContent||'All Categories';}
 document.getElementById('searchInput').addEventListener('input',()=>{activeCategory='';activeSubcategory='';activeBrand='';refreshProducts();});document.getElementById('searchCategory').addEventListener('change',()=>{activeCategory='';activeSubcategory='';activeBrand='';refreshProducts();});
 function initCategoryPicker(){
- const select=document.getElementById('searchCategory'),trigger=document.getElementById('categoryTrigger'),label=document.getElementById('categoryTriggerLabel');
- if(!select||!trigger||!label)return;
+ const select=document.getElementById('searchCategory'),trigger=document.getElementById('categoryTrigger'),label=document.getElementById('categoryTriggerLabel'),bar=trigger?.closest('.searchbar');
+ if(!select||!trigger||!label||!bar)return;
  const icons={'smartphone':'📱','mobile':'📱','phone':'📱','laptop':'💻','computer':'💻','audio':'🎧','headphone':'🎧','watch':'⌚','camera':'📷','gaming':'🎮','game':'🎮','tv':'📺','television':'📺','appliance':'🏠','accessor':'🔌','default':'▦'};
  const iconFor=name=>{const key=Object.keys(icons).find(k=>k!=='default'&&name.toLowerCase().includes(k));return icons[key||'default'];};
+ let panel=bar.querySelector('.search-category-inline');
+ if(!panel){panel=document.createElement('div');panel.className='search-category-inline';panel.hidden=true;panel.setAttribute('aria-label','Product categories');bar.appendChild(panel);}
  const sync=()=>{const opt=select.options[select.selectedIndex];label.textContent=opt?.textContent||'All Categories';};
- function open(){
-  if(document.querySelector('.category-picker-backdrop'))return;
-  const back=document.createElement('div');back.className='category-picker-backdrop';back.style.cssText='position:fixed;inset:0;z-index:100000;display:block;background:transparent;backdrop-filter:none;padding:0;pointer-events:auto;';
-  back.innerHTML='<section class="category-picker" role="dialog" aria-modal="true" aria-label="Choose a category"><header class="category-picker-head"><span class="category-picker-mark">▦</span><div class="category-picker-heading"><strong>Browse Categories</strong><small>আপনার পছন্দের ক্যাটাগরি নির্বাচন করুন</small></div><button type="button" class="category-picker-close" aria-label="Close">×</button></header><div class="category-picker-search-wrap"><input class="category-picker-search" type="search" placeholder="ক্যাটাগরি খুঁজুন..." autocomplete="off"></div><div class="category-picker-list"></div></section>';
-  document.body.appendChild(back);const search=back.querySelector('.category-picker-search'),list=back.querySelector('.category-picker-list'),picker=back.querySelector('.category-picker');const anchor=trigger.getBoundingClientRect(),pickerWidth=Math.min(360,window.innerWidth-16),left=Math.max(8,Math.min(anchor.left,window.innerWidth-pickerWidth-8)),availableBelow=window.innerHeight-anchor.bottom-12,top=availableBelow>=300?anchor.bottom+7:Math.max(8,anchor.top-Math.min(520,window.innerHeight-16)-7);picker.style.cssText+=';position:fixed;display:flex;flex-direction:column;left:'+left+'px;top:'+top+'px;width:'+pickerWidth+'px;max-width:calc(100vw - 16px);max-height:min(70vh,560px);margin:0;pointer-events:auto;';list.style.cssText+=';display:grid;overflow-y:auto;min-height:60px;';
-  const close=()=>{back.remove();trigger.setAttribute('aria-expanded','false');trigger.focus();};
-  function draw(){
-   const q=search.value.trim().toLowerCase(),opts=[...select.options].filter(o=>o.value.toLowerCase().includes(q)||o.textContent.toLowerCase().includes(q));
-   list.innerHTML=opts.map(o=>{
-    const count=o.value?allProducts.filter(p=>matchesCategory(p,o.value)).length:allProducts.length;
-    return '<button type="button" class="category-picker-option '+(o.value===select.value?'selected':'')+'" data-value="'+escapeHtml(o.value)+'"><span class="category-picker-icon">'+(o.value?iconFor(o.textContent):'⌂')+'</span><span class="category-picker-option-text"><strong>'+escapeHtml(o.textContent)+'</strong><small>'+count+' টি পণ্য</small></span>'+(o.value===select.value?'<span class="category-picker-check">✓</span>':'')+'</button>';
-   }).join('')||'<div class="category-picker-empty">কোনো ক্যাটাগরি পাওয়া যায়নি</div>';
-  }
-  try{draw();}catch(error){console.error('Category picker render failed:',error);list.innerHTML='<div class="category-picker-empty">ক্যাটাগরি দেখানো যাচ্ছে না। আবার চেষ্টা করুন।</div>';}search.addEventListener('input',()=>{try{draw();}catch(error){console.error('Category search failed:',error);}});window.addEventListener('resize',close,{once:true});window.addEventListener('scroll',close,{once:true,capture:true});
-  list.addEventListener('click',e=>{const b=e.target.closest('[data-value]');if(!b)return;select.value=b.dataset.value;select.dispatchEvent(new Event('change',{bubbles:true}));sync();close();});
-  back.querySelector('.category-picker-close').addEventListener('click',close);
-  back.addEventListener('click',e=>{if(e.target===back)close();});
-  back.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
-  trigger.setAttribute('aria-expanded','true');
+ function draw(){
+  const opts=[...select.options];
+  panel.innerHTML=opts.map((o,index)=>{
+   const count=o.value?allProducts.filter(p=>matchesCategory(p,o.value)).length:allProducts.length;
+   return '<button type="button" class="inline-category-option '+(o.value===select.value?'selected':'')+'" data-value="'+escapeHtml(o.value)+'" style="--item-delay:'+(index*38)+'ms"><span class="inline-cat-icon">'+(o.value?iconFor(o.textContent):'⌂')+'</span><span>'+escapeHtml(o.textContent)+'</span><small class="inline-cat-count">'+count+' টি পণ্য</small></button>';
+  }).join('');
  }
- trigger.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();open();});select.addEventListener('change',sync);sync();
+ function close(){panel.hidden=true;trigger.setAttribute('aria-expanded','false');trigger.querySelector('.category-trigger-chevron').textContent='⌄';}
+ function open(){draw();panel.hidden=false;trigger.setAttribute('aria-expanded','true');trigger.querySelector('.category-trigger-chevron').textContent='⌃';}
+ trigger.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();panel.hidden?open():close();});
+ panel.addEventListener('click',event=>{const option=event.target.closest('[data-value]');if(!option)return;select.value=option.dataset.value;select.dispatchEvent(new Event('change',{bubbles:true}));sync();close();});
+ document.addEventListener('click',event=>{if(!bar.contains(event.target))close();});
+ document.addEventListener('keydown',event=>{if(event.key==='Escape')close();});
+ select.addEventListener('change',sync);sync();
 }
 initCategoryPicker();
 
