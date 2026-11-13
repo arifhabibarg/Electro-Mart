@@ -2412,7 +2412,7 @@ function printReplacementRecord(id){
  w.document.close();
 }
 const originalElectroToggleAdminPanel=toggleAdminPanel;
-toggleAdminPanel=async function(){await originalElectroToggleAdminPanel();const panel=document.getElementById('adminPanel'),nav=document.getElementById('adminReturnsMenuBtn'),recordsNav=document.getElementById('adminReplacementRecordsMenuBtn');if(nav)nav.style.display=isAdminRole()?'':'none';if(recordsNav)recordsNav.style.display=isAdminRole()?'':'none';if(panel?.classList.contains('show')&&isAdminRole()){await loadAdminReturnRequests();await loadCustomerProfiles();}};
+toggleAdminPanel=async function(){await originalElectroToggleAdminPanel();const panel=document.getElementById('adminPanel'),nav=document.getElementById('adminReturnsMenuBtn'),recordsNav=document.getElementById('adminReplacementRecordsMenuBtn'),profilesNav=document.getElementById('adminCustomerProfilesMenuBtn');if(nav)nav.style.display=isAdminRole()?'':'none';if(recordsNav)recordsNav.style.display=isAdminRole()?'':'none';if(profilesNav)profilesNav.style.display=isAdminRole()?'':'none';if(panel?.classList.contains('show')&&isAdminRole()){await loadAdminReturnRequests();await loadCustomerProfiles();}};
 </script>
 
 </body></html>
