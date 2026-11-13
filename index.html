@@ -729,6 +729,10 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible),[role="button"]:foc
 .replacement-record-print{border:1px solid #d6ad00;border-radius:8px;background:#f5c400;color:#171717;font-weight:800;padding:8px 12px;cursor:pointer}
 @media(max-width:600px){.replacement-record-grid{grid-template-columns:1fr}.replacement-profile-card{padding:11px}}
 @media print{body *{visibility:hidden!important}#replacementPrintRoot,#replacementPrintRoot *{visibility:visible!important}#replacementPrintRoot{position:absolute;inset:0;width:100%;padding:24px;color:#111;background:#fff}}
+/* Reliable search category control: use the native select so the menu always opens on tap/click. */
+.searchbar .category-native-select{position:relative!important;inset:auto!important;width:auto!important;height:43px!important;min-width:130px!important;max-width:165px!important;flex:0 0 150px!important;opacity:1!important;pointer-events:auto!important;z-index:2!important;padding:0 30px 0 12px!important;border:0!important;border-right:1px solid #e8e8e8!important;border-radius:5px 0 0 5px!important;background:#fff!important;color:#222!important;font-size:12px!important;font-weight:700!important;cursor:pointer!important;appearance:auto!important;-webkit-appearance:menulist!important}
+.searchbar .category-trigger{display:none!important}
+@media(max-width:600px){.searchbar .category-native-select{min-width:105px!important;max-width:115px!important;flex:0 0 112px!important;padding:0 5px!important;font-size:10px!important}}
 </style>
 </head>
 <body>
