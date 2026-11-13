@@ -1754,7 +1754,7 @@ function renderSideCategories(){
  const actualSubs=allProducts.filter(p=>String(p.category||p.category_name||'').trim()===expandedSideCategory).map(p=>String(p.subcategory||'').trim()).filter(Boolean);
  const subs=[...new Set([...(cfg.subs||[]),...actualSubs])];
  subsTitle.textContent=expandedSideCategory+' · Subcategories';
- subList.innerHTML=subs.length?subs.map(sub=>'<button type="button" class="all-categories-popup-brand '+(expandedSideSubcategory===sub?'active':'')+'" aria-pressed="'+(expandedSideSubcategory===sub)+'" onclick="event.stopPropagation();toggleSideSubcategory('+escapeHtml(JSON.stringify(sub))+')">'+escapeHtml(sub)+'</button>').join(''):'<span style="color:#777;font-size:12px">এই ক্যাটাগরিতে এখনো কোনো সাব-ক্যাটাগরি যোগ করা হয়নি।</span>';
+ subList.innerHTML=subs.length?subs.map(sub=>'<button type="button" class="all-categories-popup-brand '+(expandedSideSubcategory===sub?'active':'')+'" aria-pressed="'+(expandedSideSubcategory===sub)+'" onclick="event.stopPropagation();toggleSideSubcategory('+escapeHtml(JSON.stringify(sub))+')">'+escapeHtml(sub)+'</button>').join(''):'<span style="color:#777;font-size:12px">No subcategories have been added to this category yet.</span>';
  subsPanel.hidden=false;subsPanel.setAttribute('aria-hidden','false');
 
  if(!expandedSideSubcategory){
@@ -1766,7 +1766,7 @@ function renderSideCategories(){
  const categoryBrands=[...(cfg.brands||[])];
  const visibleBrands=[...new Set([...actualBrands,...categoryBrands])];
  brandsTitle.textContent=expandedSideSubcategory+' · Brands';
- brandList.innerHTML=visibleBrands.length?visibleBrands.map(brand=>'<button type="button" class="all-categories-popup-brand" onclick="filterByBrand('+escapeHtml(JSON.stringify(expandedSideCategory))+','+escapeHtml(JSON.stringify(brand))+','+escapeHtml(JSON.stringify(expandedSideSubcategory))+');toggleAllCategoriesPopup(false)">'+escapeHtml(brand)+'</button>').join(''):'<span style="color:#777;font-size:12px">এই সাব-ক্যাটাগরিতে এখনো কোনো ব্র্যান্ড যোগ করা হয়নি।</span>';
+ brandList.innerHTML=visibleBrands.length?visibleBrands.map(brand=>'<button type="button" class="all-categories-popup-brand" onclick="filterByBrand('+escapeHtml(JSON.stringify(expandedSideCategory))+','+escapeHtml(JSON.stringify(brand))+','+escapeHtml(JSON.stringify(expandedSideSubcategory))+');toggleAllCategoriesPopup(false)">'+escapeHtml(brand)+'</button>').join(''):'<span style="color:#777;font-size:12px">No brands have been added to this subcategory yet.</span>';
  brandsPanel.hidden=false;brandsPanel.setAttribute('aria-hidden','false');
 }
 function toggleSideCategory(cat){
@@ -1792,7 +1792,7 @@ function renderExclusiveDeals(){
  const box=document.getElementById('exclusiveDealProducts');if(!box)return;
  const groups=getProductGroups(allProducts.filter(p=>isDealProduct(p)));
  const deals=groups.map(g=>g[0]).sort((a,b)=>Number(b.discount_percent||0)-Number(a.discount_percent||0)).slice(0,4);
- if(!deals.length){box.innerHTML='<div class="exclusive-empty">এই মুহূর্তে কোনো ডিসকাউন্ট পণ্য নেই। নতুন অফার যোগ হলে এখানে দেখা যাবে।</div>';return;}
+ if(!deals.length){box.innerHTML='<div class="exclusive-empty">There are no discounted products at the moment. New offers will appear here.</div>';return;}
  box.innerHTML=deals.map(p=>{
   const price=Number(p.price||0),old=Number(p.compare_at_price||0);
   const pct=Number(p.discount_percent||0)>0?Math.round(Number(p.discount_percent)):old>price&&old>0?Math.round((old-price)/old*100):0;
@@ -1810,8 +1810,8 @@ function applySearch(){activeDeals=false;activeCategory='';activeSubcategory='';
 function filterByCategory(cat){activeDeals=false;activeCategory=cat;activeSubcategory='';activeBrand='';document.getElementById('searchCategory').value='';refreshProducts();document.getElementById('featured').scrollIntoView({behavior:'smooth'});}
 function clearCategory(){activeDeals=false;activeCategory='';activeSubcategory='';activeBrand='';document.getElementById('searchCategory').value='';document.getElementById('searchInput').value='';refreshProducts();}
  function goHome(event){if(event)event.preventDefault();clearCategory();expandedSideCategory='';expandedSideSubcategory='';renderSideCategories();if(location.hash!=='#home')history.replaceState(null,'','#home');window.scrollTo({top:0,behavior:'smooth'});}
-function addToCart(id){const p=allProducts.find(x=>String(x.id)===String(id));if(!p)return;const stock=Math.max(0,Number(p.stock)||0);if(stock<=0){alert('দুঃখিত, এই পণ্যটি বর্তমানে স্টকে নেই।');return;}if((cart[id]||0)>=stock){alert('দুঃখিত, স্টকে থাকা সর্বোচ্চ '+stock+'টি পণ্যই কার্টে যোগ করা যাবে।');return;}cart[id]=(cart[id]||0)+1;updateCart();}
-function changeQty(id,n){const p=allProducts.find(x=>String(x.id)===String(id));if(!p){delete cart[id];updateCart();return;}const next=(cart[id]||0)+n;if(next<=0)delete cart[id];else if(next>Math.max(0,Number(p.stock)||0)){alert('স্টকের চেয়ে বেশি পরিমাণ যোগ করা যাবে না।');return;}else cart[id]=next;updateCart();}
+function addToCart(id){const p=allProducts.find(x=>String(x.id)===String(id));if(!p)return;const stock=Math.max(0,Number(p.stock)||0);if(stock<=0){alert('Sorry, this product is currently out of stock.');return;}if((cart[id]||0)>=stock){alert('Sorry, you can add a maximum of '+stock+' units of this product to your cart.');return;}cart[id]=(cart[id]||0)+1;updateCart();}
+function changeQty(id,n){const p=allProducts.find(x=>String(x.id)===String(id));if(!p){delete cart[id];updateCart();return;}const next=(cart[id]||0)+n;if(next<=0)delete cart[id];else if(next>Math.max(0,Number(p.stock)||0)){alert('You cannot add more than the available stock.');return;}else cart[id]=next;updateCart();}
 const DELIVERY_CHARGE=150;
 const COD_HANDLING_RATE=0.01;
 function updateCart(){let count=Object.values(cart).reduce((a,b)=>a+b,0);document.getElementById('cartCount').textContent=count;let rows=Object.entries(cart);document.getElementById('cartItems').innerHTML=rows.length?rows.map(([id,q])=>{let p=allProducts.find(x=>String(x.id)===id);if(!p)return '';return `<div class="cart-line"><div><b>${escapeHtml(p.name)}</b><br><small>${money(discountedPrice(p))} × ${q}</small></div><div class="qty"><button onclick="changeQty('${escapeHtml(id)}',-1)">−</button>${q}<button onclick="changeQty('${escapeHtml(id)}',1)">+</button></div></div>`;}).join(''):'<p class="drawer-note">Your cart is empty.</p>';let subtotal=rows.reduce((s,[id,q])=>s+discountedPrice(allProducts.find(p=>String(p.id)===id)||{})*q,0);let delivery=rows.length?DELIVERY_CHARGE:0,codFee=rows.length?Math.round(subtotal*COD_HANDLING_RATE*100)/100:0;document.getElementById('cartSubtotal').textContent=money(subtotal);document.getElementById('cartDelivery').textContent=money(delivery);document.getElementById('cartCodFee').textContent=money(codFee);document.getElementById('cartTotal').textContent=money(subtotal+delivery+codFee);}
