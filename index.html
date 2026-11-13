@@ -707,17 +707,14 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible),[role="button"]:foc
 }
 
 
-/* Fullscreen product photo viewer */
-.product-photo-lightbox{display:none;position:fixed;inset:0;z-index:10050;background:rgba(0,0,0,.96);align-items:center;justify-content:center;padding:58px 54px 48px}
+/* Fullscreen product photo viewer: edge-to-edge, swipe and pinch zoom */
+.product-photo-lightbox{display:none;position:fixed;inset:0;z-index:10050;background:#000;align-items:center;justify-content:center;padding:0;overflow:hidden;touch-action:none}
 .product-photo-lightbox.show{display:flex}
-.product-photo-lightbox>img{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;user-select:none;-webkit-user-drag:none}
-.product-photo-lightbox-close{position:absolute;top:14px;right:16px;width:42px;height:42px;border:0;border-radius:50%;background:#292929;color:#fff;font-size:23px;cursor:pointer}
-.product-photo-lightbox-nav{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:54px;border:0;border-radius:9px;background:#292929;color:#fff;font-size:36px;line-height:1;cursor:pointer}
-.product-photo-lightbox-nav.prev{left:10px}.product-photo-lightbox-nav.next{right:10px}
-.product-photo-lightbox-nav:disabled{opacity:.25;cursor:default}
-.product-photo-lightbox-count{position:absolute;bottom:15px;left:0;right:0;text-align:center;color:#fff;font-size:13px}
+.product-photo-lightbox>img{display:block;width:100vw;height:100vh;height:100dvh;max-width:none;max-height:none;object-fit:contain;user-select:none;-webkit-user-select:none;-webkit-user-drag:none;touch-action:none;transform:translate3d(0,0,0) scale(1);transform-origin:center center;will-change:transform}
+.product-photo-lightbox-close{position:absolute;top:14px;right:16px;z-index:3;width:42px;height:42px;border:0;border-radius:50%;background:#292929cc;color:#fff;font-size:23px;cursor:pointer}
+.product-photo-lightbox-count{position:absolute;z-index:3;bottom:15px;left:0;right:0;text-align:center;color:#fff;font-size:13px;text-shadow:0 1px 5px #000}
 #detailImage{cursor:zoom-in}
-@media(max-width:600px){.product-photo-lightbox{padding:56px 42px 48px}.product-photo-lightbox-close{top:10px;right:10px;width:38px;height:38px}.product-photo-lightbox-nav{width:34px;height:46px;font-size:30px}.product-photo-lightbox-nav.prev{left:5px}.product-photo-lightbox-nav.next{right:5px}}
+@media(max-width:600px){.product-photo-lightbox-close{top:10px;right:10px;width:38px;height:38px}}
 
 </style>
 </head>
@@ -851,9 +848,7 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible),[role="button"]:foc
 
 <div class="product-photo-lightbox" id="productPhotoLightbox" role="dialog" aria-modal="true" aria-label="Fullscreen product photo" onclick="if(event.target===this)closeProductPhotoFullscreen()">
  <button type="button" class="product-photo-lightbox-close" onclick="closeProductPhotoFullscreen()" aria-label="Close fullscreen photo">✕</button>
- <button type="button" class="product-photo-lightbox-nav prev" id="productPhotoPrev" onclick="changeFullscreenProductPhoto(-1)" aria-label="Previous photo">‹</button>
  <img id="productPhotoFullscreenImage" src="" alt="Product photo">
- <button type="button" class="product-photo-lightbox-nav next" id="productPhotoNext" onclick="changeFullscreenProductPhoto(1)" aria-label="Next photo">›</button>
  <div class="product-photo-lightbox-count" id="productPhotoFullscreenCount"></div>
 </div>
 
@@ -1916,33 +1911,65 @@ function getFullscreenProductPhotoList(){
  const p=allProducts.find(x=>String(x.id)===String(activeDetailVariantId));
  return p?[...new Set([p.image_url,...(Array.isArray(p.image_urls)?p.image_urls:[])].filter(Boolean))].slice(0,5):[];
 }
+let fullscreenPhotoScale=1,fullscreenPhotoX=0,fullscreenPhotoY=0,fullscreenPhotoPointers=new Map(),fullscreenPhotoGesture=null;
+function applyFullscreenPhotoTransform(){
+ const img=document.getElementById('productPhotoFullscreenImage');if(img)img.style.transform='translate3d('+fullscreenPhotoX+'px,'+fullscreenPhotoY+'px,0) scale('+fullscreenPhotoScale+')';
+}
+function resetFullscreenPhotoZoom(){fullscreenPhotoScale=1;fullscreenPhotoX=0;fullscreenPhotoY=0;applyFullscreenPhotoTransform();}
 function openProductPhotoFullscreen(){
  const list=getFullscreenProductPhotoList();if(!list.length)return;
  const box=document.getElementById('productPhotoLightbox'),img=document.getElementById('productPhotoFullscreenImage');
  img.src=list[Math.max(0,Math.min(activeDetailImageIndex,list.length-1))];img.alt=document.getElementById('detailName').textContent||'Product photo';
- box.classList.add('show');document.body.style.overflow='hidden';updateFullscreenProductPhotoControls();
+ resetFullscreenPhotoZoom();box.classList.add('show');document.body.style.overflow='hidden';updateFullscreenProductPhotoControls();
 }
 function closeProductPhotoFullscreen(){
- const box=document.getElementById('productPhotoLightbox');if(!box)return;box.classList.remove('show');
+ const box=document.getElementById('productPhotoLightbox');if(!box)return;box.classList.remove('show');fullscreenPhotoPointers.clear();fullscreenPhotoGesture=null;resetFullscreenPhotoZoom();
  if(!document.getElementById('productDetailBackdrop')?.classList.contains('show'))document.body.style.overflow='';
 }
 function changeFullscreenProductPhoto(delta){
  const list=getFullscreenProductPhotoList();if(!list.length)return;
  activeDetailImageIndex=(activeDetailImageIndex+delta+list.length)%list.length;
  document.getElementById('productPhotoFullscreenImage').src=list[activeDetailImageIndex];
- selectDetailImage(activeDetailImageIndex);updateFullscreenProductPhotoControls();
+ selectDetailImage(activeDetailImageIndex);resetFullscreenPhotoZoom();updateFullscreenProductPhotoControls();
 }
 function updateFullscreenProductPhotoControls(){
  const list=getFullscreenProductPhotoList(),count=document.getElementById('productPhotoFullscreenCount');
  count.textContent=list.length>1?(activeDetailImageIndex+1)+' / '+list.length:'';
- document.getElementById('productPhotoPrev').hidden=list.length<2;
- document.getElementById('productPhotoNext').hidden=list.length<2;
 }
+(function initFullscreenPhotoGestures(){
+ const box=document.getElementById('productPhotoLightbox'),img=document.getElementById('productPhotoFullscreenImage');if(!box||!img)return;
+ const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+ box.addEventListener('pointerdown',e=>{
+  if(e.target.closest('button'))return;
+  e.preventDefault();box.setPointerCapture(e.pointerId);fullscreenPhotoPointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(fullscreenPhotoPointers.size===2){const pts=[...fullscreenPhotoPointers.values()];fullscreenPhotoGesture={type:'pinch',distance:distance(pts[0],pts[1]),scale:fullscreenPhotoScale,x:fullscreenPhotoX,y:fullscreenPhotoY};}
+  else if(fullscreenPhotoPointers.size===1){fullscreenPhotoGesture={type:'swipe',startX:e.clientX,startY:e.clientY,lastX:e.clientX,lastY:e.clientY,baseX:fullscreenPhotoX,baseY:fullscreenPhotoY,scale:fullscreenPhotoScale};}
+ });
+ box.addEventListener('pointermove',e=>{
+  if(!fullscreenPhotoPointers.has(e.pointerId)||!fullscreenPhotoGesture)return;
+  e.preventDefault();fullscreenPhotoPointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(fullscreenPhotoPointers.size>=2){
+   const pts=[...fullscreenPhotoPointers.values()].slice(0,2),g=fullscreenPhotoGesture;
+   if(g.type!=='pinch'){fullscreenPhotoGesture={type:'pinch',distance:distance(pts[0],pts[1]),scale:fullscreenPhotoScale,x:fullscreenPhotoX,y:fullscreenPhotoY};return;}
+   fullscreenPhotoScale=Math.max(1,Math.min(5,g.scale*distance(pts[0],pts[1])/Math.max(1,g.distance)));applyFullscreenPhotoTransform();
+  }else if(fullscreenPhotoScale>1){
+   const p=fullscreenPhotoPointers.get(e.pointerId),g=fullscreenPhotoGesture;fullscreenPhotoX=g.baseX+(p.x-g.startX);fullscreenPhotoY=g.baseY+(p.y-g.startY);applyFullscreenPhotoTransform();
+  }
+ });
+ function finish(e){
+  if(!fullscreenPhotoPointers.has(e.pointerId))return;
+  const p=fullscreenPhotoPointers.get(e.pointerId),g=fullscreenPhotoGesture;fullscreenPhotoPointers.delete(e.pointerId);
+  if(fullscreenPhotoPointers.size===0){
+   if(g?.type==='swipe'&&g.scale===1&&Math.abs(p.x-g.startX)>55&&Math.abs(p.x-g.startX)>Math.abs(p.y-g.startY))changeFullscreenProductPhoto(p.x<g.startX?1:-1);
+   fullscreenPhotoGesture=null;
+  }else if(fullscreenPhotoPointers.size===1){
+   const remaining=[...fullscreenPhotoPointers.values()][0];fullscreenPhotoGesture={type:'swipe',startX:remaining.x,startY:remaining.y,lastX:remaining.x,lastY:remaining.y,baseX:fullscreenPhotoX,baseY:fullscreenPhotoY,scale:fullscreenPhotoScale};
+  }
+ }
+ box.addEventListener('pointerup',finish);box.addEventListener('pointercancel',finish);
+})();
 document.addEventListener('keydown',function(event){
  if(event.key==='Escape'&&document.getElementById('productPhotoLightbox')?.classList.contains('show'))closeProductPhotoFullscreen();
- if(!document.getElementById('productPhotoLightbox')?.classList.contains('show'))return;
- if(event.key==='ArrowLeft')changeFullscreenProductPhoto(-1);
- if(event.key==='ArrowRight')changeFullscreenProductPhoto(1);
 });
 
 function closeProductDetails(){const backdrop=document.getElementById('productDetailBackdrop'),panel=backdrop.querySelector('.detail-panel'),source=window.__electroDetailSource;if(!backdrop.classList.contains('show'))return;if(source&&source.isConnected&&panel){const from=panel.getBoundingClientRect(),to=source.getBoundingClientRect();if(from.width&&from.height&&to.width&&to.height&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches){const dx=to.left-from.left,dy=to.top-from.top,sx=to.width/from.width,sy=to.height/from.height;panel.style.transition='transform 420ms cubic-bezier(.4,0,.8,.3),opacity 420ms ease';panel.style.transform='translate('+dx+'px,'+dy+'px) scale('+sx+','+sy+')';panel.style.opacity='.35';backdrop.style.opacity='0';setTimeout(()=>{backdrop.classList.remove('show');backdrop.style.opacity='';panel.style.transition='';panel.style.transform='';panel.style.opacity='';window.__electroDetailSource=null;},430);return;}}backdrop.classList.remove('show');window.__electroDetailSource=null;}
