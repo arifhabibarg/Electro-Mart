@@ -1653,20 +1653,20 @@ async function initAuth(){const {data}=await supabaseClient.auth.getSession();co
 let allProducts=[],activeCategory='',activeSubcategory='',activeBrand='',activeDeals=false,cart={},wishlist=new Set(JSON.parse(localStorage.getItem('electromart_wishlist')||'[]').map(String));
 
 function formatEnglishProductDescription(value){
- const parts=String(value||'').split(/,\\s*/).map(x=>x.trim()).filter(Boolean);
- if(parts.length<2)return 'Brief Introduction: '+String(value||'')+'\\n\\nKey Features\\nFeature: '+String(value||'');
+ const parts=String(value||'').split(/,\s*/).map(x=>x.trim()).filter(Boolean);
+ if(parts.length<2)return 'Brief Introduction: '+String(value||'')+'\n\nKey Features\nFeature 1: '+String(value||'');
  const intro=parts.shift();
  const groups=[
   {title:'Performance & Technology',test:/chip|processor|bluetooth|adaptive|spatial|audio|eq|anc|enc|microphone|driver|gps|fitness|mode|sensor|app|live translation|voice isolation/i,items:[]},
-  {title:'Design & Protection',test:/design|case|ear|water|sweat|ip\\d|lightweight|compact|touch|screen|display|inch|color|black|red|white|lamp|candle/i,items:[]},
+  {title:'Design & Protection',test:/design|case|ear|water|sweat|ip\d|lightweight|compact|touch|screen|display|inch|color|black|red|white|lamp|candle|silicone/i,items:[]},
   {title:'Battery & Charging',test:/battery|charging|charge|playback|hour|usb|lightning|magsafe|wireless|qi/i,items:[]},
   {title:'Compatibility & Convenience',test:/siri|find my|switching|pairing|hey siri|compatib|connectivity/i,items:[]}
  ];
  const other=[];
  for(const part of parts){const g=groups.find(x=>x.test.test(part));(g?g.items:other).push(part);}
  let out='Brief Introduction: '+intro;
- for(const g of groups){if(!g.items.length)continue;out+='\\n\\n'+g.title+'\\n'+g.items.map((x,i)=>'Feature '+(i+1)+': '+x).join('\\n');}
- if(other.length)out+='\\n\\nAdditional Information\\n'+other.map((x,i)=>'Detail '+(i+1)+': '+x).join('\\n');
+ for(const g of groups){if(!g.items.length)continue;out+='\n\n'+g.title+'\n'+g.items.map((x,i)=>'• '+x).join('\n');}
+ if(other.length)out+='\n\nKey Features\n'+other.map(x=>'• '+x).join('\n');
  return out;
 }
 
