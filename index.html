@@ -1926,11 +1926,36 @@ function closeProductPhotoFullscreen(){
  const box=document.getElementById('productPhotoLightbox');if(!box)return;box.classList.remove('show');fullscreenPhotoPointers.clear();fullscreenPhotoGesture=null;resetFullscreenPhotoZoom();
  if(!document.getElementById('productDetailBackdrop')?.classList.contains('show'))document.body.style.overflow='';
 }
+let fullscreenPhotoSlideAnimations=[];
 function changeFullscreenProductPhoto(delta){
  const list=getFullscreenProductPhotoList();if(!list.length)return;
+ const img=document.getElementById('productPhotoFullscreenImage');if(!img)return;
  activeDetailImageIndex=(activeDetailImageIndex+delta+list.length)%list.length;
- document.getElementById('productPhotoFullscreenImage').src=list[activeDetailImageIndex];
- selectDetailImage(activeDetailImageIndex);resetFullscreenPhotoZoom();updateFullscreenProductPhotoControls();
+ const nextSrc=list[activeDetailImageIndex],direction=delta>0?1:-1;
+ fullscreenPhotoSlideAnimations.forEach(animation=>{try{animation.cancel();}catch(e){}});
+ fullscreenPhotoSlideAnimations=[];
+ const oldSlide=img.cloneNode(false);
+ oldSlide.removeAttribute('id');oldSlide.src=img.src;oldSlide.alt='';
+ oldSlide.style.cssText='position:absolute;inset:0;z-index:1;width:100vw;height:100dvh;max-width:none;max-height:none;object-fit:contain;pointer-events:none;will-change:transform';
+ const incoming=img.cloneNode(false);
+ incoming.removeAttribute('id');incoming.src=nextSrc;incoming.alt=img.alt;
+ incoming.style.cssText='position:absolute;inset:0;z-index:2;width:100vw;height:100dvh;max-width:none;max-height:none;object-fit:contain;pointer-events:none;will-change:transform;transform:translate3d('+(direction*100)+'%,0,0)';
+ const box=document.getElementById('productPhotoLightbox');
+ box.insertBefore(oldSlide,img);box.appendChild(incoming);
+ img.style.visibility='hidden';
+ resetFullscreenPhotoZoom();
+ const timing={duration:380,easing:'cubic-bezier(.22,.75,.25,1)',fill:'forwards'};
+ const outgoingAnimation=oldSlide.animate(
+  [{transform:'translate3d(0,0,0)'},{transform:'translate3d('+(-direction*100)+'%,0,0)'}],timing);
+ const incomingAnimation=incoming.animate(
+  [{transform:'translate3d('+(direction*100)+'%,0,0)'},{transform:'translate3d(0,0,0)'}],timing);
+ fullscreenPhotoSlideAnimations=[outgoingAnimation,incomingAnimation];
+ Promise.all([outgoingAnimation.finished,incomingAnimation.finished]).then(()=>{
+  if(!box.isConnected||!box.classList.contains('show'))return;
+  img.src=nextSrc;img.style.visibility='visible';oldSlide.remove();incoming.remove();fullscreenPhotoSlideAnimations=[];
+  selectDetailImage(activeDetailImageIndex);resetFullscreenPhotoZoom();updateFullscreenProductPhotoControls();
+ }).catch(()=>{oldSlide.remove();incoming.remove();img.style.visibility='visible';});
+ updateFullscreenProductPhotoControls();
 }
 function updateFullscreenProductPhotoControls(){
  const list=getFullscreenProductPhotoList(),count=document.getElementById('productPhotoFullscreenCount');
