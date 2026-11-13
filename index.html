@@ -706,6 +706,19 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible),[role="button"]:foc
  #footer .site-footer{padding:12px 8px 4px!important;font-size:10px}
 }
 
+
+/* Fullscreen product photo viewer */
+.product-photo-lightbox{display:none;position:fixed;inset:0;z-index:10050;background:rgba(0,0,0,.96);align-items:center;justify-content:center;padding:58px 54px 48px}
+.product-photo-lightbox.show{display:flex}
+.product-photo-lightbox>img{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;user-select:none;-webkit-user-drag:none}
+.product-photo-lightbox-close{position:absolute;top:14px;right:16px;width:42px;height:42px;border:0;border-radius:50%;background:#292929;color:#fff;font-size:23px;cursor:pointer}
+.product-photo-lightbox-nav{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:54px;border:0;border-radius:9px;background:#292929;color:#fff;font-size:36px;line-height:1;cursor:pointer}
+.product-photo-lightbox-nav.prev{left:10px}.product-photo-lightbox-nav.next{right:10px}
+.product-photo-lightbox-nav:disabled{opacity:.25;cursor:default}
+.product-photo-lightbox-count{position:absolute;bottom:15px;left:0;right:0;text-align:center;color:#fff;font-size:13px}
+#detailImage{cursor:zoom-in}
+@media(max-width:600px){.product-photo-lightbox{padding:56px 42px 48px}.product-photo-lightbox-close{top:10px;right:10px;width:38px;height:38px}.product-photo-lightbox-nav{width:34px;height:46px;font-size:30px}.product-photo-lightbox-nav.prev{left:5px}.product-photo-lightbox-nav.next{right:5px}}
+
 </style>
 </head>
 <body>
@@ -790,7 +803,7 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible),[role="button"]:foc
  <section class="detail-panel" role="dialog" aria-modal="true" aria-labelledby="detailName">
   <button class="detail-close" type="button" onclick="closeProductDetails()" aria-label="Close">✕</button>
   <div class="detail-grid">
-   <div class="detail-image-wrap"><img id="detailImage" src="" alt=""><div class="detail-image-thumbs" id="detailImageThumbs" aria-label="Product photos"></div></div>
+   <div class="detail-image-wrap"><img id="detailImage" src="" alt="" onclick="openProductPhotoFullscreen()" role="button" tabindex="0" aria-label="Open photo fullscreen"><div class="detail-image-thumbs" id="detailImageThumbs" aria-label="Product photos"></div></div>
    <div class="detail-copy">
     <small id="detailCode"></small><h2 id="detailName"></h2>
     <div class="detail-meta" id="detailMeta"></div>
@@ -835,6 +848,15 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible),[role="button"]:foc
  </div>
 <div class="site-footer">© 2026 <b>ElectroMart</b> · Upgrade Your World · Delivery Across Bangladesh</div>
 </section>
+
+<div class="product-photo-lightbox" id="productPhotoLightbox" role="dialog" aria-modal="true" aria-label="Fullscreen product photo" onclick="if(event.target===this)closeProductPhotoFullscreen()">
+ <button type="button" class="product-photo-lightbox-close" onclick="closeProductPhotoFullscreen()" aria-label="Close fullscreen photo">✕</button>
+ <button type="button" class="product-photo-lightbox-nav prev" id="productPhotoPrev" onclick="changeFullscreenProductPhoto(-1)" aria-label="Previous photo">‹</button>
+ <img id="productPhotoFullscreenImage" src="" alt="Product photo">
+ <button type="button" class="product-photo-lightbox-nav next" id="productPhotoNext" onclick="changeFullscreenProductPhoto(1)" aria-label="Next photo">›</button>
+ <div class="product-photo-lightbox-count" id="productPhotoFullscreenCount"></div>
+</div>
+
 
 <section class="blog-page" id="blogPage" aria-label="ElectroMart Blog"><header class="blog-page-head"><strong>ElectroMart Blog</strong><button type="button" onclick="closeBlogPage()">← Back to Store</button></header><div class="blog-page-body"><div class="blog-page-intro" id="blogPageIntro"><h1>Latest Stories &amp; Guides</h1><p>Product news, buying guides and helpful tips from ElectroMart.</p></div><div id="blogPublicContent"><div class="blog-empty">Loading articles...</div></div></div></section>
 <div class="profile-backdrop" id="profileBackdrop" onclick="if(event.target===this)closeProfile()"><section class="profile-panel" role="dialog" aria-modal="true" aria-labelledby="myProfileTitle"><div class="profile-head"><div style="display:flex;align-items:center;gap:12px"><div class="profile-avatar-wrap"><div class="profile-avatar" id="profileAvatar">♙</div><button type="button" class="profile-avatar-edit" aria-label="Edit profile photo" title="Change profile photo" onclick="document.getElementById('profilePhotoInput').click()"><svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><div><h2 id="myProfileTitle">My Profile</h2><button type="button" class="profile-edit-trigger" onclick="showProfileEdit()"><svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true" style="vertical-align:-2px;margin-right:4px"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Edit Profile</button><small id="profileRoleLabel" style="display:block;color:#777;margin-top:4px">User</small></div></div><button class="close-btn" type="button" onclick="closeProfile()">✕</button></div>
@@ -1889,6 +1911,40 @@ function renderSelectedProductVariant(){
  const button=document.getElementById('detailAddCart');button.disabled=!inStock;button.onclick=()=>{addToCart(String(p.id));closeProductDetails();};
  const buy=document.getElementById('detailBuyNow');buy.disabled=!inStock;buy.onclick=()=>{addToCart(String(p.id));closeProductDetails();openCart();};
 }
+
+function getFullscreenProductPhotoList(){
+ const p=allProducts.find(x=>String(x.id)===String(activeDetailVariantId));
+ return p?[...new Set([p.image_url,...(Array.isArray(p.image_urls)?p.image_urls:[])].filter(Boolean))].slice(0,5):[];
+}
+function openProductPhotoFullscreen(){
+ const list=getFullscreenProductPhotoList();if(!list.length)return;
+ const box=document.getElementById('productPhotoLightbox'),img=document.getElementById('productPhotoFullscreenImage');
+ img.src=list[Math.max(0,Math.min(activeDetailImageIndex,list.length-1))];img.alt=document.getElementById('detailName').textContent||'Product photo';
+ box.classList.add('show');document.body.style.overflow='hidden';updateFullscreenProductPhotoControls();
+}
+function closeProductPhotoFullscreen(){
+ const box=document.getElementById('productPhotoLightbox');if(!box)return;box.classList.remove('show');
+ if(!document.getElementById('productDetailBackdrop')?.classList.contains('show'))document.body.style.overflow='';
+}
+function changeFullscreenProductPhoto(delta){
+ const list=getFullscreenProductPhotoList();if(!list.length)return;
+ activeDetailImageIndex=(activeDetailImageIndex+delta+list.length)%list.length;
+ document.getElementById('productPhotoFullscreenImage').src=list[activeDetailImageIndex];
+ selectDetailImage(activeDetailImageIndex);updateFullscreenProductPhotoControls();
+}
+function updateFullscreenProductPhotoControls(){
+ const list=getFullscreenProductPhotoList(),count=document.getElementById('productPhotoFullscreenCount');
+ count.textContent=list.length>1?(activeDetailImageIndex+1)+' / '+list.length:'';
+ document.getElementById('productPhotoPrev').hidden=list.length<2;
+ document.getElementById('productPhotoNext').hidden=list.length<2;
+}
+document.addEventListener('keydown',function(event){
+ if(event.key==='Escape'&&document.getElementById('productPhotoLightbox')?.classList.contains('show'))closeProductPhotoFullscreen();
+ if(!document.getElementById('productPhotoLightbox')?.classList.contains('show'))return;
+ if(event.key==='ArrowLeft')changeFullscreenProductPhoto(-1);
+ if(event.key==='ArrowRight')changeFullscreenProductPhoto(1);
+});
+
 function closeProductDetails(){const backdrop=document.getElementById('productDetailBackdrop'),panel=backdrop.querySelector('.detail-panel'),source=window.__electroDetailSource;if(!backdrop.classList.contains('show'))return;if(source&&source.isConnected&&panel){const from=panel.getBoundingClientRect(),to=source.getBoundingClientRect();if(from.width&&from.height&&to.width&&to.height&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches){const dx=to.left-from.left,dy=to.top-from.top,sx=to.width/from.width,sy=to.height/from.height;panel.style.transition='transform 420ms cubic-bezier(.4,0,.8,.3),opacity 420ms ease';panel.style.transform='translate('+dx+'px,'+dy+'px) scale('+sx+','+sy+')';panel.style.opacity='.35';backdrop.style.opacity='0';setTimeout(()=>{backdrop.classList.remove('show');backdrop.style.opacity='';panel.style.transition='';panel.style.transform='';panel.style.opacity='';window.__electroDetailSource=null;},430);return;}}backdrop.classList.remove('show');window.__electroDetailSource=null;}
 document.addEventListener('click',function(event){const navigation=event.target.closest('.brand, .navbar a, .navbar button, .header-actions button, .profile-header-group button');if(!navigation||navigation.closest('#productDetailBackdrop'))return;const detail=document.getElementById('productDetailBackdrop');if(detail?.classList.contains('show'))closeProductDetails();},true);
 async function loadProducts(){statusText.textContent='Loading products...';try{const query=supabaseClient.from('products').select('*').eq('is_active',true).order('created_at',{ascending:false});const result=await Promise.race([query,new Promise((_,reject)=>setTimeout(()=>reject(new Error('পণ্য লোড হতে বেশি সময় লাগছে। ইন্টারনেট বা Supabase সংযোগ পরীক্ষা করুন।')),15000))]);const {data,error}=result;if(error)throw error;allProducts=data||[];for(let i=allProducts.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[allProducts[i],allProducts[j]]=[allProducts[j],allProducts[i]];}productSortMode='random';refreshProducts();try{syncAdminProductTaxonomyFromProducts();}catch(e){console.warn('Admin product taxonomy sync failed:',e);}try{wishlist=new Set([...wishlist].filter(id=>allProducts.some(p=>String(p.id)===id)));localStorage.setItem('electromart_wishlist',JSON.stringify([...wishlist]));syncWishlistCount();}catch(e){console.warn('Wishlist sync failed:',e);}try{refreshSearchCategoryOptions();renderSideCategories();}catch(e){console.warn('Category menu sync failed:',e);}try{renderExclusiveDeals();}catch(e){console.warn('Exclusive deals render failed:',e);}try{if(document.getElementById('wishlistBackdrop')?.classList.contains('show'))renderWishlist();}catch(e){console.warn('Wishlist render failed:',e);}}catch(error){statusText.textContent='পণ্য লোড হয়নি: '+(error.message||'সংযোগ সমস্যা');console.error('Product load failed:',error);}}
