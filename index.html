@@ -2392,7 +2392,8 @@ async function loadCustomerProfiles(){
 }
 function filterCustomerProfiles(){const q=(document.getElementById('customerProfileSearch')?.value||'').toLowerCase();document.querySelectorAll('[data-customer-profile]').forEach(x=>x.style.display=x.textContent.toLowerCase().includes(q)?'':'none');}
 function printReturnProductRecord(id){const r=(window.electroReturnProductRecords||[]).find(x=>x.id===id);if(!r)return;const w=window.open('','_blank');if(!w)return;const esc=v=>escapeHtml(String(v??'তথ্য নেই')),rows=[['গ্রাহক',r.customer_name],['ফোন',r.customer_phone],['ইমেইল',r.customer_email],['অর্ডার',r.order_number],['ফেরত পণ্য',r.returned_product_name],['কারণ',r.return_reason],['বিবরণ',r.customer_details],['পণ্যের অবস্থা',r.product_condition],['পরীক্ষার রিপোর্ট',r.inspection_report],['সিদ্ধান্ত',r.final_resolution],['অভ্যন্তরীণ নোট',r.admin_notes]];w.document.write('<html lang="bn"><meta charset="utf-8"><title>ElectroMart Return Record</title><style>body{font-family:Arial;padding:30px}table{width:100%;border-collapse:collapse}td{border:1px solid #ddd;padding:10px}.label{font-weight:bold;background:#fff5c4}</style><h1>ElectroMart — ফেরত পণ্যের ডকুমেন্ট</h1><table>'+rows.map(([a,b])=>'<tr><td class="label">'+esc(a)+'</td><td>'+esc(b)+'</td></tr>').join('')+'</table><script>window.onload=()=>window.print()<\\/script></html>');w.document.close();}
-\nasync function loadReplacementRecords(){
+
+async function loadReplacementRecords(){
  const box=document.getElementById('replacementRecordProfiles');if(!box)return;
  if(!isAdminRole()){box.innerHTML='<p class="admin-help">শুধু Admin বা Super Admin এই ডকুমেন্ট দেখতে পারবেন।</p>';return;}
  box.innerHTML='<p class="admin-help">রিপ্লেসমেন্ট ডকুমেন্ট লোড হচ্ছে...</p>';
