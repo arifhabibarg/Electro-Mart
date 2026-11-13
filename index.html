@@ -684,6 +684,28 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible),[role="button"]:foc
  #productDetailBackdrop .detail-image-thumb{width:54px;height:54px}
 }
 
+
+/* Contact page: true single-column mobile layout */
+@media(max-width:700px){
+ #footer.contact-page{width:100%;max-width:100%;padding:22px 12px 12px!important;overflow:hidden}
+ #footer .contact-shell{width:100%;max-width:100%;min-width:0}
+ #footer .contact-heading{width:100%;margin:0 auto 14px!important;text-align:center}
+ #footer .contact-heading h2{font-size:22px!important;line-height:1.35}
+ #footer .contact-heading p{font-size:12px!important;line-height:1.65!important}
+ #footer .contact-methods{grid-template-columns:minmax(0,1fr)!important;gap:9px!important}
+ #footer .contact-method{width:100%;min-width:0;padding:12px!important;gap:10px!important}
+ #footer .contact-method>span:last-child{min-width:0;overflow-wrap:anywhere}
+ #footer .contact-method b{font-size:13px!important}
+ #footer .contact-method small,#footer .contact-method strong{font-size:10px!important;overflow-wrap:anywhere}
+ #footer .contact-lower{grid-template-columns:minmax(0,1fr)!important;gap:10px!important}
+ #footer .contact-form-card,#footer .contact-faq-card{width:100%;min-width:0;padding:13px!important}
+ #footer .contact-form-grid{grid-template-columns:minmax(0,1fr)!important;gap:9px!important}
+ #footer .contact-form label{min-width:0}
+ #footer .contact-form input,#footer .contact-form select,#footer .contact-form textarea{width:100%;max-width:100%;box-sizing:border-box}
+ #footer .contact-trust-row{justify-content:flex-start;gap:8px 12px!important;font-size:10px!important}
+ #footer .site-footer{padding:12px 8px 4px!important;font-size:10px}
+}
+
 </style>
 </head>
 <body>
