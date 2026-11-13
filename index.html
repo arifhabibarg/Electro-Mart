@@ -2210,6 +2210,17 @@ function sendContactEmail(event){
 .return-modal label{display:block;font-size:12px;font-weight:700;color:#333;margin:13px 0 7px}
 .return-modal input:not([type=file]),.return-modal select,.return-modal textarea{box-sizing:border-box;width:100%;padding:11px 12px;border:1px solid #dedede;border-radius:6px;background:#fff;color:#222;font:inherit;font-size:13px;outline:none}
 .return-modal input[type=file]{width:100%;font-size:12px;color:#555}
+.em-reason-picker{position:relative;width:100%}
+.em-reason-trigger{width:100%;min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 13px;border:1px solid #d9d9d9;border-radius:7px;background:#fff;color:#333;text-align:left;font:inherit;font-size:13px;cursor:pointer;transition:border-color .18s,box-shadow .18s}
+.em-reason-trigger:hover,.em-reason-trigger[aria-expanded="true"]{border-color:var(--yellow);box-shadow:0 0 0 3px #f5c40020}
+.em-reason-chevron{color:#a88700;font-size:20px;line-height:12px;transition:transform .18s}
+.em-reason-trigger[aria-expanded="true"] .em-reason-chevron{transform:rotate(180deg)}
+.em-reason-menu{position:absolute;z-index:10030;top:calc(100% + 7px);left:0;right:0;display:none;padding:6px;background:#fff;border:1px solid #e5d28a;border-radius:9px;box-shadow:0 14px 35px #0003;max-height:230px;overflow:auto}
+.em-reason-menu.show{display:block;animation:emAddIn .16s ease-out}
+.em-reason-menu button{display:block;width:100%;padding:11px 12px;border:0;border-radius:6px;background:#fff;color:#292929;text-align:left;font:inherit;font-size:13px;cursor:pointer;transition:background .15s,color .15s}
+.em-reason-menu button:hover,.em-reason-menu button:focus-visible{outline:none;background:#fff7d6;color:#111}
+.em-reason-menu button.selected{background:#fff2b5;font-weight:800}
+
 .return-modal input:focus,.return-modal select:focus,.return-modal textarea:focus{border-color:#c5a000;box-shadow:0 0 0 3px #f5c40020}
 .return-modal textarea{min-height:100px;resize:vertical}
 .return-modal #returnRequestProduct{margin:0 0 12px;padding:9px 11px;border:1px solid #eee;border-left:3px solid var(--yellow);border-radius:6px;background:#fafafa;color:#555;font-size:12px}
@@ -2222,7 +2233,7 @@ function sendContactEmail(event){
 .return-admin-card select,.return-admin-card textarea{width:100%;padding:9px;border:1px solid #ddd;border-radius:6px;margin-top:7px}
 @media(max-width:600px){.return-modal-backdrop{padding:10px}.return-modal{max-height:90dvh;padding:0 15px 15px;border-radius:12px}.return-modal-head{margin:0 -15px 15px;padding:13px 14px}.return-modal-actions{flex-direction:column-reverse}.return-modal-actions button{width:100%}}
 </style>
-<div class="return-modal-backdrop" id="returnRequestBackdrop" onclick="if(event.target===this)closeReturnRequest()"><section class="return-modal" role="dialog" aria-modal="true" aria-labelledby="returnRequestTitle"><header class="return-modal-head"><span class="return-modal-mark">↩</span><div class="return-modal-heading"><h3 id="returnRequestTitle">রিটার্ন / রিপ্লেসমেন্ট আবেদন</h3><small>ElectroMart Customer Service</small></div><button type="button" class="return-modal-close" aria-label="বন্ধ করুন" onclick="closeReturnRequest()">×</button></header><p id="returnRequestProduct" class="admin-help"></p><form id="returnRequestForm"><input type="hidden" id="returnRequestOrderId"><input type="hidden" id="returnRequestItemId"><label for="returnRequestReason">সমস্যার ধরন *</label><select id="returnRequestReason" required><option value="">নির্বাচন করুন</option><option value="পণ্য নষ্ট / কাজ করছে না">পণ্য নষ্ট / কাজ করছে না</option><option value="ভুল পণ্য পেয়েছি">ভুল পণ্য পেয়েছি</option><option value="পণ্য ক্ষতিগ্রস্ত অবস্থায় এসেছে">পণ্য ক্ষতিগ্রস্ত অবস্থায় এসেছে</option><option value="পণ্যের বর্ণনার সঙ্গে মিল নেই">পণ্যের বর্ণনার সঙ্গে মিল নেই</option><option value="অন্যান্য">অন্যান্য</option></select><label for="returnRequestDetails">সমস্যার বিস্তারিত *</label><textarea id="returnRequestDetails" required maxlength="1500" placeholder="সমস্যাটি বিস্তারিত লিখুন..."></textarea><label for="returnRequestPhotos">পণ্যের ছবি (সর্বোচ্চ ৩টি, প্রতিটি ৫ MB)</label><input id="returnRequestPhotos" type="file" accept="image/jpeg,image/png,image/webp" multiple><p class="admin-help" id="returnRequestMessage" aria-live="polite"></p><div class="return-modal-actions"><button type="button" class="admin-secondary" onclick="closeReturnRequest()">বন্ধ করুন</button><button type="submit" class="admin-primary" id="returnRequestSubmit">আবেদন পাঠান</button></div></form></section></div>
+<div class="return-modal-backdrop" id="returnRequestBackdrop" onclick="if(event.target===this)closeReturnRequest()"><section class="return-modal" role="dialog" aria-modal="true" aria-labelledby="returnRequestTitle"><header class="return-modal-head"><span class="return-modal-mark">↩</span><div class="return-modal-heading"><h3 id="returnRequestTitle">রিটার্ন / রিপ্লেসমেন্ট আবেদন</h3><small>ElectroMart Customer Service</small></div><button type="button" class="return-modal-close" aria-label="বন্ধ করুন" onclick="closeReturnRequest()">×</button></header><p id="returnRequestProduct" class="admin-help"></p><form id="returnRequestForm"><input type="hidden" id="returnRequestOrderId"><input type="hidden" id="returnRequestItemId"><label for="returnRequestReason">সমস্যার ধরন *</label><input type="hidden" id="returnRequestReason"><div class="em-reason-picker" id="returnReasonPicker"><button type="button" class="em-reason-trigger" id="returnReasonTrigger" aria-haspopup="listbox" aria-expanded="false" onclick="toggleReturnReasonMenu()"><span id="returnReasonLabel">সমস্যার ধরন নির্বাচন করুন</span><span class="em-reason-chevron">⌄</span></button><div class="em-reason-menu" id="returnReasonMenu" role="listbox" aria-label="সমস্যার ধরন"><button type="button" role="option" onclick="chooseReturnReason(&quot;পণ্য নষ্ট / কাজ করছে না&quot;,this)">পণ্য নষ্ট / কাজ করছে না</button><button type="button" role="option" onclick="chooseReturnReason(&quot;ভুল পণ্য পেয়েছি&quot;,this)">ভুল পণ্য পেয়েছি</button><button type="button" role="option" onclick="chooseReturnReason(&quot;পণ্য ক্ষতিগ্রস্ত অবস্থায় এসেছে&quot;,this)">পণ্য ক্ষতিগ্রস্ত অবস্থায় এসেছে</button><button type="button" role="option" onclick="chooseReturnReason(&quot;পণ্যের বর্ণনার সঙ্গে মিল নেই&quot;,this)">পণ্যের বর্ণনার সঙ্গে মিল নেই</button><button type="button" role="option" onclick="chooseReturnReason(&quot;অন্যান্য&quot;,this)">অন্যান্য</button></div></div><label for="returnRequestDetails">সমস্যার বিস্তারিত *</label><textarea id="returnRequestDetails" required maxlength="1500" placeholder="সমস্যাটি বিস্তারিত লিখুন..."></textarea><label for="returnRequestPhotos">পণ্যের ছবি (সর্বোচ্চ ৩টি, প্রতিটি ৫ MB)</label><input id="returnRequestPhotos" type="file" accept="image/jpeg,image/png,image/webp" multiple><p class="admin-help" id="returnRequestMessage" aria-live="polite"></p><div class="return-modal-actions"><button type="button" class="admin-secondary" onclick="closeReturnRequest()">বন্ধ করুন</button><button type="submit" class="admin-primary" id="returnRequestSubmit">আবেদন পাঠান</button></div></form></section></div>
 <script>
 function openReturnRequest(orderId,itemId,productName){
  if(!currentAuthUser){openAuth();return;}
@@ -2230,15 +2241,26 @@ function openReturnRequest(orderId,itemId,productName){
  document.getElementById('returnRequestItemId').value=itemId;
  document.getElementById('returnRequestProduct').textContent='পণ্য: '+productName;
  document.getElementById('returnRequestMessage').textContent='ডেলিভারির দিন থেকে ৭ দিনের মধ্যে আবেদন করতে হবে।';
- document.getElementById('returnRequestForm').reset();
+ document.getElementById('returnRequestForm').reset();document.getElementById('returnReasonLabel').textContent='সমস্যার ধরন নির্বাচন করুন';document.querySelectorAll('#returnReasonMenu button').forEach(b=>b.classList.remove('selected'));toggleReturnReasonMenu(false);
  document.getElementById('returnRequestOrderId').value=orderId;
  document.getElementById('returnRequestItemId').value=itemId;
  document.getElementById('returnRequestBackdrop').classList.add('show');
 }
 function closeReturnRequest(){document.getElementById('returnRequestBackdrop')?.classList.remove('show');}
+function toggleReturnReasonMenu(force){
+ const menu=document.getElementById('returnReasonMenu'),trigger=document.getElementById('returnReasonTrigger');if(!menu||!trigger)return;
+ const open=typeof force==='boolean'?force:!menu.classList.contains('show');menu.classList.toggle('show',open);trigger.setAttribute('aria-expanded',String(open));
+}
+function chooseReturnReason(value,button){
+ document.getElementById('returnRequestReason').value=value;document.getElementById('returnReasonLabel').textContent=value;
+ document.querySelectorAll('#returnReasonMenu button').forEach(b=>b.classList.toggle('selected',b===button));toggleReturnReasonMenu(false);
+}
+document.addEventListener('click',event=>{const picker=document.getElementById('returnReasonPicker');if(picker&&!picker.contains(event.target))toggleReturnReasonMenu(false);});
+
 document.getElementById('returnRequestForm')?.addEventListener('submit',async e=>{
  e.preventDefault();if(!currentAuthUser?.id)return;
  const button=document.getElementById('returnRequestSubmit'),msg=document.getElementById('returnRequestMessage'),files=[...(document.getElementById('returnRequestPhotos').files||[])];
+ if(!document.getElementById('returnRequestReason').value){msg.textContent='অনুগ্রহ করে সমস্যার ধরন নির্বাচন করুন।';document.getElementById('returnReasonTrigger').focus();return;}
  if(files.length>3){msg.textContent='সর্বোচ্চ ৩টি ছবি দিতে পারবেন।';return;}
  if(files.some(f=>f.size>5*1024*1024||!['image/jpeg','image/png','image/webp'].includes(f.type))){msg.textContent='শুধু JPG, PNG বা WebP ছবি দিন; প্রতিটি সর্বোচ্চ ৫ MB।';return;}
  button.disabled=true;button.textContent='পাঠানো হচ্ছে...';msg.textContent='ছবি আপলোড হচ্ছে...';
