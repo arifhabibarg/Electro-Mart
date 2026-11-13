@@ -2062,9 +2062,9 @@ function initCategoryPicker(){
  const sync=()=>{const opt=select.options[select.selectedIndex];label.textContent=opt?.textContent||'All Categories';};
  function open(){
   if(document.querySelector('.category-picker-backdrop'))return;
-  const back=document.createElement('div');back.className='category-picker-backdrop';back.style.background='transparent';back.style.backdropFilter='none';back.style.alignItems='flex-start';back.style.justifyContent='flex-start';back.style.padding='0';
+  const back=document.createElement('div');back.className='category-picker-backdrop';back.style.cssText='position:fixed;inset:0;z-index:100000;display:block;background:transparent;backdrop-filter:none;padding:0;pointer-events:auto;';
   back.innerHTML='<section class="category-picker" role="dialog" aria-modal="true" aria-label="Choose a category"><header class="category-picker-head"><span class="category-picker-mark">▦</span><div class="category-picker-heading"><strong>Browse Categories</strong><small>আপনার পছন্দের ক্যাটাগরি নির্বাচন করুন</small></div><button type="button" class="category-picker-close" aria-label="Close">×</button></header><div class="category-picker-search-wrap"><input class="category-picker-search" type="search" placeholder="ক্যাটাগরি খুঁজুন..." autocomplete="off"></div><div class="category-picker-list"></div></section>';
-  document.body.appendChild(back);const search=back.querySelector('.category-picker-search'),list=back.querySelector('.category-picker-list'),picker=back.querySelector('.category-picker');const anchor=trigger.getBoundingClientRect(),pickerWidth=Math.min(360,window.innerWidth-16),left=Math.max(8,Math.min(anchor.left,window.innerWidth-pickerWidth-8)),availableBelow=window.innerHeight-anchor.bottom-12,top=availableBelow>=300?anchor.bottom+7:Math.max(8,anchor.top-Math.min(520,window.innerHeight-16)-7);picker.style.position='fixed';picker.style.left=left+'px';picker.style.top=top+'px';picker.style.width=pickerWidth+'px';picker.style.maxWidth='calc(100vw - 16px)';picker.style.maxHeight='min(70vh,560px)';picker.style.margin='0';
+  document.body.appendChild(back);const search=back.querySelector('.category-picker-search'),list=back.querySelector('.category-picker-list'),picker=back.querySelector('.category-picker');const anchor=trigger.getBoundingClientRect(),pickerWidth=Math.min(360,window.innerWidth-16),left=Math.max(8,Math.min(anchor.left,window.innerWidth-pickerWidth-8)),availableBelow=window.innerHeight-anchor.bottom-12,top=availableBelow>=300?anchor.bottom+7:Math.max(8,anchor.top-Math.min(520,window.innerHeight-16)-7);picker.style.cssText+=';position:fixed;display:flex;flex-direction:column;left:'+left+'px;top:'+top+'px;width:'+pickerWidth+'px;max-width:calc(100vw - 16px);max-height:min(70vh,560px);margin:0;pointer-events:auto;';list.style.cssText+=';display:grid;overflow-y:auto;min-height:60px;';
   const close=()=>{back.remove();trigger.setAttribute('aria-expanded','false');trigger.focus();};
   function draw(){
    const q=search.value.trim().toLowerCase(),opts=[...select.options].filter(o=>o.value.toLowerCase().includes(q)||o.textContent.toLowerCase().includes(q));
@@ -2073,14 +2073,14 @@ function initCategoryPicker(){
     return '<button type="button" class="category-picker-option '+(o.value===select.value?'selected':'')+'" data-value="'+escapeHtml(o.value)+'"><span class="category-picker-icon">'+(o.value?iconFor(o.textContent):'⌂')+'</span><span class="category-picker-option-text"><strong>'+escapeHtml(o.textContent)+'</strong><small>'+count+' টি পণ্য</small></span>'+(o.value===select.value?'<span class="category-picker-check">✓</span>':'')+'</button>';
    }).join('')||'<div class="category-picker-empty">কোনো ক্যাটাগরি পাওয়া যায়নি</div>';
   }
-  draw();search.addEventListener('input',draw);window.addEventListener('resize',close,{once:true});window.addEventListener('scroll',close,{once:true,capture:true});
+  try{draw();}catch(error){console.error('Category picker render failed:',error);list.innerHTML='<div class="category-picker-empty">ক্যাটাগরি দেখানো যাচ্ছে না। আবার চেষ্টা করুন।</div>';}search.addEventListener('input',()=>{try{draw();}catch(error){console.error('Category search failed:',error);}});window.addEventListener('resize',close,{once:true});window.addEventListener('scroll',close,{once:true,capture:true});
   list.addEventListener('click',e=>{const b=e.target.closest('[data-value]');if(!b)return;select.value=b.dataset.value;select.dispatchEvent(new Event('change',{bubbles:true}));sync();close();});
   back.querySelector('.category-picker-close').addEventListener('click',close);
   back.addEventListener('click',e=>{if(e.target===back)close();});
   back.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
   trigger.setAttribute('aria-expanded','true');
  }
- trigger.addEventListener('click',open);select.addEventListener('change',sync);sync();
+ trigger.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();open();});select.addEventListener('change',sync);sync();
 }
 initCategoryPicker();
 
