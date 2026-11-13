@@ -1932,52 +1932,46 @@ function showWishlist(){renderWishlist();document.getElementById('wishlistBackdr
 function closeWishlist(){document.getElementById('wishlistBackdrop').classList.remove('show');}
 function renderDetailDescription(value){
  const box=document.getElementById('detailDescription');
- let lines=String(value||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
- // Long imported one-paragraph descriptions are grouped into readable sections.
- // Keep every original sentence intact; this only changes presentation.
- if(lines.length===1&&lines[0].length>220){
-  const sentences=lines[0].split(/(?<=[।!?])\s+|(?<=\.)\s+(?=[A-Z])/u).map(x=>x.trim()).filter(Boolean);
-  if(sentences.length>=3){
-   const groups=[
-    {title:'Display & Visuals',test:/display|screen|resolution|refresh rate|hz\b|hdr|color gamut|viewing angle|display|screen|resolution|refresh/i,items:[]},
-    {title:'Processor & Performance',test:/processor|chipset|cpu|gpu|cuda|core|clock speed|performance|processor|chipset|performance/i,items:[]},
-    {title:'Memory & Storage',test:/\bram\b|\brom\b|storage|ssd|memory|nand|capacity|storage|memory/i,items:[]},
-    {title:'Camera & Audio',test:/camera|megapixel|\bmp\b|lens|microphone|speaker|audio|Camera|Lens|Speaker|MicroPhone/i,items:[]},
-    {title:'Connectivity & Ports',test:/bluetooth|wi-?fi|usb|type-c|hdmi|displayport|pcie|gps|nfc|port|connectivity/i,items:[]},
-    {title:'Battery & Power',test:/battery|mah\b|charging|charger|watt|\bpsu\b|power input|battery|charging|power/i,items:[]},
-    {title:'Design & Protection',test:/weight|weighs|dimension|\bmm\b|\bkg\b|\bg\b|water resistance|dust|ip\d|vesa|form factor|weight|dimensions|protection/i,items:[]},
-    {title:'Price & Warranty',test:/price|৳|warranty|Price|Price|Warranty/i,items:[]},
-    {title:'Usage & Compatibility',test:/compatible|compatibility|suitable|use\b|install|support|verify|usage|compatibility/i,items:[]}
-   ];
-   const intro=sentences.shift();
-   const other=[];
-   for(const sentence of sentences){
-    const group=groups.find(g=>g.test.test(sentence));
-    (group?group.items:other).push(sentence);
-   }
-   let html='<p class="spec-intro">'+escapeHtml(intro)+'</p>';
-   for(const group of groups){
-    if(!group.items.length)continue;
-    html+='<div class="spec-heading">'+group.title+'</div><div class="spec-list">'+group.items.map(x=>'<div class="spec-item"><b>Details</b><span>'+escapeHtml(x)+'</span></div>').join('')+'</div>';
-   }
-   if(other.length)html+='<div class="spec-heading">Other Information</div><div class="detail-feature-list">'+other.map(x=>'<div class="detail-feature-item"><span>✓</span><p>'+escapeHtml(x)+'</p></div>').join('')+'</div>';
-   box.innerHTML=html;return;
+ const raw=String(value||'').replace(/\r\n?/g,'\n').replace(/\\n/g,'\n').trim();
+ if(!raw){box.innerHTML='<p class="spec-intro">No detailed information available।</p>';return;}
+ const esc=escapeHtml;
+ const groups=[
+  {title:'Display & Visuals',test:/display|screen|resolution|refresh rate|\bhz\b|hdr|color gamut|viewing angle/i,items:[]},
+  {title:'Processor & Performance',test:/processor|chipset|\bcpu\b|\bgpu\b|cuda|\bcore\b|clock speed|performance/i,items:[]},
+  {title:'Memory & Storage',test:/\bram\b|\brom\b|storage|ssd|memory|nand|capacity/i,items:[]},
+  {title:'Camera & Audio',test:/camera|megapixel|\bmp\b|lens|microphone|speaker|audio|noise cancellation|anc|enc/i,items:[]},
+  {title:'Connectivity & Ports',test:/bluetooth|wi-?fi|usb|type-c|hdmi|displayport|pcie|gps|\bnfc\b|port|connectivity|wireless/i,items:[]},
+  {title:'Battery & Power',test:/battery|\bmah\b|charging|charger|watt|\bpsu\b|power input|playback time/i,items:[]},
+  {title:'Design & Protection',test:/weight|weighs|dimension|\bmm\b|\bkg\b|water resistance|dust|ip\d|vesa|form factor|protection|material|design/i,items:[]},
+  {title:'Price & Warranty',test:/price|৳|warranty|guarantee/i,items:[]},
+  {title:'Usage & Compatibility',test:/compatible|compatibility|suitable|install|support|usage|operating system/i,items:[]}
+ ];
+ const features=[];let html='',introSeen=false,currentSection='';
+ const sectionNames={'brief introduction':'Brief Introduction','package introduction':'Package Introduction','key features':'Key Features','main features':'Key Features','features':'Key Features','specifications':'Technical Specifications','technical specifications':'Technical Specifications','product specifications':'Technical Specifications','product details':'Product Details','additional information':'Additional Information'};
+ const lines=raw.split('\n').map(x=>x.trim()).filter(Boolean);
+ const addHeading=t=>{html+='<div class="spec-heading">'+esc(t)+'</div>';};
+ const addIntro=t=>{html+='<p class="spec-intro">'+esc(t)+'</p>';};
+ const addFeatures=()=>{if(!features.length)return;addHeading('Key Features');html+='<div class="detail-feature-list">'+features.map(x=>'<div class="detail-feature-item"><span>✓</span><p>'+esc(x)+'</p></div>').join('')+'</div>';features.length=0;};
+ for(let line of lines){
+  line=line.replace(/^[•·▪◦\-*]\s*/,'').trim();if(!line)continue;
+  const normalized=line.replace(/:$/,'').trim().toLowerCase();
+  if(Object.prototype.hasOwnProperty.call(sectionNames,normalized)){addFeatures();currentSection=sectionNames[normalized];addHeading(currentSection);continue;}
+  const colon=line.indexOf(':');
+  if(colon>0&&colon<55){
+   const key=line.slice(0,colon).trim(),val=line.slice(colon+1).trim();
+   if(/^(brief introduction|package introduction)$/i.test(key)){addIntro(val);introSeen=true;continue;}
+   if(/^(important|note|warning)$/i.test(key)){html+='<div class="spec-note">'+esc(val)+'</div>';continue;}
+   if(/^(feature|detail|benefit)\s*\d*$/i.test(key)||/^key feature$/i.test(key)){features.push(val);continue;}
+   html+='<div class="spec-list"><div class="spec-item"><b>'+esc(key)+'</b><span>'+esc(val)+'</span></div></div>';continue;
   }
+  if(!introSeen&&!currentSection){addIntro(line);introSeen=true;continue;}
+  const group=groups.find(g=>g.test.test(line));
+  if(group){group.items.push(line);continue;}
+  features.push(line);
  }
- let html='',items=[];
- const flush=()=>{if(items.length){html+='<div class="spec-list">'+items.map(([k,v])=>'<div class="spec-item"><b>'+escapeHtml(k)+'</b><span>'+escapeHtml(v)+'</span></div>').join('')+'</div>';items=[];}};
- for(const line of lines){
-  if(/^(Brief Introduction|Package Introduction):/.test(line)){flush();html+='<p class="spec-intro">'+escapeHtml(line)+'</p>';continue;}
-  const idx=line.indexOf(':');
-  if(idx>0&&idx<45){items.push([line.slice(0,idx),line.slice(idx+1).trim()]);continue;}
-  flush();
-  if(/^(Important|Note|Warning):/.test(line)){html+='<div class="spec-note">'+escapeHtml(line)+'</div>';continue;}
-  if(line.length<=58&&!/[.!?।]$/.test(line)&&!line.includes(':')){
-   html+='<div class="spec-heading">'+escapeHtml(line)+'</div>';continue;
-  }
-  html+='<p class="spec-intro">'+escapeHtml(line)+'</p>';
- }
- flush();box.innerHTML=html||'<p class="spec-intro">No detailed information available।</p>';
+ addFeatures();
+ for(const group of groups){if(!group.items.length)continue;addHeading(group.title);html+='<div class="spec-list">'+group.items.map((x,i)=>'<div class="spec-item"><b>Details '+(i+1)+'</b><span>'+esc(x)+'</span></div>').join('')+'</div>';}
+ box.innerHTML=html||'<p class="spec-intro">'+esc(raw)+'</p>';
 }
 
 let activeDetailVariantId='';
