@@ -874,7 +874,7 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible),[role="button"]:foc
         <section class="ap-category-photo-panel">
          <h4>📂 পণ্যের ক্যাটাগরি ও ছবি</h4>
          <div class="ap-category-buttons">
-          <div class="admin-field"><label for="apCategory">Category *</label><div class="admin-select-with-add"><div class="ap-category-trigger-row"><button type="button" class="admin-search-select" data-search-select="apCategory"><span>Select Category</span><span>⌄</span></button><button type="button" class="ap-add-category-button" onclick="addProductDropdownOption(\'category\')" aria-label="নতুন Category যোগ করুন" title="নতুন Category যোগ করুন">＋</button></div><select id="apCategory" class="admin-native-select" onchange="updateProductSubcategories()"><option value="">Select</option><option>Audio</option><option>Smartwatches</option><option>Accessories</option></select></div></div>
+          <div class="admin-field"><label for="apCategory">Category *</label><div class="admin-select-with-add"><button type="button" class="admin-search-select" data-search-select="apCategory"><span>Select Category</span><span>⌄</span></button><select id="apCategory" class="admin-native-select" onchange="updateProductSubcategories()"><option value="">Select</option><option>Audio</option><option>Smartwatches</option><option>Accessories</option></select></div></div>
           <div class="admin-field"><label for="apSubcategory">Subcategory *</label><div class="admin-select-with-add"><button type="button" class="admin-search-select" data-search-select="apSubcategory" disabled><span>Select</span><span>⌄</span></button><select id="apSubcategory" class="admin-native-select" disabled><option value="">Select</option></select></div></div>
           <div class="admin-field"><label for="apBrand">Brand *</label><div class="admin-select-with-add"><button type="button" class="admin-search-select" data-search-select="apBrand" disabled><span>Select</span><span>⌄</span></button><select id="apBrand" class="admin-native-select" disabled><option value="">Select</option></select></div></div>
          </div>
@@ -1187,7 +1187,7 @@ function createInlineProductDropdown(host,values,formatter,onChoose){
  if(!host)return null;
  const existing=host.querySelector('.admin-inline-taxonomy-menu');if(existing)return existing;
  closeInlineProductDropdowns();
- const menu=document.createElement('div');menu.className='admin-inline-taxonomy-menu';menu.innerHTML='<div class="admin-inline-taxonomy-list"></div>';host.appendChild(menu);
+ const menu=document.createElement('div');menu.className='admin-inline-taxonomy-menu';menu.innerHTML='<div class="admin-inline-taxonomy-list"></div>'+(id==='apCategory'&& (canAddProducts()||canEditProductDetails())?'<div class="admin-inline-taxonomy-add"><input type="text" maxlength="80" placeholder="নতুন Category-এর নাম লিখুন" aria-label="নতুন Category-এর নাম"><button type="button">＋ নতুন Category যোগ করুন</button></div>':'');host.appendChild(menu);
  const list=menu.querySelector('.admin-inline-taxonomy-list');
  list.innerHTML=values.map(value=>'<div class="admin-inline-taxonomy-option-row"><button type="button" class="admin-inline-taxonomy-option" data-value="'+value+'">'+formatter(value)+'</button></div>').join('');
  const outside=event=>{if(!host.contains(event.target))close();};
@@ -1231,6 +1231,22 @@ function openAdminSimpleSelect(id){
 
 document.addEventListener('click',event=>{const trigger=event.target.closest('[data-simple-select]');if(!trigger)return;event.preventDefault();openAdminSimpleSelect(trigger.dataset.simpleSelect);});
 
+async function saveInlineProductCategory(input,button,select,menu){
+ const clean=input.value.trim();if(!clean){input.focus();input.classList.add('invalid');return;}
+ if(!canAddProducts()&&!canEditProductDetails()){adminToast('আপনার Category যোগ করার অনুমতি নেই।','warning');return;}
+ button.disabled=true;button.textContent='সংরক্ষণ হচ্ছে…';
+ const {data:duplicate,error:lookupError}=await supabaseClient.from('product_taxonomy').select('id').eq('type','category').is('category',null).ilike('name',clean).maybeSingle();
+ if(lookupError){adminToast('তালিকা যাচাই করা যায়নি: '+lookupError.message,'error');button.disabled=false;button.textContent='＋ নতুন Category যোগ করুন';return;}
+ if(!duplicate){const {error}=await supabaseClient.from('product_taxonomy').insert({type:'category',category:null,name:clean,created_by:currentAuthUser?.id});if(error){adminToast('নতুন Category সংরক্ষণ হয়নি: '+error.message,'error');button.disabled=false;button.textContent='＋ নতুন Category যোগ করুন';return;}}
+ let option=[...select.options].find(o=>o.value.toLowerCase()===clean.toLowerCase());
+ if(!option){option=new Option(clean,clean);select.add(option);}
+ select.value=option.value;const data=readCustomTaxonomy();data.categories=[...new Set([...(data.categories||[]),option.value])];saveCustomTaxonomy(data);
+ const p=window.electroPersistentTaxonomy||(window.electroPersistentTaxonomy={categories:[],subcategories:{},brands:{}});p.categories=[...new Set([...(p.categories||[]),option.value])];
+ if(!PRODUCT_TAXONOMY[option.value])PRODUCT_TAXONOMY[option.value]={subs:[],brands:[]};
+ select.dispatchEvent(new Event('change',{bubbles:true}));syncProductSearchSelect('apCategory');renderSideCategories();
+ adminToast('নতুন Category স্থায়ীভাবে সংরক্ষিত হয়েছে।','success');
+ menu.remove();document.querySelector('[data-search-select="apCategory"]')?.setAttribute('aria-expanded','false');
+}
 function openProductSearchSelect(id){
  const select=document.getElementById(id),trigger=document.querySelector('[data-search-select="'+id+'"]');
  if(!select||!trigger||select.disabled||trigger.disabled)return;
@@ -1255,6 +1271,7 @@ function openProductSearchSelect(id){
  function outsideClick(event){if(!wrapper.contains(event.target))close();}
  function escapeClose(event){if(event.key==='Escape')close();}
  draw();
+ if(id==='apCategory'){const add=menu.querySelector('.admin-inline-taxonomy-add'),input=add?.querySelector('input'),button=add?.querySelector('button');if(button&&input){button.addEventListener('click',()=>saveInlineProductCategory(input,button,select,menu));input.addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();saveInlineProductCategory(input,button,select,menu);}});}}
  list.addEventListener('click',event=>{
   const remove=event.target.closest('[data-remove]');
   if(remove){event.stopPropagation();removeCustomTaxonomyOption(types[id],document.getElementById('apCategory')?.value||'',remove.dataset.remove);draw();return;}
@@ -2693,10 +2710,10 @@ function printReplacementRecord(id){
 
 
 /* Permanent category add control beside the category selector. */
-.ap-category-trigger-row{display:flex;align-items:stretch;gap:6px;width:100%}
-.ap-category-trigger-row .admin-search-select{flex:1;min-width:0;width:auto!important}
-.ap-add-category-button{width:43px;min-width:43px;height:43px;border:0;border-radius:6px;background:#111;color:var(--yellow);font-size:25px;font-weight:700;line-height:1}
-.ap-add-category-button:hover{background:var(--yellow);color:#111}
+.admin-inline-taxonomy-add{display:flex;gap:7px;padding:10px;border-top:1px solid rgba(128,128,128,.25);background:var(--admin-card,#fff)}
+.admin-inline-taxonomy-add input{flex:1;min-width:0;height:40px;padding:0 10px;border:1px solid #aaa;border-radius:6px;font:inherit}
+.admin-inline-taxonomy-add button{border:0;border-radius:6px;padding:0 12px;background:#111;color:#ffd400;font-weight:700;white-space:nowrap}
+.admin-inline-taxonomy-add button:disabled{opacity:.65}
 /* Product editor category choices: trigger-anchored slide-down list, no search field or modal. */
 .ap-category-buttons .admin-select-with-add{display:flex;flex-direction:column;align-items:stretch;position:relative;gap:0}
 .admin-inline-taxonomy-menu{display:block;width:100%;margin-top:6px;padding:7px;background:#fff;border:1px solid #e5c000;border-radius:0 0 8px 8px;box-shadow:0 10px 22px #0002;animation:adminCategorySlideDown .26s cubic-bezier(.2,.75,.25,1) both;transform-origin:top;z-index:3}
