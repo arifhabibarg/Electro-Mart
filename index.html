@@ -1625,8 +1625,10 @@ async function saveAdminProduct(event){
   const name=document.getElementById('apName').value.trim();
   const autoDescription=buildAutoProductDescriptions({name,brand:document.getElementById('apBrand').value,model:document.getElementById('apModel').value,category:document.getElementById('apCategory').value,subcategory:document.getElementById('apSubcategory').value,shortText:document.getElementById('apDescription').value,fullText:document.getElementById('apFullDescription').value});
   if(document.getElementById('apCostPrice').value.trim()===''||document.getElementById('apProfitPercent').value.trim()===''||document.getElementById('apPrice').value==='')throw new Error('ক্রয়/তৈরির খরচ এবং লাভের শতাংশ—দুটিই লিখুন; বিক্রয় মূল্য অটোমেটিক হিসাব হবে।');
-  const payload={name,last_updated_at:new Date().toISOString(),model:document.getElementById('apModel').value.trim(),discount_percent:editingProductId?Number(document.getElementById('apDiscount').value):5,
-   price:Number(document.getElementById('apPrice').value)*(1-Number(document.getElementById('apDiscount').value)/100),compare_at_price:Number(document.getElementById('apDiscount').value)>0?Number(document.getElementById('apPrice').value):null,stock:Number(document.getElementById('apStock').value),
+  const discountRaw=document.getElementById('apDiscountInput').value.trim(),discountValue=Number(discountRaw);
+  if(discountRaw===''||!Number.isFinite(discountValue)||discountValue<0||discountValue>100)throw new Error('Discount 0 থেকে 100-এর মধ্যে লিখুন।');
+  const payload={name,last_updated_at:new Date().toISOString(),model:document.getElementById('apModel').value.trim(),discount_percent:discountValue,
+   price:Number(document.getElementById('apPrice').value)*(1-discountValue/100),compare_at_price:discountValue>0?Number(document.getElementById('apPrice').value):null,stock:Number(document.getElementById('apStock').value),
    category:document.getElementById('apCategory').value,subcategory:document.getElementById('apSubcategory').value,brand:document.getElementById('apBrand').value,description:autoDescription.short,
    full_description:autoDescription.full,
    is_active:document.getElementById('apActive').value==='true'};
