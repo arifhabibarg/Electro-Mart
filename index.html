@@ -1120,7 +1120,53 @@ function openAdminSimpleSelect(id){
 }
 document.addEventListener('click',event=>{const trigger=event.target.closest('[data-simple-select]');if(!trigger)return;event.preventDefault();openAdminSimpleSelect(trigger.dataset.simpleSelect);});
 
-function openProductSearchSelect(id){const select=document.getElementById(id);if(!select)return;const labels={apCategory:'Category নির্বাচন করুন',apSubcategory:'Subcategory নির্বাচন করুন',apBrand:'Brand নির্বাচন করুন'},types={apCategory:'category',apSubcategory:'subcategory',apBrand:'brand'};if(!types[id])return;const back=document.createElement('div');back.className='admin-picker-backdrop show';back.innerHTML='<div class="admin-picker" role="dialog" aria-modal="true"><div class="admin-picker-head"><strong>'+labels[id]+'</strong><button type="button" class="admin-picker-close">×</button></div><div class="admin-picker-controls"><div class="admin-picker-search-row"><input class="admin-picker-search" type="search" placeholder="Search করুন..." autocomplete="off"><button type="button" class="admin-picker-search-btn" aria-label="Search">⌕</button></div><button type="button" class="admin-picker-add" aria-label="Add" title="Add">＋</button></div><div class="admin-picker-list"></div></div>';document.body.appendChild(back);const search=back.querySelector('.admin-picker-search'),list=back.querySelector('.admin-picker-list');function draw(){const q=search.value.trim().toLowerCase(),opts=[...select.options].filter(o=>o.value&&o.textContent.toLowerCase().includes(q));list.innerHTML=opts.length?opts.map(o=>'<div class="admin-picker-option-row"><button type="button" class="admin-picker-option '+(o.value===select.value?'selected':'')+'" data-value="'+escapeHtml(o.value)+'">'+escapeHtml(o.textContent)+'</button>'+(isCustomTaxonomyOption(types[id],document.getElementById('apCategory')?.value||'',o.value)?'<button type="button" class="admin-picker-remove" data-remove="'+escapeHtml(o.value)+'" title="Remove" aria-label="Remove '+escapeHtml(o.value)+'">×</button>':'')+'</div>').join(''):'<div class="admin-picker-empty">কোনো ফলাফল পাওয়া যায়নি</div>';}draw();search.focus();list.addEventListener('click',e=>{const remove=e.target.closest('[data-remove]');if(remove){e.stopPropagation();removeCustomTaxonomyOption(types[id],document.getElementById('apCategory')?.value||'',remove.dataset.remove);draw();return;}const b=e.target.closest('[data-value]');if(!b)return;select.value=b.dataset.value;select.dispatchEvent(new Event('change',{bubbles:true}));syncProductSearchSelect(id);back.remove();});back.querySelector('.admin-picker-add').onclick=()=>{addProductDropdownOption(types[id]);syncProductSearchSelect(id);draw();};back.querySelector('.admin-picker-search-btn').onclick=draw;back.querySelector('.admin-picker-close').onclick=()=>back.remove();back.addEventListener('click',e=>{if(e.target===back)back.remove();});search.addEventListener('input',draw);}
+function openProductSearchSelect(id){
+ const select=document.getElementById(id),trigger=document.querySelector('[data-search-select="'+id+'"]');
+ if(!select||!trigger)return;
+ const wrapper=trigger.closest('.admin-select-with-add');
+ if(!wrapper)return;
+ const existing=wrapper.querySelector('.admin-inline-taxonomy-menu');
+ if(existing){existing.remove();trigger.setAttribute('aria-expanded','false');return;}
+ document.querySelectorAll('.admin-inline-taxonomy-menu').forEach(menu=>{menu.remove();});
+ document.querySelectorAll('[data-search-select]').forEach(button=>button.setAttribute('aria-expanded','false'));
+ const labels={apCategory:'Category নির্বাচন করুন',apSubcategory:'Subcategory নির্বাচন করুন',apBrand:'Brand নির্বাচন করুন'};
+ const types={apCategory:'category',apSubcategory:'subcategory',apBrand:'brand'};
+ if(!types[id])return;
+ const menu=document.createElement('div');
+ menu.className='admin-inline-taxonomy-menu';
+ menu.innerHTML='<div class="admin-inline-taxonomy-controls"><input class="admin-inline-taxonomy-search" type="search" placeholder="Search করুন..." autocomplete="off" aria-label="Search '+labels[id]+'"><button type="button" class="admin-inline-taxonomy-add" aria-label="নতুন যোগ করুন" title="নতুন যোগ করুন">＋</button></div><div class="admin-inline-taxonomy-list"></div>';
+ wrapper.appendChild(menu);
+ trigger.setAttribute('aria-expanded','true');
+ const search=menu.querySelector('.admin-inline-taxonomy-search'),list=menu.querySelector('.admin-inline-taxonomy-list');
+ function draw(){
+  const q=search.value.trim().toLowerCase();
+  const opts=[...select.options].filter(o=>o.value&&o.textContent.toLowerCase().includes(q));
+  list.innerHTML=opts.length?opts.map(o=>'<div class="admin-inline-taxonomy-option-row"><button type="button" class="admin-inline-taxonomy-option '+(o.value===select.value?'selected':'')+'" data-value="'+escapeHtml(o.value)+'">'+escapeHtml(o.textContent)+'</button>'+(isCustomTaxonomyOption(types[id],document.getElementById('apCategory')?.value||'',o.value)?'<button type="button" class="admin-inline-taxonomy-remove" data-remove="'+escapeHtml(o.value)+'" title="Remove" aria-label="Remove '+escapeHtml(o.value)+'">×</button>':'')+'</div>').join(''):'<div class="admin-picker-empty">কোনো ফলাফল পাওয়া যায়নি</div>';
+ }
+ function close(){menu.remove();trigger.setAttribute('aria-expanded','false');document.removeEventListener('click',outsideClick);document.removeEventListener('keydown',escapeClose);}
+ function outsideClick(event){if(!wrapper.contains(event.target)){close();}}
+ function escapeClose(event){if(event.key==='Escape')close();}
+ draw();
+ list.addEventListener('click',event=>{
+  const remove=event.target.closest('[data-remove]');
+  if(remove){event.stopPropagation();removeCustomTaxonomyOption(types[id],document.getElementById('apCategory')?.value||'',remove.dataset.remove);draw();return;}
+  const option=event.target.closest('[data-value]');
+  if(!option)return;
+  select.value=option.dataset.value;
+  select.dispatchEvent(new Event('change',{bubbles:true}));
+  syncProductSearchSelect(id);
+  close();
+ });
+ menu.querySelector('.admin-inline-taxonomy-add').addEventListener('click',()=>{
+  addProductDropdownOption(types[id]);
+  syncProductSearchSelect(id);
+  draw();
+ });
+ search.addEventListener('input',draw);
+ document.addEventListener('click',outsideClick);
+ document.addEventListener('keydown',escapeClose);
+ search.focus();
+}
 document.addEventListener('click',function(event){const trigger=event.target.closest('[data-search-select]');if(!trigger)return;event.preventDefault();openProductSearchSelect(trigger.dataset.searchSelect);});
 function addProductDropdownOption(type){const ids={category:'apCategory',subcategory:'apSubcategory',brand:'apBrand'},labels={category:'Category',subcategory:'Subcategory',brand:'Brand'},select=document.getElementById(ids[type]),category=document.getElementById('apCategory')?.value||'';if(!select)return;if(type!=='category'&&!category){adminToast('আগে Category নির্বাচন করুন।','warning');return;}const overlay=document.createElement('div');overlay.className='em-add-overlay';overlay.innerHTML='<div class="em-add-dialog" role="dialog" aria-modal="true"><div class="em-add-top"><span class="em-add-mark">＋</span><div><strong>নতুন '+labels[type]+' যোগ করুন</strong><small>তালিকায় নতুন নাম যুক্ত করুন</small></div><button type="button" class="em-add-close" aria-label="বন্ধ করুন">×</button></div><label class="em-add-label">'+labels[type]+'-এর নাম</label><input class="em-add-input" type="text" maxlength="80" placeholder="নাম লিখুন..." autocomplete="off"><div class="em-add-actions"><button type="button" class="em-add-cancel">বাতিল</button><button type="button" class="em-add-save">＋ যোগ করুন</button></div></div>';document.body.appendChild(overlay);const input=overlay.querySelector('.em-add-input'),close=()=>overlay.remove(),save=()=>{const clean=input.value.trim();if(!clean){input.focus();input.classList.add('invalid');return;}const existing=[...select.options].find(o=>o.value.toLowerCase()===clean.toLowerCase());if(existing){select.value=existing.value;}else{select.add(new Option(clean,clean));select.value=clean;const d=readCustomTaxonomy();if(type==='category'){d.categories=[...new Set([...(d.categories||[]),clean])];PRODUCT_TAXONOMY[clean]={subs:[],brands:[]};}else{const key=type==='subcategory'?'subcategories':'brands';d[key][category]=[...new Set([...(d[key][category]||[]),clean])];if(!PRODUCT_TAXONOMY[category])PRODUCT_TAXONOMY[category]={subs:[],brands:[]};const target=type==='subcategory'?'subs':'brands';PRODUCT_TAXONOMY[category][target]=[...new Set([...(PRODUCT_TAXONOMY[category][target]||[]),clean])];}saveCustomTaxonomy(d);}if(type==='category')updateProductSubcategories();syncProductSearchSelect(ids[type]);renderSideCategories();close();};overlay.querySelector('.em-add-close').onclick=close;overlay.querySelector('.em-add-cancel').onclick=close;overlay.querySelector('.em-add-save').onclick=save;overlay.addEventListener('click',e=>{if(e.target===overlay)close();});input.addEventListener('keydown',e=>{if(e.key==='Enter')save();if(e.key==='Escape')close();});input.addEventListener('input',()=>input.classList.remove('invalid'));input.focus();}
 
@@ -2529,7 +2575,24 @@ function printReplacementRecord(id){
  const w=window.open('','_blank','width=900,height=700');if(!w){showElectroReturnNotice('ডকুমেন্ট প্রিন্ট করতে ব্রাউজারের Pop-up অনুমতি দিন।','error');return;}
  const esc=v=>escapeHtml(String(v??'তথ্য নেই'));
  const rows=[['গ্রাহকের নাম',r.customer_name],['মোবাইল নম্বর',r.customer_phone],['ইমেইল',r.customer_email],['অর্ডার নম্বর',r.order_number],['রিপ্লেস করা মূল পণ্য',r.original_product_name+' × '+r.original_quantity],['নতুন রিপ্লেসমেন্ট পণ্য',r.replacement_product_name],['মডেল / ভ্যারিয়েন্ট',r.replacement_model||r.replacement_variant],['সিরিয়াল নম্বর / IMEI',r.replacement_serial_number],['রিপ্লেসমেন্ট সম্পন্নের তারিখ',new Date(r.completed_at||r.created_at).toLocaleString('bn-BD')],['কুরিয়ার',r.courier_name],['ট্র্যাকিং নম্বর',r.tracking_number],['অতিরিক্ত বিবরণ',r.replacement_notes]];
- w.document.write('<!doctype html><html lang="bn"><meta charset="utf-8"><title>ElectroMart Replacement Record</title><style>body{font-family:Arial,sans-serif;color:#171717;padding:30px}.head{border-bottom:3px solid #e5b900;padding-bottom:12px;margin-bottom:20px}h1{margin:0 0 5px;font-size:24px}.muted{color:#666;font-size:12px}table{width:100%;border-collapse:collapse}td{border:1px solid #ddd;padding:11px;vertical-align:top}.label{width:34%;font-weight:bold;background:#faf7e9}.foot{margin-top:25px;color:#666;font-size:11px}</style><div class="head"><h1>ElectroMart</h1><b>পণ্য রিপ্লেসমেন্ট ডকুমেন্ট</b><div class="muted">রেকর্ড আইডি: '+esc(r.id)+'</div></div><table>'+rows.map(([a,b])=>'<tr><td class="label">'+esc(a)+'</td><td>'+esc(b)+'</td></tr>').join('')+'</table><div class="foot">এই ডকুমেন্ট ElectroMart-এর সংরক্ষিত রিপ্লেসমেন্ট রেকর্ড থেকে তৈরি।</div><script>window.onload=()=>window.print()<\/script></html>');
+ w.document.write('<!doctype html><html lang="bn"><meta charset="utf-8"><title>ElectroMart Replacement Record</title><style>body{font-family:Arial,sans-serif;color:#171717;padding:30px}.head{border-bottom:3px solid #e5b900;padding-bottom:12px;margin-bottom:20px}h1{margin:0 0 5px;font-size:24px}.muted{color:#666;font-size:12px}table{width:100%;border-collapse:collapse}td{border:1px solid #ddd;padding:11px;vertical-align:top}.label{width:34%;font-weight:bold;background:#faf7e9}.foot{margin-top:25px;color:#666;font-size:11px}
+/* Product category selectors expand inline below their own buttons (no modal/backdrop). */
+.ap-category-buttons .admin-select-with-add{display:flex;flex-direction:column;align-items:stretch;position:relative;gap:0}
+.ap-category-buttons .admin-search-select{flex:0 0 auto}
+.admin-inline-taxonomy-menu{display:block;width:100%;margin-top:7px;padding:8px;background:#fff;border:1px solid #e5cf70;border-top:3px solid var(--yellow);border-radius:0 0 8px 8px;box-shadow:0 8px 20px #00000012;animation:adminTaxonomySlideDown .26s cubic-bezier(.2,.75,.25,1) both;transform-origin:top}
+.admin-inline-taxonomy-controls{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.admin-inline-taxonomy-search{flex:1;min-width:0;height:38px;padding:0 10px;border:1px solid #ddd;border-radius:5px;background:#fff;color:#222;font:inherit;font-size:12px}
+.admin-inline-taxonomy-add{width:38px;height:38px;flex:0 0 38px;border:0;border-radius:5px;background:#111;color:var(--yellow);font-size:25px;line-height:1}
+.admin-inline-taxonomy-list{max-height:220px;overflow:auto}
+.admin-inline-taxonomy-option-row{display:flex;align-items:center;gap:6px}
+.admin-inline-taxonomy-option{flex:1;min-width:0;width:100%;padding:10px;border:0;border-bottom:1px solid #eee;background:#fff;color:#222;text-align:left;font:inherit;font-size:12px}
+.admin-inline-taxonomy-option:hover,.admin-inline-taxonomy-option.selected{background:#fff8d9;color:#806300}
+.admin-inline-taxonomy-option.selected{box-shadow:inset 3px 0 var(--yellow)}
+.admin-inline-taxonomy-remove{width:30px;height:30px;flex:0 0 30px;border:1px solid #f1c7c7;border-radius:5px;background:#fff5f5;color:#c62828;font-size:19px}
+@keyframes adminTaxonomySlideDown{from{opacity:0;transform:translateY(-9px) scaleY(.96)}to{opacity:1;transform:translateY(0) scaleY(1)}}
+@media(prefers-reduced-motion:reduce){.admin-inline-taxonomy-menu{animation:none!important}}
+
+</style><div class="head"><h1>ElectroMart</h1><b>পণ্য রিপ্লেসমেন্ট ডকুমেন্ট</b><div class="muted">রেকর্ড আইডি: '+esc(r.id)+'</div></div><table>'+rows.map(([a,b])=>'<tr><td class="label">'+esc(a)+'</td><td>'+esc(b)+'</td></tr>').join('')+'</table><div class="foot">এই ডকুমেন্ট ElectroMart-এর সংরক্ষিত রিপ্লেসমেন্ট রেকর্ড থেকে তৈরি।</div><script>window.onload=()=>window.print()<\/script></html>');
  w.document.close();
 }
 const originalElectroToggleAdminPanel=toggleAdminPanel;
