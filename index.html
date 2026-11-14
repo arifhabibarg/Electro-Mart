@@ -1259,7 +1259,7 @@ function openProductSearchSelect(id){
  if(!types[id])return;
  const previousZIndex=wrapper.style.zIndex;
  const menu=document.createElement('div');menu.className='admin-inline-taxonomy-menu';
- menu.innerHTML='<div class="admin-inline-taxonomy-list"></div>';
+ menu.innerHTML='<div class="admin-inline-taxonomy-list"></div>'+(id==='apCategory'&&(canAddProducts()||canEditProductDetails())?'<div class="admin-inline-taxonomy-add"><input type="text" maxlength="80" placeholder="নতুন Category-এর নাম লিখুন" aria-label="নতুন Category-এর নাম"><button type="button">＋ নতুন Category যোগ করুন</button></div>':'');
  wrapper.style.zIndex='40';
  wrapper.appendChild(menu);trigger.setAttribute('aria-expanded','true');
  const list=menu.querySelector('.admin-inline-taxonomy-list');
