@@ -787,11 +787,15 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible),[role="button"]:foc
 .ap-discount-wrap{position:relative;min-width:0}
 .ap-discount-wrap>input{width:100%;height:43px;padding:0 12px;border:1px solid #ddd;border-radius:5px;background:#fff;color:#222}
 .ap-discount-wrap>input:focus{outline:2px solid #f5c40055;border-color:#c6a000}
-.ap-discount-options{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:120;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;max-height:min(48vh,260px);overflow-y:auto;padding:8px;background:#fff;border:1px solid #e5cf70;border-top:3px solid var(--yellow);border-radius:0 0 8px 8px;box-shadow:0 12px 28px #0002;transform-origin:top;animation:searchCategoryDrop .28s cubic-bezier(.2,.75,.25,1) both}
-.ap-discount-option{min-height:37px;border:1px solid #eee;border-radius:5px;background:#fff;color:#222;font:inherit;font-size:12px;font-weight:700;opacity:0;transform:translateY(-7px);animation:searchCategoryItem .34s cubic-bezier(.2,.75,.25,1) forwards}
-.ap-discount-option:hover{background:#fff5c7;border-color:#d5b000;color:#806300}
-@media(max-width:600px){.ap-discount-stock-row{grid-template-columns:1fr;gap:9px}.ap-discount-options{grid-template-columns:repeat(4,minmax(0,1fr))}}
-@media(prefers-reduced-motion:reduce){.ap-discount-options,.ap-discount-option{animation:none!important;opacity:1!important;transform:none!important}}
+.ap-inline-dropdown-host{position:relative;overflow:visible;z-index:2}
+.ap-inline-dropdown-host .admin-inline-taxonomy-menu{position:absolute;left:0;right:0;top:calc(100% + 7px);width:100%;max-height:min(58vh,360px);box-sizing:border-box;overflow:hidden;margin:0;padding:7px;background:#fff;border:1px solid #e8d27a;border-top:3px solid var(--yellow);border-radius:0 0 9px 9px;box-shadow:0 12px 28px #0002;z-index:100;transform-origin:top left;animation:searchCategoryDrop .28s cubic-bezier(.2,.75,.25,1) both}
+.ap-inline-dropdown-host .admin-inline-taxonomy-list{display:flex;flex-direction:column;gap:0;max-height:min(calc(58vh - 20px),340px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
+.ap-inline-dropdown-host .admin-inline-taxonomy-option-row{display:flex;align-items:center;opacity:0;transform:translateY(-9px);animation:searchCategoryItem .34s cubic-bezier(.2,.75,.25,1) forwards}
+.ap-inline-dropdown-host .admin-inline-taxonomy-option{display:flex;align-items:center;justify-content:space-between;flex:1;min-width:0;width:100%;min-height:42px;padding:9px 12px;border:0;border-bottom:1px solid #f0f0f0;border-radius:0;background:#fff;color:#222;text-align:left;font:inherit;font-size:12px;font-weight:650}
+.ap-inline-dropdown-host .admin-inline-taxonomy-option:hover,.ap-inline-dropdown-host .admin-inline-taxonomy-option.selected{background:#fff8d9;color:#8a6b00}
+.ap-inline-dropdown-host .admin-inline-taxonomy-option.selected{box-shadow:inset 3px 0 var(--yellow)}
+@media(max-width:600px){.ap-discount-stock-row{grid-template-columns:1fr;gap:9px}}
+@media(prefers-reduced-motion:reduce){.ap-inline-dropdown-host .admin-inline-taxonomy-menu,.ap-inline-dropdown-host .admin-inline-taxonomy-option-row{animation:none!important;opacity:1!important;transform:none!important}}
 </style>
 </head>
 <body>
@@ -865,7 +869,7 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible),[role="button"]:foc
           <div class="admin-field"><label for="apBrand">Brand *</label><div class="admin-select-with-add"><button type="button" class="admin-search-select" data-search-select="apBrand"><span>First Category Select</span><span>⌄</span></button><select id="apBrand" class="admin-native-select"><option value="">First Category Select</option></select></div></div>
          </div>
          <div class="ap-discount-stock-row">
-          <div class="admin-field"><label for="apDiscountInput">Product Discount (%)</label><div class="ap-discount-wrap"><input id="apDiscountInput" type="number" min="0" max="100" step="0.01" value="5" inputmode="decimal" autocomplete="off" placeholder="যেমন: 8" oninput="updateProductDiscountValue()" onfocus="openProductDiscountOptions()"><small class="admin-help">৫%, ১০%, ১৫% থেকে ১০০% বেছে নিন, অথবা নিজের শতাংশ লিখুন।</small></div><select id="apDiscount" class="admin-native-select" aria-hidden="true" tabindex="-1"><option value="0">0%</option><option value="5" selected>5%</option><option value="10">10%</option></select></div>
+          <div class="admin-field"><label for="apDiscountInput">Product Discount (%)</label><div class="ap-discount-wrap ap-inline-dropdown-host"><input id="apDiscountInput" type="number" min="0" max="100" step="0.01" value="5" inputmode="decimal" autocomplete="off" placeholder="যেমন: 8" oninput="updateProductDiscountValue()" onfocus="openProductDiscountOptions()" onclick="openProductDiscountOptions()"><small class="admin-help">৫%, ১০%, ১৫% থেকে ১০০% বেছে নিন, অথবা নিজের শতাংশ লিখুন।</small></div><select id="apDiscount" class="admin-native-select" aria-hidden="true" tabindex="-1"><option value="0">0%</option><option value="5" selected>5%</option><option value="10">10%</option></select></div>
           <div class="admin-field"><label for="apStock">Stock *</label><div class="admin-stock-stepper"><button type="button" class="admin-stock-step" aria-label="স্টক কমান" onclick="changeAdminStock(-1)">−</button><input id="apStock" type="number" min="0" step="1" required value="1" inputmode="numeric"><button type="button" class="admin-stock-step" aria-label="স্টক বাড়ান" onclick="changeAdminStock(1)">+</button></div></div>
          </div>
          <div class="admin-field ap-photo-field"><label>Product Photos (maximum 8)</label><label class="ap-photo-select" for="apImage">＋ Select Product Photos</label><input id="apImage" type="file" accept="image/jpeg,image/png,image/webp" multiple><div id="apImagePreviews" class="product-image-preview-list" aria-live="polite"></div><small class="admin-help">সর্বোচ্চ ৮টি JPG, PNG বা WebP ছবি (প্রতিটি সর্বোচ্চ 5 MB)। আপলোডের আগে ছবি Optimize হবে।</small><small class="product-image-preview-help">থাম্বনেইলে ক্লিক করে Cover Photo নির্বাচন করুন।</small></div>
@@ -876,7 +880,7 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible),[role="button"]:foc
         <div class="admin-field"><label for="apFullDescription">Full Description</label><textarea id="apFullDescription" maxlength="10000" placeholder="Enter detailed features, usage, compatibility, and other important information."></textarea></div>
        </div>
        <div class="ap-editor-extra">
-        <div class="admin-field"><label for="apActive">Visible in store?</label><div class="admin-select-with-add admin-simple-select"><button type="button" class="admin-search-select" data-simple-select="apActive"><span>Yes, Active</span><span aria-hidden="true">⌄</span></button><select id="apActive" class="admin-native-select"><option value="true">Yes, Active</option><option value="false">No, Hidden</option></select></div></div>
+        <div class="admin-field"><label for="apActive">Visible in store?</label><div class="admin-select-with-add admin-simple-select ap-inline-dropdown-host"><button type="button" class="admin-search-select" data-simple-select="apActive" aria-expanded="false"><span>Yes, Active</span><span aria-hidden="true">⌄</span></button><select id="apActive" class="admin-native-select"><option value="true">Yes, Active</option><option value="false">No, Hidden</option></select></div></div>
        </div>
       </div>
       <div class="admin-actions"><button class="admin-primary" id="apSave" type="submit">Save Product</button><button class="admin-secondary" type="button" onclick="resetAdminProductForm()">Clear Form</button></div>
@@ -1136,38 +1140,36 @@ function updateProductDiscountValue(){
 }
 function openProductDiscountOptions(){
  const input=document.getElementById('apDiscountInput'),wrap=input?.closest('.ap-discount-wrap');if(!input||!wrap)return;
- let menu=wrap.querySelector('.ap-discount-options');if(menu){menu.hidden=false;return;}
- menu=document.createElement('div');menu.className='ap-discount-options';menu.setAttribute('role','listbox');menu.setAttribute('aria-label','Discount percentage options');
- menu.innerHTML=Array.from({length:20},(_,i)=>{const value=(i+1)*5;return '<button type="button" class="ap-discount-option" data-discount="'+value+'">'+value+'%</button>';}).join('');
- wrap.appendChild(menu);
+ let menu=wrap.querySelector('.admin-inline-taxonomy-menu');if(menu){menu.hidden=false;return;}
+ document.querySelectorAll('.admin-inline-taxonomy-menu').forEach(item=>item.remove());
+ menu=document.createElement('div');menu.className='admin-inline-taxonomy-menu';menu.innerHTML='<div class="admin-inline-taxonomy-list"></div>';wrap.appendChild(menu);
+ const list=menu.querySelector('.admin-inline-taxonomy-list');
+ list.innerHTML=Array.from({length:20},(_,i)=>{const value=(i+1)*5;return '<div class="admin-inline-taxonomy-option-row"><button type="button" class="admin-inline-taxonomy-option '+(Number(input.value)===value?'selected':'')+'" data-value="'+value+'">'+value+'%</button></div>';}).join('');
  menu.addEventListener('mousedown',event=>event.preventDefault());
- menu.addEventListener('click',event=>{const option=event.target.closest('[data-discount]');if(!option)return;input.value=option.dataset.discount;updateProductDiscountValue();closeProductDiscountOptions();input.focus({preventScroll:true});});
- const outside=event=>{if(!wrap.contains(event.target))closeProductDiscountOptions();};
- const escape=event=>{if(event.key==='Escape')closeProductDiscountOptions();};
- document.addEventListener('pointerdown',outside,true);document.addEventListener('keydown',escape);
- menu._cleanup=()=>{document.removeEventListener('pointerdown',outside,true);document.removeEventListener('keydown',escape);};
+ menu.addEventListener('click',event=>{const option=event.target.closest('[data-value]');if(!option)return;input.value=option.dataset.value;updateProductDiscountValue();closeProductDiscountOptions();});
 }
+
 function closeProductDiscountOptions(){const menu=document.querySelector('.ap-discount-options');if(!menu)return;menu._cleanup?.();menu.remove();}
 
 function openAdminSimpleSelect(id){
  const select=document.getElementById(id),trigger=document.querySelector('[data-simple-select="'+id+'"]');
  if(!select||!trigger)return;
- const title=id==='apDiscount'?'Product Discount নির্বাচন করুন':'Store Visibility নির্বাচন করুন';
- const backdrop=document.createElement('div');backdrop.className='admin-picker-backdrop show';
- backdrop.innerHTML='<div class="admin-picker" role="dialog" aria-modal="true" aria-label="'+title+'"><div class="admin-picker-head"><strong>'+title+'</strong><button type="button" class="admin-picker-close" aria-label="বন্ধ করুন">×</button></div><div class="admin-picker-list"></div></div>';
- document.body.appendChild(backdrop);
- const list=backdrop.querySelector('.admin-picker-list');
- list.innerHTML=[...select.options].map(option=>'<button type="button" class="admin-picker-option '+(option.value===select.value?'selected':'')+'" data-value="'+escapeHtml(option.value)+'">'+escapeHtml(option.textContent)+(option.value===select.value?' <span aria-hidden="true">✓</span>':'')+'</button>').join('');
- const close=()=>{backdrop.remove();trigger.focus({preventScroll:true});};
- backdrop.addEventListener('click',event=>{
-  if(event.target===backdrop||event.target.closest('.admin-picker-close')){close();return;}
-  const choice=event.target.closest('.admin-picker-option');if(!choice)return;
-  select.value=choice.dataset.value;select.dispatchEvent(new Event('change',{bubbles:true}));syncAdminSimpleSelect(id);close();
- });
- const onKey=event=>{if(event.key==='Escape'&&backdrop.isConnected){close();document.removeEventListener('keydown',onKey);}};
- document.addEventListener('keydown',onKey);
- backdrop.querySelector('.admin-picker-close').focus();
+ const wrapper=trigger.closest('.ap-inline-dropdown-host');if(!wrapper)return;
+ const existing=wrapper.querySelector('.admin-inline-taxonomy-menu');
+ if(existing){existing.remove();trigger.setAttribute('aria-expanded','false');return;}
+ document.querySelectorAll('.admin-inline-taxonomy-menu').forEach(menu=>menu.remove());
+ document.querySelectorAll('[data-simple-select]').forEach(button=>button.setAttribute('aria-expanded','false'));
+ const menu=document.createElement('div');menu.className='admin-inline-taxonomy-menu';menu.innerHTML='<div class="admin-inline-taxonomy-list"></div>';wrapper.appendChild(menu);
+ trigger.setAttribute('aria-expanded','true');
+ const list=menu.querySelector('.admin-inline-taxonomy-list');
+ list.innerHTML=[...select.options].map(option=>'<div class="admin-inline-taxonomy-option-row"><button type="button" class="admin-inline-taxonomy-option '+(option.value===select.value?'selected':'')+'" data-value="'+escapeHtml(option.value)+'">'+escapeHtml(option.textContent)+(option.value===select.value?' <span aria-hidden="true">✓</span>':'')+'</button></div>').join('');
+ const close=()=>{menu.remove();trigger.setAttribute('aria-expanded','false');document.removeEventListener('click',outside);document.removeEventListener('keydown',escapeClose);};
+ const outside=event=>{if(!wrapper.contains(event.target))close();};
+ const escapeClose=event=>{if(event.key==='Escape')close();};
+ list.addEventListener('click',event=>{const choice=event.target.closest('[data-value]');if(!choice)return;select.value=choice.dataset.value;select.dispatchEvent(new Event('change',{bubbles:true}));syncAdminSimpleSelect(id);close();});
+ document.addEventListener('click',outside);document.addEventListener('keydown',escapeClose);
 }
+
 document.addEventListener('click',event=>{const trigger=event.target.closest('[data-simple-select]');if(!trigger)return;event.preventDefault();openAdminSimpleSelect(trigger.dataset.simpleSelect);});
 
 function openProductSearchSelect(id){
