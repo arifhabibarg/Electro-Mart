@@ -767,6 +767,20 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible),[role="button"]:foc
 @keyframes searchCategoryItem{to{opacity:1;transform:translateY(0)}}
 @media(max-width:600px){.searchbar .category-trigger{min-width:105px;max-width:115px;padding:0 7px;font-size:10px;gap:4px}.search-category-inline{width:min(270px,calc(100vw - 20px));max-height:58vh}.search-category-inline .inline-category-option{min-height:40px;padding:8px 9px}}
 @media(prefers-reduced-motion:reduce){.search-category-inline,.search-category-inline .inline-category-option{animation:none!important;opacity:1!important;transform:none!important}}
+
+/* Admin product taxonomy dropdown: fixed trigger with a floating slide-down panel, matching the home search category menu. */
+.ap-category-buttons{position:relative;overflow:visible}
+.ap-category-buttons .admin-field{min-width:0;overflow:visible}
+.ap-category-buttons .admin-select-with-add{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:0;min-width:0;z-index:1}
+.ap-category-buttons .admin-select-with-add .admin-search-select{position:relative;z-index:1;flex:0 0 auto;width:100%;min-height:43px}
+.ap-category-buttons .admin-inline-taxonomy-menu{position:absolute;left:0;right:auto;top:calc(100% + 7px);width:100%;max-height:min(58vh,360px);box-sizing:border-box;overflow:hidden;margin:0;padding:7px;background:#fff;border:1px solid #e8d27a;border-top:3px solid var(--yellow);border-radius:0 0 9px 9px;box-shadow:0 12px 28px #0002;z-index:100;transform-origin:top left;animation:searchCategoryDrop .28s cubic-bezier(.2,.75,.25,1) both}
+.ap-category-buttons .admin-inline-taxonomy-list{display:flex;flex-direction:column;gap:0;max-height:min(calc(58vh - 20px),340px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
+.ap-category-buttons .admin-inline-taxonomy-option-row{display:flex;align-items:center;gap:6px;opacity:0;transform:translateY(-9px);animation:searchCategoryItem .34s cubic-bezier(.2,.75,.25,1) forwards;animation-delay:var(--item-delay,0ms)}
+.ap-category-buttons .admin-inline-taxonomy-option{display:flex;align-items:center;justify-content:space-between;flex:1;min-width:0;width:100%;min-height:42px;padding:9px 12px;border:0;border-bottom:1px solid #f0f0f0;border-radius:0;background:#fff;color:#222;text-align:left;font:inherit;font-size:12px;font-weight:650}
+.ap-category-buttons .admin-inline-taxonomy-option:hover,.ap-category-buttons .admin-inline-taxonomy-option.selected{background:#fff8d9;color:#8a6b00}
+.ap-category-buttons .admin-inline-taxonomy-option.selected{box-shadow:inset 3px 0 var(--yellow)}
+.ap-category-buttons .admin-inline-taxonomy-remove{flex:0 0 30px;width:30px;height:30px}
+@media(prefers-reduced-motion:reduce){.ap-category-buttons .admin-inline-taxonomy-menu,.ap-category-buttons .admin-inline-taxonomy-option-row{animation:none!important;opacity:1!important;transform:none!important}}
 </style>
 </head>
 <body>
