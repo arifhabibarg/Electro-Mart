@@ -1299,7 +1299,7 @@ const canViewOrders=()=>canManageOrders()||['moderator','customer_support','view
 async function refreshAdminAccess(){
  const nav=document.getElementById('adminNavBtn'),panel=document.getElementById('adminPanel');
  if(panel)panel.classList.remove('show');
- if(!currentAuthUser?.id){if(nav){nav.classList.remove('show');nav.style.display='none';}return;}
+ if(!currentAuthUser?.id){if(nav){nav.classList.add('show');nav.style.display='inline-flex';}return;}
  try{
   const {data,error}=await supabaseClient.from('profiles').select('role').eq('id',currentAuthUser.id).maybeSingle();
   if(error)throw error;
@@ -1329,7 +1329,7 @@ function switchAdminTab(button){const id=button?.dataset?.adminTab;if(!id)return
 async function toggleAdminPanel(){
  const panel=document.getElementById('adminPanel');
  if(panel.classList.contains('show')){panel.classList.remove('show');sessionStorage.removeItem('electromart_admin_panel_open');return;}
- if(!currentAuthUser?.id){alert('Please log in first।');return;}
+ if(!currentAuthUser?.id){openAuth();return;}
  const {data:profile,error:profileError}=await supabaseClient.from('profiles').select('role').eq('id',currentAuthUser.id).maybeSingle();
  if(profileError){alert('Role check failed: '+profileError.message);return;}
  currentAdminRole=profile?.role||'customer';
