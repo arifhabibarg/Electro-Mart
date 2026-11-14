@@ -806,7 +806,7 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible),[role="button"]:foc
 .ap-inline-dropdown-host .admin-inline-taxonomy-option.selected{box-shadow:inset 3px 0 var(--yellow)}
 @media(max-width:600px){.ap-discount-stock-row{grid-template-columns:1fr;gap:9px}}
 @media(prefers-reduced-motion:reduce){.ap-inline-dropdown-host .admin-inline-taxonomy-menu,.ap-inline-dropdown-host .admin-inline-taxonomy-option-row{animation:none!important;opacity:1!important;transform:none!important}}
-</style>
+\n.admin-taxonomy-manager{margin:14px 0 18px;padding:14px;border:1px solid #e8d27a;border-radius:9px;background:#fffdf4}.admin-taxonomy-manager-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}.admin-taxonomy-manager-head h4{margin:0;font-size:15px;color:#222}.admin-taxonomy-manager-head p{margin:5px 0 0;color:#777;font-size:11px}.admin-taxonomy-filter{width:100%;max-width:320px;height:39px;margin:0 0 10px;padding:0 10px;border:1px solid #e4c34b;border-radius:6px;background:#fff;font:inherit;font-size:12px}.admin-taxonomy-table-wrap{overflow-x:auto;border:1px solid #eee;border-radius:7px;background:#fff}.admin-taxonomy-table{width:100%;border-collapse:collapse;min-width:520px;font-size:12px}.admin-taxonomy-table th,.admin-taxonomy-table td{padding:10px;text-align:left;border-bottom:1px solid #eee}.admin-taxonomy-table th{background:#f8f5e8;color:#655000;font-weight:800}.admin-taxonomy-actions{display:flex;gap:6px;justify-content:flex-end}.admin-taxonomy-actions button{height:29px;padding:0 10px;border-radius:5px;font-size:11px;font-weight:700}.admin-taxonomy-edit{border:1px solid #d7b000;background:#fff8d5;color:#5e4900}.admin-taxonomy-delete{border:1px solid #efcaca;background:#fff4f4;color:#b42318}.admin-taxonomy-empty{padding:18px;text-align:center;color:#888;font-size:12px}\n</style>
 </head>
 <body>
 
@@ -898,7 +898,7 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible),[role="button"]:foc
      </form>
    </section>
    <div class="admin-tab-content">
-    <section class="admin-card admin-tab-panel" id="adminManageProductsPanel"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><h3>📦 Manage Products</h3><div style="display:flex;gap:7px;flex-wrap:wrap"><button class="admin-secondary" id="adminPriceRecalcBtn" type="button" onclick="recalculateProductPricesFromCosts()" style="display:none">ক্রয়মূল্য অনুযায়ী দাম আপডেট</button><button class="admin-secondary" id="repairProductCodesBtn" type="button" onclick="repairProductCodes()" style="display:none">Product Code ঠিক করুন</button></div></div><div id="adminProductList"><p class="admin-help">Loading...</p></div></section>
+    <section class="admin-card admin-tab-panel" id="adminManageProductsPanel"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><h3>📦 Manage Products</h3><div style="display:flex;gap:7px;flex-wrap:wrap"><button class="admin-secondary" id="adminPriceRecalcBtn" type="button" onclick="recalculateProductPricesFromCosts()" style="display:none">ক্রয়মূল্য অনুযায়ী দাম আপডেট</button><button class="admin-secondary" id="repairProductCodesBtn" type="button" onclick="repairProductCodes()" style="display:none">Product Code ঠিক করুন</button></div></div><section class="admin-taxonomy-manager" id="adminTaxonomyManager"><div class="admin-taxonomy-manager-head"><div><h4>🏷️ Category Management</h4><p>Category, Subcategory ও Brand-এর নাম পরিবর্তন বা মুছুন</p></div><button type="button" class="admin-secondary" id="adminTaxonomyRefresh">↻ Refresh</button></div><div id="adminTaxonomyManagerBody"><p class="admin-help">তালিকা লোড হচ্ছে…</p></div></section><div id="adminProductList"><p class="admin-help">Loading...</p></div></section>
     <section class="admin-card admin-tab-panel" id="adminUserPermissionsPanel" style="margin-top:16px;display:none"><h3>👥 Staff & Role Management — All Members</h3><form id="adminPermissionForm"><div class="admin-field"><label for="newAdminEmail">Registered User Email</label><input id="newAdminEmail" type="email" required placeholder="user@example.com"></div><div class="admin-field" style="margin-top:12px"><label for="newStaffRole">Assign Role</label><div class="admin-select-with-add"><button type="button" class="admin-search-select" data-role-select="newStaffRole"><span>Customer (Remove Staff Access)</span><span>⌄</span></button><select id="newStaffRole" class="admin-native-select" required><option value="customer">Customer (Remove Staff Access)</option><option value="product_manager">Product Manager</option><option value="order_manager">Order Manager</option><option value="delivery_manager">Delivery Manager</option><option value="moderator">Moderator</option><option value="customer_support">Customer Support</option><option value="inventory_manager">Inventory Manager</option><option value="marketing_manager">Marketing Manager</option><option value="viewer">Viewer</option><option value="admin">Admin</option><option value="super_admin">Super Admin</option></select></div></div><div class="admin-actions"><button class="admin-primary" type="submit">Save Role</button></div><p class="admin-msg" id="permissionMessage"></p></form><div id="adminPermissionList"></div><p class="admin-help">সব নিবন্ধিত মেম্বার এখানে দেখা যাবে। শুধু Admin ও Super Admin তালিকা দেখতে এবং Role/অনুমতি পরিবর্তন করতে পারবেন। Admin, Super Admin Role দিতে পারবেন শুধু Super Admin।</p></section>
     <section class="admin-card admin-tab-panel" id="adminOrdersPanel" style="margin-top:16px"><h3>🧾 Order Management</h3><div id="adminOrdersList"><p class="admin-help">Loading orders...</p></div></section>
     <section class="admin-card admin-tab-panel" id="adminReturnsPanel"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><h3>↩️ Return / Replacement Requests</h3><button class="admin-secondary" type="button" onclick="loadAdminReturnRequests()">রিফ্রেশ</button></div><p class="admin-help">গ্রাহকের আবেদন যাচাই করে Approve/Reject করুন। পণ্য হাতে পাওয়ার পর Received, আর টাকা ফেরত বা নতুন পণ্য পাঠানো সম্পন্ন হলে Refund/Replacement Completed নির্বাচন করুন।</p><div id="adminReturnRequests"><p class="admin-help">আবেদন লোড হচ্ছে...</p></div></section><section class="admin-card admin-tab-panel" id="adminReplacementRecordsPanel"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><h3>📄 রিপ্লেসমেন্ট ডকুমেন্ট ও গ্রাহক প্রোফাইল</h3><button class="admin-secondary" type="button" onclick="loadReplacementRecords()">রেকর্ড রিফ্রেশ</button></div><p class="admin-help">প্রতিটি গ্রাহকের সব রিপ্লেসমেন্ট ইতিহাস আলাদা প্রোফাইলে সংরক্ষিত থাকবে। ডকুমেন্ট প্রিন্ট বা PDF হিসেবে সংরক্ষণ করা যাবে।</p><input id="replacementRecordSearch" type="search" maxlength="160" placeholder="গ্রাহকের নাম, ফোন, ইমেইল, অর্ডার বা পণ্যের নাম দিয়ে খুঁজুন" oninput="filterReplacementRecordProfiles()" style="width:100%;margin:8px 0 14px"><div id="replacementRecordProfiles"><p class="admin-help">রেকর্ড লোড হচ্ছে...</p></div></section>
@@ -1231,7 +1231,7 @@ function openAdminSimpleSelect(id){
 
 document.addEventListener('click',event=>{const trigger=event.target.closest('[data-simple-select]');if(!trigger)return;event.preventDefault();openAdminSimpleSelect(trigger.dataset.simpleSelect);});
 
-async async function saveInlineProductCategory(id,input,button,select,menu){
+async function saveInlineProductCategory(id,input,button,select,menu){
  const types={apCategory:'category',apSubcategory:'subcategory',apBrand:'brand'},type=types[id],labels={category:'Category',subcategory:'Subcategory',brand:'Brand'},category=document.getElementById('apCategory')?.value||'',clean=input.value.trim();
  if(!clean){input.focus();input.classList.add('invalid');return;}
  if(!canAddProducts()&&!canEditProductDetails()){adminToast('আপনার Category যোগ করার অনুমতি নেই।','warning');return;}
@@ -1325,7 +1325,7 @@ async function refreshAdminAccess(){
   setId('adminOrdersCard',canViewOrders()?'block':'none');
  }catch(e){console.error('Admin access check failed:',e);if(nav){nav.classList.remove('show');nav.style.display='none';}}
 }
-function switchAdminTab(button){const id=button?.dataset?.adminTab;if(!id)return;document.querySelectorAll("#adminPanel .admin-tab-panel").forEach(p=>p.classList.toggle("active",p.id===id));document.querySelectorAll("#adminPanel .admin-menu button").forEach(b=>b.classList.toggle("active",b===button));const target=document.getElementById(id);if(target)target.scrollTop=0;if(id==="adminReplacementRecordsPanel")loadReplacementRecords();}
+function switchAdminTab(button){const id=button?.dataset?.adminTab;if(!id)return;document.querySelectorAll("#adminPanel .admin-tab-panel").forEach(p=>p.classList.toggle("active",p.id===id));document.querySelectorAll("#adminPanel .admin-menu button").forEach(b=>b.classList.toggle("active",b===button));const target=document.getElementById(id);if(target)target.scrollTop=0;if(id==="adminReplacementRecordsPanel")loadReplacementRecords();if(id==="adminManageProductsPanel")loadAdminTaxonomyManager();}
 async function toggleAdminPanel(){
  const panel=document.getElementById('adminPanel');
  if(panel.classList.contains('show')){panel.classList.remove('show');sessionStorage.removeItem('electromart_admin_panel_open');return;}
@@ -1442,7 +1442,72 @@ async function recalculateProductPricesFromCosts(){
  }catch(error){alert('দাম আপডেট হয়নি: '+(error.message||error));}
  finally{if(button){button.disabled=false;button.textContent='ক্রয়মূল্য অনুযায়ী দাম আপডেট';}}
 }
-async function loadAdminProducts(){
+async let adminTaxonomyManagerRows=[];
+async function loadAdminTaxonomyManager(){
+ const host=document.getElementById('adminTaxonomyManagerBody');if(!host)return;
+ if(!canEditProductDetails()&&!isAdminRole()){host.innerHTML='<p class="admin-help">Category পরিবর্তনের অনুমতি নেই।</p>';return;}
+ host.innerHTML='<p class="admin-help">তালিকা লোড হচ্ছে…</p>';
+ const {data,error}=await supabaseClient.from('product_taxonomy').select('id,type,category,name').order('type').order('category').order('name');
+ if(error){host.innerHTML='<p class="admin-help">তালিকা লোড হয়নি: '+escapeHtml(error.message)+'</p>';return;}
+ adminTaxonomyManagerRows=data||[];
+ const cats=[...new Set(adminTaxonomyManagerRows.map(x=>x.type==='category'?x.name:x.category).filter(Boolean))].sort();
+ const filter=document.getElementById('adminTaxonomyCategoryFilter')?.value||'';
+ host.innerHTML='<select class="admin-taxonomy-filter" id="adminTaxonomyCategoryFilter"><option value="">সব Category</option>'+cats.map(x=>'<option value="'+escapeHtml(x)+'" '+(x===filter?'selected':'')+'>'+escapeHtml(x)+'</option>').join('')+'</select><div class="admin-taxonomy-table-wrap"><table class="admin-taxonomy-table"><thead><tr><th>ধরন</th><th>নাম</th><th>Category</th><th style="text-align:right">কাজ</th></tr></thead><tbody id="adminTaxonomyRows"></tbody></table></div>';
+ const draw=()=>{const selected=document.getElementById('adminTaxonomyCategoryFilter')?.value||'',rows=adminTaxonomyManagerRows.filter(x=>!selected||(x.type==='category'?x.name===selected:x.category===selected));const body=document.getElementById('adminTaxonomyRows');if(!body)return;body.innerHTML=rows.length?rows.map(x=>'<tr><td>'+({category:'Category',subcategory:'Subcategory',brand:'Brand'}[x.type]||x.type)+'</td><td><strong>'+escapeHtml(x.name)+'</strong></td><td>'+escapeHtml(x.category||'—')+'</td><td><div class="admin-taxonomy-actions"><button type="button" class="admin-taxonomy-edit" data-tax-edit="'+escapeHtml(x.id)+'">Edit</button><button type="button" class="admin-taxonomy-delete" data-tax-delete="'+escapeHtml(x.id)+'">Delete</button></div></td></tr>').join(''):'<tr><td colspan="4" class="admin-taxonomy-empty">কোনো সংরক্ষিত Category/Subcategory/Brand নেই</td></tr>';};
+ draw();
+ document.getElementById('adminTaxonomyCategoryFilter')?.addEventListener('change',draw);
+}
+async function editAdminTaxonomyItem(id){
+ const item=adminTaxonomyManagerRows.find(x=>String(x.id)===String(id));if(!item)return;
+ if(!canEditProductDetails()&&!isAdminRole()){adminToast('আপনার Edit করার অনুমতি নেই।','warning');return;}
+ const next=(prompt('নতুন '+({category:'Category',subcategory:'Subcategory',brand:'Brand'}[item.type]||'নাম')+' লিখুন:',item.name)||'').trim();
+ if(!next||next===item.name)return;
+ let duplicate=supabaseClient.from('product_taxonomy').select('id').eq('type',item.type).ilike('name',next);duplicate=item.type==='category'?duplicate.is('category',null):duplicate.eq('category',item.category);
+ const {data:exists,error:checkError}=await duplicate.neq('id',item.id).maybeSingle();
+ if(checkError){adminToast('নাম যাচাই করা যায়নি: '+checkError.message,'error');return;}
+ if(exists){adminToast('এই নামটি আগে থেকেই আছে।','warning');return;}
+ const {error}=await supabaseClient.from('product_taxonomy').update({name:next}).eq('id',item.id);
+ if(error){adminToast('নাম পরিবর্তন হয়নি: '+error.message,'error');return;}
+ const field=item.type==='category'?'category':item.type;
+ let productUpdate=supabaseClient.from('products').update({[field]:next});
+ productUpdate=item.type==='category'?productUpdate.eq('category',item.name):productUpdate.eq('category',item.category).eq(field,item.name);
+ const {error:productError}=await productUpdate;
+ if(productError){adminToast('Taxonomy নাম বদলেছে, কিন্তু পণ্যের তথ্য আপডেট হয়নি: '+productError.message,'error');}
+ if(item.type==='category'){
+  const {error:childError}=await supabaseClient.from('product_taxonomy').update({category:next}).eq('category',item.name).neq('type','category');
+  if(childError)adminToast('Subcategory/Brand-এর parent Category আপডেট হয়নি: '+childError.message,'warning');
+  const d=readCustomTaxonomy();d.categories=(d.categories||[]).map(x=>x===item.name?next:x);if(d.subcategories[item.name]){d.subcategories[next]=d.subcategories[item.name];delete d.subcategories[item.name];}if(d.brands[item.name]){d.brands[next]=d.brands[item.name];delete d.brands[item.name];}saveCustomTaxonomy(d);
+ }else{
+  const d=readCustomTaxonomy(),key=item.type==='subcategory'?'subcategories':'brands';d[key][item.category]=(d[key][item.category]||[]).map(x=>x===item.name?next:x);saveCustomTaxonomy(d);
+ }
+ await loadAdminProductTaxonomy();await loadAdminTaxonomyManager();if(typeof loadAdminProducts==='function')await loadAdminProducts();
+ adminToast('নাম সফলভাবে পরিবর্তন হয়েছে।','success');
+}
+async function deleteAdminTaxonomyItem(id){
+ const item=adminTaxonomyManagerRows.find(x=>String(x.id)===String(id));if(!item)return;
+ if(!canEditProductDetails()&&!isAdminRole()){adminToast('আপনার Delete করার অনুমতি নেই।','warning');return;}
+ const field=item.type==='category'?'category':item.type;
+ let q=supabaseClient.from('products').select('id',{count:'exact',head:true});q=item.type==='category'?q.eq('category',item.name):q.eq('category',item.category).eq(field,item.name);
+ const {count,error:countError}=await q;
+ if(countError){adminToast('ব্যবহৃত পণ্য যাচাই করা যায়নি: '+countError.message,'error');return;}
+ if(count>0){adminToast('এই নামটি '+count+'টি পণ্যে ব্যবহৃত হচ্ছে। আগে Manage Products থেকে পণ্যগুলোর Category/Subcategory/Brand পরিবর্তন করুন।','warning');return;}
+ if(item.type==='category'){
+  const {count:childCount,error:childError}=await supabaseClient.from('product_taxonomy').select('id',{count:'exact',head:true}).eq('category',item.name);
+  if(childError){adminToast('সংশ্লিষ্ট Subcategory/Brand যাচাই করা যায়নি।','error');return;}
+  if(childCount>0){adminToast('এই Category-তে '+childCount+'টি Subcategory/Brand আছে। আগে সেগুলো মুছুন।','warning');return;}
+ }
+ if(!confirm('“'+item.name+'” '+({category:'Category',subcategory:'Subcategory',brand:'Brand'}[item.type])+' স্থায়ীভাবে মুছবেন?'))return;
+ const {error}=await supabaseClient.from('product_taxonomy').delete().eq('id',item.id);
+ if(error){adminToast('Delete করা যায়নি: '+error.message,'error');return;}
+ const d=readCustomTaxonomy(),p=window.electroPersistentTaxonomy||{},key=item.type==='subcategory'?'subcategories':'brands';
+ if(item.type==='category'){d.categories=(d.categories||[]).filter(x=>x!==item.name);delete d.subcategories[item.name];delete d.brands[item.name];delete PRODUCT_TAXONOMY[item.name];p.categories=(p.categories||[]).filter(x=>x!==item.name);}
+ else{d[key][item.category]=(d[key][item.category]||[]).filter(x=>x!==item.name);if(PRODUCT_TAXONOMY[item.category])PRODUCT_TAXONOMY[item.category][item.type==='subcategory'?'subs':'brands']=(PRODUCT_TAXONOMY[item.category][item.type==='subcategory'?'subs':'brands']||[]).filter(x=>x!==item.name);if(p[key]?.[item.category])p[key][item.category]=p[key][item.category].filter(x=>x!==item.name);}
+ saveCustomTaxonomy(d);await loadAdminProductTaxonomy();await loadAdminTaxonomyManager();if(typeof loadAdminProducts==='function')await loadAdminProducts();renderSideCategories();
+ adminToast('তালিকা থেকে সফলভাবে মুছে ফেলা হয়েছে।','success');
+}
+document.addEventListener('click',event=>{const edit=event.target.closest('[data-tax-edit]'),del=event.target.closest('[data-tax-delete]');if(edit)editAdminTaxonomyItem(edit.dataset.taxEdit);if(del)deleteAdminTaxonomyItem(del.dataset.taxDelete);});
+document.addEventListener('click',event=>{if(event.target?.id==='adminTaxonomyRefresh')loadAdminTaxonomyManager();});
+function loadAdminProducts(){
  const box=document.getElementById('adminProductList');box.innerHTML='<p class="admin-help">Loading...</p>';
  const {data,error}=await supabaseClient.from('products').select('id,product_code,name,price,stock,image_url,is_active,category,subcategory,brand,created_at,last_updated_at').order('created_at',{ascending:false}).range(0,999);
  if(error){box.innerHTML='<p class="admin-help">Product ANo could not: '+escapeHtml(error.message)+'</p>';return;}
