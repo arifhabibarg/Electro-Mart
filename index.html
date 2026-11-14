@@ -848,7 +848,7 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible),[role="button"]:foc
        </div>
        <div class="ap-editor-extra">
         <div class="admin-field"><label for="apStock">Stock *</label><div class="admin-stock-stepper"><button type="button" class="admin-stock-step" aria-label="স্টক কমান" onclick="changeAdminStock(-1)">−</button><input id="apStock" type="number" min="0" step="1" required value="1" inputmode="numeric"><button type="button" class="admin-stock-step" aria-label="স্টক বাড়ান" onclick="changeAdminStock(1)">+</button></div></div>
-        <div class="admin-field"><label for="apDiscount">Product Discount</label><div class="admin-select-with-add admin-simple-select"><button type="button" class="admin-search-select" data-simple-select="apDiscount"><span>No Discount (0%)</span><span aria-hidden="true">⌄</span></button><select id="apDiscount" class="admin-native-select"><option value="0">No Discount (0%)</option><option value="5">5% OFF</option><option value="10">10% OFF</option><option value="15">15% OFF</option><option value="20">20% OFF</option><option value="25">25% OFF</option><option value="30">30% OFF</option><option value="35">35% OFF</option><option value="40">40% OFF</option><option value="45">45% OFF</option><option value="50">50% OFF</option><option value="60">60% OFF</option><option value="70">70% OFF</option></select></div></div>
+        <div class="admin-field"><label for="apDiscountInput">Product Discount (%)</label><input id="apDiscountInput" type="number" min="0" max="100" step="0.01" value="5" inputmode="decimal" autocomplete="off" placeholder="যেমন: 8" oninput="updateProductDiscountValue()"><small class="admin-help">যেকোনো ছাড়ের শতাংশ লিখুন—যেমন ৫, ৮, ১১ বা ১২.৫।</small><select id="apDiscount" class="admin-native-select" aria-hidden="true" tabindex="-1"><option value="0">0%</option><option value="5" selected>5%</option><option value="10">10%</option></select></div>
         <div class="admin-field"><label for="apActive">Visible in store?</label><div class="admin-select-with-add admin-simple-select"><button type="button" class="admin-search-select" data-simple-select="apActive"><span>Yes, Active</span><span aria-hidden="true">⌄</span></button><select id="apActive" class="admin-native-select"><option value="true">Yes, Active</option><option value="false">No, Hidden</option></select></div></div>
        </div>
       </div>
@@ -1098,7 +1098,15 @@ function syncAdminSimpleSelect(id){
  const option=select.options[select.selectedIndex];
  button.querySelector('span').textContent=option?.textContent||'Select';
 }
-function syncAllAdminSimpleSelects(){['apDiscount','apActive'].forEach(syncAdminSimpleSelect);}
+function syncAllAdminSimpleSelects(){['apActive'].forEach(syncAdminSimpleSelect);}
+function updateProductDiscountValue(){
+ const input=document.getElementById('apDiscountInput'),select=document.getElementById('apDiscount');if(!input||!select)return;
+ const raw=input.value.trim();if(raw===''){select.value='';return;}
+ const value=Number(raw);if(!Number.isFinite(value)||value<0||value>100)return;
+ let option=[...select.options].find(item=>Number(item.value)===value);
+ if(!option){option=new Option(String(value)+'% OFF',String(value));select.add(option);}
+ select.value=String(value);
+}
 function openAdminSimpleSelect(id){
  const select=document.getElementById(id),trigger=document.querySelector('[data-simple-select="'+id+'"]');
  if(!select||!trigger)return;
@@ -1123,49 +1131,32 @@ document.addEventListener('click',event=>{const trigger=event.target.closest('[d
 function openProductSearchSelect(id){
  const select=document.getElementById(id),trigger=document.querySelector('[data-search-select="'+id+'"]');
  if(!select||!trigger)return;
- const wrapper=trigger.closest('.admin-select-with-add');
- if(!wrapper)return;
+ const wrapper=trigger.closest('.admin-select-with-add');if(!wrapper)return;
  const existing=wrapper.querySelector('.admin-inline-taxonomy-menu');
  if(existing){existing.remove();trigger.setAttribute('aria-expanded','false');return;}
- document.querySelectorAll('.admin-inline-taxonomy-menu').forEach(menu=>{menu.remove();});
+ document.querySelectorAll('.admin-inline-taxonomy-menu').forEach(menu=>menu.remove());
  document.querySelectorAll('[data-search-select]').forEach(button=>button.setAttribute('aria-expanded','false'));
- const labels={apCategory:'Category নির্বাচন করুন',apSubcategory:'Subcategory নির্বাচন করুন',apBrand:'Brand নির্বাচন করুন'};
  const types={apCategory:'category',apSubcategory:'subcategory',apBrand:'brand'};
  if(!types[id])return;
- const menu=document.createElement('div');
- menu.className='admin-inline-taxonomy-menu';
- menu.innerHTML='<div class="admin-inline-taxonomy-controls"><input class="admin-inline-taxonomy-search" type="search" placeholder="Search করুন..." autocomplete="off" aria-label="Search '+labels[id]+'"><button type="button" class="admin-inline-taxonomy-add" aria-label="নতুন যোগ করুন" title="নতুন যোগ করুন">＋</button></div><div class="admin-inline-taxonomy-list"></div>';
- wrapper.appendChild(menu);
- trigger.setAttribute('aria-expanded','true');
- const search=menu.querySelector('.admin-inline-taxonomy-search'),list=menu.querySelector('.admin-inline-taxonomy-list');
+ const menu=document.createElement('div');menu.className='admin-inline-taxonomy-menu';
+ menu.innerHTML='<div class="admin-inline-taxonomy-list"></div>';
+ wrapper.appendChild(menu);trigger.setAttribute('aria-expanded','true');
+ const list=menu.querySelector('.admin-inline-taxonomy-list');
  function draw(){
-  const q=search.value.trim().toLowerCase();
-  const opts=[...select.options].filter(o=>o.value&&o.textContent.toLowerCase().includes(q));
-  list.innerHTML=opts.length?opts.map(o=>'<div class="admin-inline-taxonomy-option-row"><button type="button" class="admin-inline-taxonomy-option '+(o.value===select.value?'selected':'')+'" data-value="'+escapeHtml(o.value)+'">'+escapeHtml(o.textContent)+'</button>'+(isCustomTaxonomyOption(types[id],document.getElementById('apCategory')?.value||'',o.value)?'<button type="button" class="admin-inline-taxonomy-remove" data-remove="'+escapeHtml(o.value)+'" title="Remove" aria-label="Remove '+escapeHtml(o.value)+'">×</button>':'')+'</div>').join(''):'<div class="admin-picker-empty">কোনো ফলাফল পাওয়া যায়নি</div>';
+  const opts=[...select.options].filter(option=>option.value);
+  list.innerHTML=opts.length?opts.map(option=>'<div class="admin-inline-taxonomy-option-row"><button type="button" class="admin-inline-taxonomy-option '+(option.value===select.value?'selected':'')+'" data-value="'+escapeHtml(option.value)+'">'+escapeHtml(option.textContent)+(option.value===select.value?' <span aria-hidden="true">✓</span>':'')+'</button>'+(isCustomTaxonomyOption(types[id],document.getElementById('apCategory')?.value||'',option.value)?'<button type="button" class="admin-inline-taxonomy-remove" data-remove="'+escapeHtml(option.value)+'" title="Remove" aria-label="Remove '+escapeHtml(option.value)+'">×</button>':'')+'</div>').join(''):'<div class="admin-picker-empty">কোনো অপশন নেই</div>';
  }
  function close(){menu.remove();trigger.setAttribute('aria-expanded','false');document.removeEventListener('click',outsideClick);document.removeEventListener('keydown',escapeClose);}
- function outsideClick(event){if(!wrapper.contains(event.target)){close();}}
+ function outsideClick(event){if(!wrapper.contains(event.target))close();}
  function escapeClose(event){if(event.key==='Escape')close();}
  draw();
  list.addEventListener('click',event=>{
   const remove=event.target.closest('[data-remove]');
   if(remove){event.stopPropagation();removeCustomTaxonomyOption(types[id],document.getElementById('apCategory')?.value||'',remove.dataset.remove);draw();return;}
-  const option=event.target.closest('[data-value]');
-  if(!option)return;
-  select.value=option.dataset.value;
-  select.dispatchEvent(new Event('change',{bubbles:true}));
-  syncProductSearchSelect(id);
-  close();
+  const choice=event.target.closest('[data-value]');if(!choice)return;
+  select.value=choice.dataset.value;select.dispatchEvent(new Event('change',{bubbles:true}));syncProductSearchSelect(id);close();
  });
- menu.querySelector('.admin-inline-taxonomy-add').addEventListener('click',()=>{
-  addProductDropdownOption(types[id]);
-  syncProductSearchSelect(id);
-  draw();
- });
- search.addEventListener('input',draw);
- document.addEventListener('click',outsideClick);
- document.addEventListener('keydown',escapeClose);
- search.focus();
+ document.addEventListener('click',outsideClick);document.addEventListener('keydown',escapeClose);
 }
 document.addEventListener('click',function(event){const trigger=event.target.closest('[data-search-select]');if(!trigger)return;event.preventDefault();openProductSearchSelect(trigger.dataset.searchSelect);});
 function addProductDropdownOption(type){const ids={category:'apCategory',subcategory:'apSubcategory',brand:'apBrand'},labels={category:'Category',subcategory:'Subcategory',brand:'Brand'},select=document.getElementById(ids[type]),category=document.getElementById('apCategory')?.value||'';if(!select)return;if(type!=='category'&&!category){adminToast('আগে Category নির্বাচন করুন।','warning');return;}const overlay=document.createElement('div');overlay.className='em-add-overlay';overlay.innerHTML='<div class="em-add-dialog" role="dialog" aria-modal="true"><div class="em-add-top"><span class="em-add-mark">＋</span><div><strong>নতুন '+labels[type]+' যোগ করুন</strong><small>তালিকায় নতুন নাম যুক্ত করুন</small></div><button type="button" class="em-add-close" aria-label="বন্ধ করুন">×</button></div><label class="em-add-label">'+labels[type]+'-এর নাম</label><input class="em-add-input" type="text" maxlength="80" placeholder="নাম লিখুন..." autocomplete="off"><div class="em-add-actions"><button type="button" class="em-add-cancel">বাতিল</button><button type="button" class="em-add-save">＋ যোগ করুন</button></div></div>';document.body.appendChild(overlay);const input=overlay.querySelector('.em-add-input'),close=()=>overlay.remove(),save=()=>{const clean=input.value.trim();if(!clean){input.focus();input.classList.add('invalid');return;}const existing=[...select.options].find(o=>o.value.toLowerCase()===clean.toLowerCase());if(existing){select.value=existing.value;}else{select.add(new Option(clean,clean));select.value=clean;const d=readCustomTaxonomy();if(type==='category'){d.categories=[...new Set([...(d.categories||[]),clean])];PRODUCT_TAXONOMY[clean]={subs:[],brands:[]};}else{const key=type==='subcategory'?'subcategories':'brands';d[key][category]=[...new Set([...(d[key][category]||[]),clean])];if(!PRODUCT_TAXONOMY[category])PRODUCT_TAXONOMY[category]={subs:[],brands:[]};const target=type==='subcategory'?'subs':'brands';PRODUCT_TAXONOMY[category][target]=[...new Set([...(PRODUCT_TAXONOMY[category][target]||[]),clean])];}saveCustomTaxonomy(d);}if(type==='category')updateProductSubcategories();syncProductSearchSelect(ids[type]);renderSideCategories();close();};overlay.querySelector('.em-add-close').onclick=close;overlay.querySelector('.em-add-cancel').onclick=close;overlay.querySelector('.em-add-save').onclick=save;overlay.addEventListener('click',e=>{if(e.target===overlay)close();});input.addEventListener('keydown',e=>{if(e.key==='Enter')save();if(e.key==='Escape')close();});input.addEventListener('input',()=>input.classList.remove('invalid'));input.focus();}
@@ -1436,9 +1427,9 @@ function calculateProductSalePrice(){
  const costInput=document.getElementById('apCostPrice')?.value.trim(),percentInput=document.getElementById('apProfitPercent')?.value.trim(),priceInput=document.getElementById('apPrice');
  if(!priceInput)return;
  if(costInput===''||percentInput===''){priceInput.value='';return;}
- const rawCost=Number(costInput),percent=editingProductId?Number(percentInput):20;const cost=rawCost;
+ const cost=Number(costInput),percent=Number(percentInput);
  if(!Number.isFinite(cost)||cost<0||!Number.isFinite(percent)||percent<0){priceInput.value='';return;}
- priceInput.value=(cost*(1+percent/100)).toFixed(2);if(!editingProductId){const discount=document.getElementById('apDiscount');if(discount)discount.value='5';const profit=document.getElementById('apProfitPercent');if(profit)profit.value='20';}
+ priceInput.value=(cost*(1+percent/100)).toFixed(2);
 }
 
 let editingProductImageUrls=[];
@@ -1507,7 +1498,7 @@ document.getElementById('apImagePreviews')?.addEventListener('click',async event
 document.getElementById('apImage')?.addEventListener('change',setProductImageFilesChanged);
 
 function resetAdminProductForm(){
- editingProductId=null;editingProductImageUrls=[];selectedProductCoverUrl='';pendingProductPreviewUrls.forEach(url=>URL.revokeObjectURL(url));pendingProductPreviewUrls=[];document.getElementById('adminProductForm').reset();document.getElementById('apSourceUrl').value='';document.getElementById('apCostPrice').value='';document.getElementById('apProfitPercent').value='20';document.getElementById('apStock').value=1;document.getElementById('apDiscount').value='0';document.getElementById('apSubcategory').innerHTML='<option value="">First Category Select</option>';document.getElementById('apBrand').innerHTML='<option value="">First Category Select</option>';['apCategory','apSubcategory','apBrand'].forEach(syncProductSearchSelect);syncAllAdminSimpleSelects();
+ editingProductId=null;editingProductImageUrls=[];selectedProductCoverUrl='';pendingProductPreviewUrls.forEach(url=>URL.revokeObjectURL(url));pendingProductPreviewUrls=[];document.getElementById('adminProductForm').reset();document.getElementById('apSourceUrl').value='';document.getElementById('apCostPrice').value='';document.getElementById('apProfitPercent').value='20';document.getElementById('apStock').value=1;document.getElementById('apDiscount').value='5';document.getElementById('apDiscountInput').value='5';document.getElementById('apSubcategory').innerHTML='<option value="">First Category Select</option>';document.getElementById('apBrand').innerHTML='<option value="">First Category Select</option>';['apCategory','apSubcategory','apBrand'].forEach(syncProductSearchSelect);syncAllAdminSimpleSelects();
  document.getElementById('productFormTitle').textContent='➕ Add New Product';
  document.getElementById('apSave').textContent='Save Product';renderProductImagePreviews();adminMessage('apMessage','');
 }
@@ -1515,7 +1506,7 @@ async function editAdminProduct(id){
  if(!canEditProductDetails()){alert('Product editing is not allowed for this role.');return;}
  const {data,error}=await supabaseClient.from('products').select('*').eq('id',id).single();
  if(error||!data){adminMessage('apMessage','Product found could not: '+(error?.message||''),'error');return;}
- editingProductId=id;const editorForm=document.getElementById('adminProductForm');if(editorForm?.parentElement)editorForm.parentElement.style.display='block';const editorTab=document.querySelector('[data-admin-tab="adminProductManagementPanel"]');if(editorTab)switchAdminTab(editorTab);document.getElementById('productFormTitle').textContent='✏️ Edit Product';editingProductImageUrls=[...new Set([data.image_url,...(Array.isArray(data.image_urls)?data.image_urls:[])].filter(Boolean))].slice(0,8);selectedProductCoverUrl=data.image_url||editingProductImageUrls[0]||'';document.getElementById('apImage').value='';setProductImageFilesChanged();renderProductImagePreviews();document.getElementById('apName').value=data.name||'';document.getElementById('apModel').value=data.model||'';document.getElementById('apDiscount').value=String(data.discount_percent??0);document.getElementById('apPrice').value=data.compare_at_price??data.price??0;const {data:costRow}=await supabaseClient.from('product_costs').select('cost_price,packaging_cost,courier_cost,other_cost').eq('product_id',id).maybeSingle();const fallbackCost=(!costRow?.cost_price&&Number(data.compare_at_price)>0)?Number(data.compare_at_price)/1.2:null;const editCost=costRow?.cost_price??fallbackCost;document.getElementById('apCostPrice').value=editCost!==null?Number(editCost).toFixed(2):'';document.getElementById('apProfitPercent').value=(costRow?.cost_price>0?(((Number(data.compare_at_price??data.price??0)/Number(costRow.cost_price))-1)*100).toFixed(2):fallbackCost!==null?'20':'');const costHelp=document.querySelector('#apCostField .admin-help');if(costHelp)costHelp.textContent=(!costRow?.cost_price&&fallbackCost!==null)?'আগের বিক্রয়মূল্য থেকে ২০% লাভ ধরে আনুমানিক বাজারদর দেখানো হয়েছে; সঠিক বাজারদর হলে পরিবর্তন করুন।':'এখানে অনলাইন বাজারদর দিন; সিস্টেম এই দামের ওপর ২০% যোগ করে বিক্রয়মূল্য এবং ৫% ছাড় হিসাব করবে।';
+ editingProductId=id;const editorForm=document.getElementById('adminProductForm');if(editorForm?.parentElement)editorForm.parentElement.style.display='block';const editorTab=document.querySelector('[data-admin-tab="adminProductManagementPanel"]');if(editorTab)switchAdminTab(editorTab);document.getElementById('productFormTitle').textContent='✏️ Edit Product';editingProductImageUrls=[...new Set([data.image_url,...(Array.isArray(data.image_urls)?data.image_urls:[])].filter(Boolean))].slice(0,8);selectedProductCoverUrl=data.image_url||editingProductImageUrls[0]||'';document.getElementById('apImage').value='';setProductImageFilesChanged();renderProductImagePreviews();document.getElementById('apName').value=data.name||'';document.getElementById('apModel').value=data.model||'';document.getElementById('apDiscount').value=String(data.discount_percent??0);document.getElementById('apDiscountInput').value=String(data.discount_percent??0);document.getElementById('apPrice').value=data.compare_at_price??data.price??0;const {data:costRow}=await supabaseClient.from('product_costs').select('cost_price,packaging_cost,courier_cost,other_cost').eq('product_id',id).maybeSingle();const fallbackCost=(!costRow?.cost_price&&Number(data.compare_at_price)>0)?Number(data.compare_at_price)/1.2:null;const editCost=costRow?.cost_price??fallbackCost;document.getElementById('apCostPrice').value=editCost!==null?Number(editCost).toFixed(2):'';document.getElementById('apProfitPercent').value=(costRow?.cost_price>0?(((Number(data.compare_at_price??data.price??0)/Number(costRow.cost_price))-1)*100).toFixed(2):fallbackCost!==null?'20':'');const costHelp=document.querySelector('#apCostField .admin-help');if(costHelp)costHelp.textContent=(!costRow?.cost_price&&fallbackCost!==null)?'আগের বিক্রয়মূল্য থেকে ২০% লাভ ধরে আনুমানিক বাজারদর দেখানো হয়েছে; সঠিক বাজারদর হলে পরিবর্তন করুন।':'এখানে অনলাইন বাজারদর দিন; সিস্টেম এই দামের ওপর ২০% যোগ করে বিক্রয়মূল্য এবং ৫% ছাড় হিসাব করবে।';
  document.getElementById('apSourceUrl').value='';if(canViewProductCosts()){const {data:sourceRow}=await supabaseClient.from('product_sources').select('source_url').eq('product_id',id).maybeSingle();document.getElementById('apSourceUrl').value=sourceRow?.source_url||'';}document.getElementById('apStock').value=data.stock??0;document.getElementById('apCategory').value=data.category||'';updateProductSubcategories(data.subcategory||'',data.brand||'');
  document.getElementById('apDescription').value=data.description||'';document.getElementById('apFullDescription').value=data.full_description||'';document.getElementById('apActive').value=String(data.is_active);syncAllAdminSimpleSelects();
  document.getElementById('apImage').value='';document.getElementById('productFormTitle').textContent='✏️ Product Edit Please';
@@ -2590,6 +2581,20 @@ function printReplacementRecord(id){
 .admin-inline-taxonomy-option.selected{box-shadow:inset 3px 0 var(--yellow)}
 .admin-inline-taxonomy-remove{width:30px;height:30px;flex:0 0 30px;border:1px solid #f1c7c7;border-radius:5px;background:#fff5f5;color:#c62828;font-size:19px}
 @keyframes adminTaxonomySlideDown{from{opacity:0;transform:translateY(-9px) scaleY(.96)}to{opacity:1;transform:translateY(0) scaleY(1)}}
+@media(prefers-reduced-motion:reduce){.admin-inline-taxonomy-menu{animation:none!important}}
+
+
+/* Product editor category choices: trigger-anchored slide-down list, no search field or modal. */
+.ap-category-buttons .admin-select-with-add{display:flex;flex-direction:column;align-items:stretch;position:relative;gap:0}
+.admin-inline-taxonomy-menu{display:block;width:100%;margin-top:6px;padding:7px;background:#fff;border:1px solid #e5c000;border-radius:0 0 8px 8px;box-shadow:0 10px 22px #0002;animation:adminCategorySlideDown .26s cubic-bezier(.2,.75,.25,1) both;transform-origin:top;z-index:3}
+.admin-inline-taxonomy-list{display:flex;flex-direction:column;gap:5px;max-height:240px;overflow:auto}
+.admin-inline-taxonomy-option-row{display:flex;align-items:center;gap:6px}
+.admin-inline-taxonomy-option{flex:1;min-width:0;width:100%;padding:11px 12px;border:1px solid #eee;border-radius:6px;background:#fafafa;color:#222;text-align:left;font:inherit;font-size:13px;font-weight:650}
+.admin-inline-taxonomy-option:hover,.admin-inline-taxonomy-option.selected{background:#fff5c7;border-color:#d5b000}
+.admin-inline-taxonomy-option.selected{box-shadow:inset 3px 0 #f5c400}
+.admin-inline-taxonomy-remove{width:32px;height:32px;flex:0 0 32px;border:1px solid #f1c7c7;border-radius:5px;background:#fff5f5;color:#c62828;font-size:19px}
+@keyframes adminCategorySlideDown{from{opacity:0;transform:translateY(-12px) scaleY(.94)}to{opacity:1;transform:translateY(0) scaleY(1)}}
+#apDiscountInput{width:100%;box-sizing:border-box}
 @media(prefers-reduced-motion:reduce){.admin-inline-taxonomy-menu{animation:none!important}}
 
 </style><div class="head"><h1>ElectroMart</h1><b>পণ্য রিপ্লেসমেন্ট ডকুমেন্ট</b><div class="muted">রেকর্ড আইডি: '+esc(r.id)+'</div></div><table>'+rows.map(([a,b])=>'<tr><td class="label">'+esc(a)+'</td><td>'+esc(b)+'</td></tr>').join('')+'</table><div class="foot">এই ডকুমেন্ট ElectroMart-এর সংরক্ষিত রিপ্লেসমেন্ট রেকর্ড থেকে তৈরি।</div><script>window.onload=()=>window.print()<\/script></html>');
