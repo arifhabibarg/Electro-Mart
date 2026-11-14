@@ -781,6 +781,17 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible),[role="button"]:foc
 .ap-category-buttons .admin-inline-taxonomy-option.selected{box-shadow:inset 3px 0 var(--yellow)}
 .ap-category-buttons .admin-inline-taxonomy-remove{flex:0 0 30px;width:30px;height:30px}
 @media(prefers-reduced-motion:reduce){.ap-category-buttons .admin-inline-taxonomy-menu,.ap-category-buttons .admin-inline-taxonomy-option-row{animation:none!important;opacity:1!important;transform:none!important}}
+
+/* Discount and stock sit between category selectors and product photo upload. */
+.ap-discount-stock-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}
+.ap-discount-wrap{position:relative;min-width:0}
+.ap-discount-wrap>input{width:100%;height:43px;padding:0 12px;border:1px solid #ddd;border-radius:5px;background:#fff;color:#222}
+.ap-discount-wrap>input:focus{outline:2px solid #f5c40055;border-color:#c6a000}
+.ap-discount-options{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:120;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;max-height:min(48vh,260px);overflow-y:auto;padding:8px;background:#fff;border:1px solid #e5cf70;border-top:3px solid var(--yellow);border-radius:0 0 8px 8px;box-shadow:0 12px 28px #0002;transform-origin:top;animation:searchCategoryDrop .28s cubic-bezier(.2,.75,.25,1) both}
+.ap-discount-option{min-height:37px;border:1px solid #eee;border-radius:5px;background:#fff;color:#222;font:inherit;font-size:12px;font-weight:700;opacity:0;transform:translateY(-7px);animation:searchCategoryItem .34s cubic-bezier(.2,.75,.25,1) forwards}
+.ap-discount-option:hover{background:#fff5c7;border-color:#d5b000;color:#806300}
+@media(max-width:600px){.ap-discount-stock-row{grid-template-columns:1fr;gap:9px}.ap-discount-options{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){.ap-discount-options,.ap-discount-option{animation:none!important;opacity:1!important;transform:none!important}}
 </style>
 </head>
 <body>
@@ -853,6 +864,10 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible),[role="button"]:foc
           <div class="admin-field"><label for="apSubcategory">Subcategory *</label><div class="admin-select-with-add"><button type="button" class="admin-search-select" data-search-select="apSubcategory"><span>First Category Select</span><span>⌄</span></button><select id="apSubcategory" class="admin-native-select"><option value="">First Category Select</option></select></div></div>
           <div class="admin-field"><label for="apBrand">Brand *</label><div class="admin-select-with-add"><button type="button" class="admin-search-select" data-search-select="apBrand"><span>First Category Select</span><span>⌄</span></button><select id="apBrand" class="admin-native-select"><option value="">First Category Select</option></select></div></div>
          </div>
+         <div class="ap-discount-stock-row">
+          <div class="admin-field"><label for="apDiscountInput">Product Discount (%)</label><div class="ap-discount-wrap"><input id="apDiscountInput" type="number" min="0" max="100" step="0.01" value="5" inputmode="decimal" autocomplete="off" placeholder="যেমন: 8" oninput="updateProductDiscountValue()" onfocus="openProductDiscountOptions()"><small class="admin-help">৫%, ১০%, ১৫% থেকে ১০০% বেছে নিন, অথবা নিজের শতাংশ লিখুন।</small></div><select id="apDiscount" class="admin-native-select" aria-hidden="true" tabindex="-1"><option value="0">0%</option><option value="5" selected>5%</option><option value="10">10%</option></select></div>
+          <div class="admin-field"><label for="apStock">Stock *</label><div class="admin-stock-stepper"><button type="button" class="admin-stock-step" aria-label="স্টক কমান" onclick="changeAdminStock(-1)">−</button><input id="apStock" type="number" min="0" step="1" required value="1" inputmode="numeric"><button type="button" class="admin-stock-step" aria-label="স্টক বাড়ান" onclick="changeAdminStock(1)">+</button></div></div>
+         </div>
          <div class="admin-field ap-photo-field"><label>Product Photos (maximum 8)</label><label class="ap-photo-select" for="apImage">＋ Select Product Photos</label><input id="apImage" type="file" accept="image/jpeg,image/png,image/webp" multiple><div id="apImagePreviews" class="product-image-preview-list" aria-live="polite"></div><small class="admin-help">সর্বোচ্চ ৮টি JPG, PNG বা WebP ছবি (প্রতিটি সর্বোচ্চ 5 MB)। আপলোডের আগে ছবি Optimize হবে।</small><small class="product-image-preview-help">থাম্বনেইলে ক্লিক করে Cover Photo নির্বাচন করুন।</small></div>
         </section>
        </div>
@@ -861,8 +876,6 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible),[role="button"]:foc
         <div class="admin-field"><label for="apFullDescription">Full Description</label><textarea id="apFullDescription" maxlength="10000" placeholder="Enter detailed features, usage, compatibility, and other important information."></textarea></div>
        </div>
        <div class="ap-editor-extra">
-        <div class="admin-field"><label for="apStock">Stock *</label><div class="admin-stock-stepper"><button type="button" class="admin-stock-step" aria-label="স্টক কমান" onclick="changeAdminStock(-1)">−</button><input id="apStock" type="number" min="0" step="1" required value="1" inputmode="numeric"><button type="button" class="admin-stock-step" aria-label="স্টক বাড়ান" onclick="changeAdminStock(1)">+</button></div></div>
-        <div class="admin-field"><label for="apDiscountInput">Product Discount (%)</label><input id="apDiscountInput" type="number" min="0" max="100" step="0.01" value="5" inputmode="decimal" autocomplete="off" placeholder="যেমন: 8" oninput="updateProductDiscountValue()"><small class="admin-help">যেকোনো ছাড়ের শতাংশ লিখুন—যেমন ৫, ৮, ১১ বা ১২.৫।</small><select id="apDiscount" class="admin-native-select" aria-hidden="true" tabindex="-1"><option value="0">0%</option><option value="5" selected>5%</option><option value="10">10%</option></select></div>
         <div class="admin-field"><label for="apActive">Visible in store?</label><div class="admin-select-with-add admin-simple-select"><button type="button" class="admin-search-select" data-simple-select="apActive"><span>Yes, Active</span><span aria-hidden="true">⌄</span></button><select id="apActive" class="admin-native-select"><option value="true">Yes, Active</option><option value="false">No, Hidden</option></select></div></div>
        </div>
       </div>
@@ -1121,6 +1134,21 @@ function updateProductDiscountValue(){
  if(!option){option=new Option(String(value)+'% OFF',String(value));select.add(option);}
  select.value=String(value);
 }
+function openProductDiscountOptions(){
+ const input=document.getElementById('apDiscountInput'),wrap=input?.closest('.ap-discount-wrap');if(!input||!wrap)return;
+ let menu=wrap.querySelector('.ap-discount-options');if(menu){menu.hidden=false;return;}
+ menu=document.createElement('div');menu.className='ap-discount-options';menu.setAttribute('role','listbox');menu.setAttribute('aria-label','Discount percentage options');
+ menu.innerHTML=Array.from({length:20},(_,i)=>{const value=(i+1)*5;return '<button type="button" class="ap-discount-option" data-discount="'+value+'">'+value+'%</button>';}).join('');
+ wrap.appendChild(menu);
+ menu.addEventListener('mousedown',event=>event.preventDefault());
+ menu.addEventListener('click',event=>{const option=event.target.closest('[data-discount]');if(!option)return;input.value=option.dataset.discount;updateProductDiscountValue();closeProductDiscountOptions();input.focus({preventScroll:true});});
+ const outside=event=>{if(!wrap.contains(event.target))closeProductDiscountOptions();};
+ const escape=event=>{if(event.key==='Escape')closeProductDiscountOptions();};
+ document.addEventListener('pointerdown',outside,true);document.addEventListener('keydown',escape);
+ menu._cleanup=()=>{document.removeEventListener('pointerdown',outside,true);document.removeEventListener('keydown',escape);};
+}
+function closeProductDiscountOptions(){const menu=document.querySelector('.ap-discount-options');if(!menu)return;menu._cleanup?.();menu.remove();}
+
 function openAdminSimpleSelect(id){
  const select=document.getElementById(id),trigger=document.querySelector('[data-simple-select="'+id+'"]');
  if(!select||!trigger)return;
