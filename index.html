@@ -1442,7 +1442,7 @@ async function recalculateProductPricesFromCosts(){
  }catch(error){alert('দাম আপডেট হয়নি: '+(error.message||error));}
  finally{if(button){button.disabled=false;button.textContent='ক্রয়মূল্য অনুযায়ী দাম আপডেট';}}
 }
-async let adminTaxonomyManagerRows=[];
+let adminTaxonomyManagerRows=[];
 async function loadAdminTaxonomyManager(){
  const host=document.getElementById('adminTaxonomyManagerBody');if(!host)return;
  if(!canEditProductDetails()&&!isAdminRole()){host.innerHTML='<p class="admin-help">Category পরিবর্তনের অনুমতি নেই।</p>';return;}
@@ -1507,7 +1507,7 @@ async function deleteAdminTaxonomyItem(id){
 }
 document.addEventListener('click',event=>{const edit=event.target.closest('[data-tax-edit]'),del=event.target.closest('[data-tax-delete]');if(edit)editAdminTaxonomyItem(edit.dataset.taxEdit);if(del)deleteAdminTaxonomyItem(del.dataset.taxDelete);});
 document.addEventListener('click',event=>{if(event.target?.id==='adminTaxonomyRefresh')loadAdminTaxonomyManager();});
-function loadAdminProducts(){
+async function loadAdminProducts(){
  const box=document.getElementById('adminProductList');box.innerHTML='<p class="admin-help">Loading...</p>';
  const {data,error}=await supabaseClient.from('products').select('id,product_code,name,price,stock,image_url,is_active,category,subcategory,brand,created_at,last_updated_at').order('created_at',{ascending:false}).range(0,999);
  if(error){box.innerHTML='<p class="admin-help">Product ANo could not: '+escapeHtml(error.message)+'</p>';return;}
