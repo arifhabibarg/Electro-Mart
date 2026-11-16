@@ -851,7 +851,7 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible),[role="button"]:foc
 </main>
 <section class="admin-wrap" id="adminPanel">
  <div class="admin-shell">
-  <div class="admin-top"><div><h2>ElectroMart Admin Panel</h2><p>Only authorized administrators can manage products and access.</p></div><button class="admin-close" type="button" onclick="toggleAdminPanel()">Close ✕</button></div>
+  <div class="admin-top"><div><h2>ElectroMart Admin Panel</h2><p>Only authorized administrators can manage products and access.</p></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="admin-close" id="importProductPhotosBtn" type="button" style="display:none" onclick="importDecorationProductPhotos()">🖼 Add product photos</button><button class="admin-close" type="button" onclick="toggleAdminPanel()">Close ✕</button></div></div>
   <nav class="admin-menu" aria-label="Admin menu"><button type="button" class="active" data-admin-tab="adminProductManagementPanel" onclick="switchAdminTab(this)">🛍 Product Management</button><button type="button" data-admin-tab="adminManageProductsPanel" onclick="switchAdminTab(this)">📦 Manage Products</button><button type="button" data-admin-tab="adminDeliveredPanel" onclick="switchAdminTab(this)">🚚 Product Delivery Report</button><button type="button" data-admin-tab="adminOrdersPanel" onclick="switchAdminTab(this)">🧾 Order Management</button><button type="button" id="adminReturnsMenuBtn" data-admin-tab="adminReturnsPanel" onclick="switchAdminTab(this)" style="display:none">↩️ Return / Replacement</button><button type="button" id="adminReplacementRecordsMenuBtn" data-admin-tab="adminReplacementRecordsPanel" onclick="switchAdminTab(this)" style="display:none">📄 Replacement Records</button><button type="button" id="adminCustomerProfilesMenuBtn" data-admin-tab="adminCustomerProfilesPanel" onclick="switchAdminTab(this)" style="display:none">👤 Customer Profiles</button><button type="button" id="adminPermissionMenuBtn" data-admin-tab="adminUserPermissionsPanel" onclick="switchAdminTab(this)">👥 Staff & Roles</button><button type="button" id="adminFinanceMenuBtn" data-admin-tab="adminFinancePanel" onclick="switchAdminTab(this)">📊 Finance Report</button> <button type="button" id="adminBlogMenuBtn" data-admin-tab="adminBlogPanel" onclick="switchAdminTab(this)">✍️ Blog Management</button></nav>
   <div class="admin-grid">
    <section class="admin-card admin-tab-panel active" id="adminProductManagementPanel">
@@ -1326,6 +1326,21 @@ async function refreshAdminAccess(){
  }catch(e){console.error('Admin access check failed:',e);if(nav){nav.classList.remove('show');nav.style.display='none';}}
 }
 function switchAdminTab(button){const id=button?.dataset?.adminTab;if(!id)return;document.querySelectorAll("#adminPanel .admin-tab-panel").forEach(p=>p.classList.toggle("active",p.id===id));document.querySelectorAll("#adminPanel .admin-menu button").forEach(b=>b.classList.toggle("active",b===button));const target=document.getElementById(id);if(target)target.scrollTop=0;if(id==="adminReplacementRecordsPanel")loadReplacementRecords();if(id==="adminManageProductsPanel")loadAdminTaxonomyManager();}
+async function importDecorationProductPhotos(){
+ const button=document.getElementById('importProductPhotosBtn');
+ if(currentAdminRole!=='super_admin'){alert('Super Admin permission required.');return;}
+ if(!currentAuthUser?.id){alert('Please sign in first.');return;}
+ button.disabled=true;button.textContent='Adding photos...';
+ try{
+  const {data,error}=await supabaseClient.functions.invoke('admin-import-product-images',{body:{}});
+  if(error)throw error;
+  if(!data?.success)throw new Error(data?.error||'Photo import failed.');
+  alert('ছবি যোগ হয়েছে। মোট নতুন ছবি: '+data.totalAdded+'টি। আপডেট হওয়া পণ্য: '+data.updated+'টি।');
+  await loadAdminProducts();
+  await loadProducts();
+ }catch(error){console.error('Product photo import failed:',error);alert('ছবি যোগ করা যায়নি: '+(error.message||error));}
+ finally{button.disabled=false;button.textContent='🖼 Add product photos';}
+}
 async function toggleAdminPanel(){
  const panel=document.getElementById('adminPanel');
  if(panel.classList.contains('show')){panel.classList.remove('show');sessionStorage.removeItem('electromart_admin_panel_open');return;}
@@ -1337,6 +1352,7 @@ async function toggleAdminPanel(){
  if(permissionError){alert('Permission check failed: '+permissionError.message);return;}
  currentProductPermissions={can_add:!!permission?.can_add,can_edit:!!permission?.can_edit,can_view_costs:!!permission?.can_view_costs};
  await refreshAdminAccess();
+ const photoImportButton=document.getElementById('importProductPhotosBtn');if(photoImportButton)photoImportButton.style.display=currentAdminRole==='super_admin'?'inline-flex':'none';
  await loadAdminProductTaxonomy();
  if(currentAdminRole==='customer'&&!currentProductPermissions.can_add&&!currentProductPermissions.can_edit){alert('You are not authorized to use this panel।');return;}
  panel.classList.add('show');
