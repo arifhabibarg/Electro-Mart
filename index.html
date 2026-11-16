@@ -1335,9 +1335,11 @@ async function importDecorationProductPhotos(){
   const {data,error}=await supabaseClient.functions.invoke('admin-import-product-images',{body:{}});
   if(error)throw error;
   if(!data?.success)throw new Error(data?.error||'ছবি যোগ করা যায়নি।');
-  showElectroReturnNotice('নতুন ছবি যোগ হয়েছে: '+data.totalAdded+'টি। আপডেট হওয়া পণ্য: '+data.updated+'টি।','success');
   await loadAdminProducts();
   await loadProducts();
+  if(Number(data.totalAdded)>0){
+   showElectroReturnNotice('নতুন ছবি যোগ হয়েছে: '+data.totalAdded+'টি। আপডেট হওয়া পণ্য: '+data.updated+'টি।','success');
+  }
  }catch(error){console.error('Product photo import failed:',error);showElectroReturnNotice('ছবি যোগ করা যায়নি: '+(error.message||error),'error');}
  finally{button.disabled=false;button.textContent='🖼 পণ্যের ছবি যোগ করুন';}
 }
