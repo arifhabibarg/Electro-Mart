@@ -840,6 +840,38 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible),[role="button"]:foc
   margin-left:auto;
 }
 
+
+
+/* Keep each taxonomy label and its full count on one horizontal line. */
+.all-categories-popup .all-categories-popup-item,
+.all-categories-popup .all-categories-popup-brand,
+.brands-popup .brands-popup-item{
+  display:flex!important;
+  flex-direction:row!important;
+  flex-wrap:nowrap!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  white-space:nowrap!important;
+}
+.all-categories-popup .all-categories-popup-item>span:first-child,
+.all-categories-popup .all-categories-popup-brand>span:first-child,
+.brands-popup .brands-popup-item>span:first-child{
+  flex:1 1 auto!important;
+  min-width:0!important;
+  white-space:nowrap!important;
+}
+.all-categories-popup .taxonomy-count,
+.brands-popup .taxonomy-count{
+  display:inline-block!important;
+  flex:0 0 auto!important;
+  width:auto!important;
+  min-width:max-content!important;
+  white-space:nowrap!important;
+  word-break:keep-all!important;
+  overflow-wrap:normal!important;
+  margin-left:12px!important;
+  padding-left:0!important;
+}
 </style>
 </head>
 <body>
