@@ -2049,7 +2049,7 @@ function toggleBrandsPopup(force){
  const open=typeof force==='boolean'?force:popup.hidden;
  if(open){
   const brands=[...new Set(allProducts.map(p=>String(p.brand||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
-  document.getElementById('brandsPopupList').innerHTML=brands.length?brands.map(brand=>'<button type="button" class="brands-popup-item" data-brand="'+escapeHtml(brand)+'">'+escapeHtml(brand)+'</button>').join(''):'<span>No brands available yet.</span>';
+  document.getElementById('brandsPopupList').innerHTML=brands.length?brands.map(brand=>{const count=allProducts.filter(p=>String(p.brand||'').trim()===brand).length;return '<button type="button" class="brands-popup-item" data-brand="'+escapeHtml(brand)+'"><span>'+escapeHtml(brand)+'</span><span class="taxonomy-count">'+count+'</span></button>';}).join(''):'<span>No brands available yet.</span>';
   popup.hidden=false;btn?.setAttribute('aria-expanded','true');animatePopupFromButton(popup,btn,'popupGrowFromTrigger');
  }else{popup.hidden=true;btn?.setAttribute('aria-expanded','false');}
 }
@@ -2098,7 +2098,7 @@ function renderSideCategories(){
 
  const categories=[...new Set(allProducts.map(p=>String(p.category||p.category_name||'').trim()).filter(Boolean))];
  const savedCategoryScroll=list.scrollTop;
- list.innerHTML=categories.map(cat=>'<button type="button" class="all-categories-popup-item '+(expandedSideCategory===cat?'active':'')+'" aria-pressed="'+(expandedSideCategory===cat)+'" onclick="event.stopPropagation();toggleSideCategory('+escapeHtml(JSON.stringify(cat))+')">'+escapeHtml((SIDE_CATEGORY_META[cat]||['',cat])[1])+'</button>').join('');
+ list.innerHTML=categories.map(cat=>{const count=allProducts.filter(p=>String(p.category||p.category_name||'').trim()===cat).length;return '<button type="button" class="all-categories-popup-item '+(expandedSideCategory===cat?'active':'')+'" aria-pressed="'+(expandedSideCategory===cat)+'" onclick="event.stopPropagation();toggleSideCategory('+escapeHtml(JSON.stringify(cat))+')"><span>'+escapeHtml((SIDE_CATEGORY_META[cat]||['',cat])[1])+'</span><span class="taxonomy-count">'+count+'</span></button>';}).join('');
  list.scrollTop=savedCategoryScroll;
 
  if(!expandedSideCategory){
@@ -2111,7 +2111,7 @@ function renderSideCategories(){
  const actualSubs=allProducts.filter(p=>String(p.category||p.category_name||'').trim()===expandedSideCategory).map(p=>String(p.subcategory||'').trim()).filter(Boolean);
  const subs=[...new Set(actualSubs)];
  subsTitle.textContent=expandedSideCategory+' · Subcategories';
- subList.innerHTML=subs.length?subs.map(sub=>'<button type="button" class="all-categories-popup-brand '+(expandedSideSubcategory===sub?'active':'')+'" aria-pressed="'+(expandedSideSubcategory===sub)+'" onclick="event.stopPropagation();toggleSideSubcategory('+escapeHtml(JSON.stringify(sub))+')">'+escapeHtml(sub)+'</button>').join(''):'<span style="color:#777;font-size:12px">No subcategories have been added to this category yet.</span>';
+ subList.innerHTML=subs.length?subs.map(sub=>{const count=allProducts.filter(p=>String(p.category||p.category_name||'').trim()===expandedSideCategory&&String(p.subcategory||'').trim()===sub).length;return '<button type="button" class="all-categories-popup-brand '+(expandedSideSubcategory===sub?'active':'')+'" aria-pressed="'+(expandedSideSubcategory===sub)+'" onclick="event.stopPropagation();toggleSideSubcategory('+escapeHtml(JSON.stringify(sub))+')"><span>'+escapeHtml(sub)+'</span><span class="taxonomy-count">'+count+'</span></button>';}).join(''):'<span style="color:#777;font-size:12px">No subcategories have been added to this category yet.</span>';
  subsPanel.hidden=false;subsPanel.setAttribute('aria-hidden','false');
 
  if(!expandedSideSubcategory){
@@ -2122,7 +2122,7 @@ function renderSideCategories(){
  const actualBrands=allProducts.filter(p=>String(p.category||p.category_name||'').trim()===expandedSideCategory&&String(p.subcategory||'').trim()===expandedSideSubcategory).map(p=>String(p.brand||'').trim()).filter(Boolean);
  const visibleBrands=[...new Set(actualBrands)];
  brandsTitle.textContent=expandedSideSubcategory+' · Brands';
- brandList.innerHTML=visibleBrands.length?visibleBrands.map(brand=>'<button type="button" class="all-categories-popup-brand" onclick="filterByBrand('+escapeHtml(JSON.stringify(expandedSideCategory))+','+escapeHtml(JSON.stringify(brand))+','+escapeHtml(JSON.stringify(expandedSideSubcategory))+');toggleAllCategoriesPopup(false)">'+escapeHtml(brand)+'</button>').join(''):'<span style="color:#777;font-size:12px">No brands have been added to this subcategory yet.</span>';
+ brandList.innerHTML=visibleBrands.length?visibleBrands.map(brand=>{const count=allProducts.filter(p=>String(p.category||p.category_name||'').trim()===expandedSideCategory&&String(p.subcategory||'').trim()===expandedSideSubcategory&&String(p.brand||'').trim()===brand).length;return '<button type="button" class="all-categories-popup-brand" onclick="filterByBrand('+escapeHtml(JSON.stringify(expandedSideCategory))+','+escapeHtml(JSON.stringify(brand))+','+escapeHtml(JSON.stringify(expandedSideSubcategory))+');toggleAllCategoriesPopup(false)"><span>'+escapeHtml(brand)+'</span><span class="taxonomy-count">'+count+'</span></button>';}).join(''):'<span style="color:#777;font-size:12px">No brands have been added to this subcategory yet.</span>';
  brandsPanel.hidden=false;brandsPanel.setAttribute('aria-hidden','false');
 }
 function toggleSideCategory(cat){
@@ -2821,3 +2821,9 @@ toggleAdminPanel=async function(){await originalElectroToggleAdminPanel();const 
 </script>
 
 </body></html>
+
+
+/* Right-aligned live product counts for category navigation */
+.taxonomy-count{flex:0 0 auto;margin-left:auto;min-width:22px;text-align:right;font-size:11px;font-weight:800;color:#777;font-variant-numeric:tabular-nums;}
+.all-categories-popup .all-categories-popup-item,.all-categories-popup .all-categories-popup-brand{display:flex!important;align-items:center;justify-content:space-between;gap:10px;text-align:left!important;}
+.brands-popup-item{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;}
