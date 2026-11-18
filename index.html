@@ -952,6 +952,56 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible),[role="button"]:foc
     text-align:right!important;
   }
 }
+
+
+/* Mobile popup: let all taxonomy sections grow and scroll the popup itself. */
+@media(max-width:600px){
+ .all-categories-popup,
+ .all-categories-popup.has-brands{
+   height:auto!important;
+   max-height:78dvh!important;
+   min-height:0!important;
+   overflow-x:hidden!important;
+   overflow-y:auto!important;
+   display:flex!important;
+   flex-direction:column!important;
+   flex-wrap:nowrap!important;
+   align-content:stretch!important;
+   overscroll-behavior:contain!important;
+ }
+ .all-categories-popup-list,
+ .all-categories-popup.has-brands .all-categories-popup-list{
+   order:1!important;
+   width:100%!important;
+   flex:0 0 auto!important;
+   max-height:24dvh!important;
+   overflow-y:auto!important;
+   overflow-x:hidden!important;
+ }
+ .all-categories-popup #allCategoriesPopupSubs,
+ .all-categories-popup #allCategoriesPopupBrands,
+ .all-categories-popup.has-brands #allCategoriesPopupSubs,
+ .all-categories-popup.has-brands #allCategoriesPopupBrands{
+   width:100%!important;
+   flex:0 0 auto!important;
+   min-height:0!important;
+   max-height:none!important;
+   overflow:visible!important;
+   padding:10px 0!important;
+   border-top:1px solid #eee!important;
+   border-left:0!important;
+ }
+ .all-categories-popup.has-brands #allCategoriesPopupSubs{order:2!important}
+ .all-categories-popup.has-brands #allCategoriesPopupBrands{order:3!important}
+ .all-categories-popup-brand-list,
+ .all-categories-popup.has-brands .all-categories-popup-brand-list{
+   display:flex!important;
+   flex-direction:column!important;
+   flex-wrap:nowrap!important;
+   max-height:none!important;
+   overflow:visible!important;
+ }
+}
 </style>
 </head>
 <body>
