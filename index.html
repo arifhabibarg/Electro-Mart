@@ -2827,3 +2827,11 @@ toggleAdminPanel=async function(){await originalElectroToggleAdminPanel();const 
 .taxonomy-count{flex:0 0 auto;margin-left:auto;min-width:22px;text-align:right;font-size:11px;font-weight:800;color:#777;font-variant-numeric:tabular-nums;}
 .all-categories-popup .all-categories-popup-item,.all-categories-popup .all-categories-popup-brand{display:flex!important;align-items:center;justify-content:space-between;gap:10px;text-align:left!important;}
 .brands-popup-item{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;}
+
+
+/* Pin taxonomy counts to the far opposite (right) edge of each row */
+.all-categories-popup .all-categories-popup-item,
+.all-categories-popup .all-categories-popup-brand,
+.brands-popup .brands-popup-item{position:relative!important;display:block!important;width:100%!important;box-sizing:border-box!important;padding-right:42px!important;text-align:left!important;}
+.all-categories-popup .taxonomy-count,
+.brands-popup .taxonomy-count{position:absolute!important;right:12px!important;top:50%!important;transform:translateY(-50%)!important;margin:0!important;min-width:24px!important;text-align:right!important;display:block!important;}
