@@ -806,7 +806,53 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible),[role="button"]:foc
 .ap-inline-dropdown-host .admin-inline-taxonomy-option.selected{box-shadow:inset 3px 0 var(--yellow)}
 @media(max-width:600px){.ap-discount-stock-row{grid-template-columns:1fr;gap:9px}}
 @media(prefers-reduced-motion:reduce){.ap-inline-dropdown-host .admin-inline-taxonomy-menu,.ap-inline-dropdown-host .admin-inline-taxonomy-option-row{animation:none!important;opacity:1!important;transform:none!important}}
-\n.admin-taxonomy-manager{margin:14px 0 18px;padding:14px;border:1px solid #e8d27a;border-radius:9px;background:#fffdf4}.admin-taxonomy-manager-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}.admin-taxonomy-manager-head h4{margin:0;font-size:15px;color:#222}.admin-taxonomy-manager-head p{margin:5px 0 0;color:#777;font-size:11px}.admin-taxonomy-filter{width:100%;max-width:320px;height:39px;margin:0 0 10px;padding:0 10px;border:1px solid #e4c34b;border-radius:6px;background:#fff;font:inherit;font-size:12px}.admin-taxonomy-table-wrap{overflow-x:auto;border:1px solid #eee;border-radius:7px;background:#fff}.admin-taxonomy-table{width:100%;border-collapse:collapse;min-width:520px;font-size:12px}.admin-taxonomy-table th,.admin-taxonomy-table td{padding:10px;text-align:left;border-bottom:1px solid #eee}.admin-taxonomy-table th{background:#f8f5e8;color:#655000;font-weight:800}.admin-taxonomy-actions{display:flex;gap:6px;justify-content:flex-end}.admin-taxonomy-actions button{height:29px;padding:0 10px;border-radius:5px;font-size:11px;font-weight:700}.admin-taxonomy-edit{border:1px solid #d7b000;background:#fff8d5;color:#5e4900}.admin-taxonomy-delete{border:1px solid #efcaca;background:#fff4f4;color:#b42318}.admin-taxonomy-empty{padding:18px;text-align:center;color:#888;font-size:12px}\n</style>
+\n.admin-taxonomy-manager{margin:14px 0 18px;padding:14px;border:1px solid #e8d27a;border-radius:9px;background:#fffdf4}.admin-taxonomy-manager-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}.admin-taxonomy-manager-head h4{margin:0;font-size:15px;color:#222}.admin-taxonomy-manager-head p{margin:5px 0 0;color:#777;font-size:11px}.admin-taxonomy-filter{width:100%;max-width:320px;height:39px;margin:0 0 10px;padding:0 10px;border:1px solid #e4c34b;border-radius:6px;background:#fff;font:inherit;font-size:12px}.admin-taxonomy-table-wrap{overflow-x:auto;border:1px solid #eee;border-radius:7px;background:#fff}.admin-taxonomy-table{width:100%;border-collapse:collapse;min-width:520px;font-size:12px}.admin-taxonomy-table th,.admin-taxonomy-table td{padding:10px;text-align:left;border-bottom:1px solid #eee}.admin-taxonomy-table th{background:#f8f5e8;color:#655000;font-weight:800}.admin-taxonomy-actions{display:flex;gap:6px;justify-content:flex-end}.admin-taxonomy-actions button{height:29px;padding:0 10px;border-radius:5px;font-size:11px;font-weight:700}.admin-taxonomy-edit{border:1px solid #d7b000;background:#fff8d5;color:#5e4900}.admin-taxonomy-delete{border:1px solid #efcaca;background:#fff4f4;color:#b42318}.admin-taxonomy-empty{padding:18px;text-align:center;color:#888;font-size:12px}\n
+
+/* Right-aligned live product counts for category navigation */
+.taxonomy-count{flex:0 0 auto;margin-left:auto;min-width:22px;text-align:right;font-size:11px;font-weight:800;color:#777;font-variant-numeric:tabular-nums;}
+.all-categories-popup .all-categories-popup-item,.all-categories-popup .all-categories-popup-brand{display:flex!important;align-items:center;justify-content:space-between;gap:10px;text-align:left!important;}
+.brands-popup-item{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;}
+
+
+/* Pin taxonomy counts to the far opposite (right) edge of each row */
+.all-categories-popup .all-categories-popup-item,
+.all-categories-popup .all-categories-popup-brand,
+.brands-popup .brands-popup-item{position:relative!important;display:block!important;width:100%!important;box-sizing:border-box!important;padding-right:42px!important;text-align:left!important;}
+.all-categories-popup .taxonomy-count,
+.brands-popup .taxonomy-count{position:absolute!important;right:12px!important;top:50%!important;transform:translateY(-50%)!important;margin:0!important;min-width:24px!important;text-align:right!important;display:block!important;}
+
+
+/* Final layout fix: keep taxonomy counts in a dedicated right-hand column */
+.all-categories-popup .all-categories-popup-item,
+.all-categories-popup .all-categories-popup-brand,
+.brands-popup .brands-popup-item{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  align-items:center!important;
+  column-gap:12px!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+  text-align:left!important;
+}
+.all-categories-popup .all-categories-popup-item>span:first-child,
+.all-categories-popup .all-categories-popup-brand>span:first-child,
+.brands-popup .brands-popup-item>span:first-child{
+  min-width:0!important;
+  justify-self:start!important;
+  text-align:left!important;
+}
+.all-categories-popup .taxonomy-count,
+.brands-popup .taxonomy-count{
+  position:static!important;
+  inset:auto!important;
+  transform:none!important;
+  display:block!important;
+  justify-self:end!important;
+  margin:0!important;
+  min-width:24px!important;
+  text-align:right!important;
+}
+</style>
 </head>
 <body>
 
@@ -2821,49 +2867,3 @@ toggleAdminPanel=async function(){await originalElectroToggleAdminPanel();const 
 </script>
 
 </body></html>
-
-
-/* Right-aligned live product counts for category navigation */
-.taxonomy-count{flex:0 0 auto;margin-left:auto;min-width:22px;text-align:right;font-size:11px;font-weight:800;color:#777;font-variant-numeric:tabular-nums;}
-.all-categories-popup .all-categories-popup-item,.all-categories-popup .all-categories-popup-brand{display:flex!important;align-items:center;justify-content:space-between;gap:10px;text-align:left!important;}
-.brands-popup-item{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;}
-
-
-/* Pin taxonomy counts to the far opposite (right) edge of each row */
-.all-categories-popup .all-categories-popup-item,
-.all-categories-popup .all-categories-popup-brand,
-.brands-popup .brands-popup-item{position:relative!important;display:block!important;width:100%!important;box-sizing:border-box!important;padding-right:42px!important;text-align:left!important;}
-.all-categories-popup .taxonomy-count,
-.brands-popup .taxonomy-count{position:absolute!important;right:12px!important;top:50%!important;transform:translateY(-50%)!important;margin:0!important;min-width:24px!important;text-align:right!important;display:block!important;}
-
-
-/* Final layout fix: keep taxonomy counts in a dedicated right-hand column */
-.all-categories-popup .all-categories-popup-item,
-.all-categories-popup .all-categories-popup-brand,
-.brands-popup .brands-popup-item{
-  display:grid!important;
-  grid-template-columns:minmax(0,1fr) auto!important;
-  align-items:center!important;
-  column-gap:12px!important;
-  width:100%!important;
-  box-sizing:border-box!important;
-  text-align:left!important;
-}
-.all-categories-popup .all-categories-popup-item>span:first-child,
-.all-categories-popup .all-categories-popup-brand>span:first-child,
-.brands-popup .brands-popup-item>span:first-child{
-  min-width:0!important;
-  justify-self:start!important;
-  text-align:left!important;
-}
-.all-categories-popup .taxonomy-count,
-.brands-popup .taxonomy-count{
-  position:static!important;
-  inset:auto!important;
-  transform:none!important;
-  display:block!important;
-  justify-self:end!important;
-  margin:0!important;
-  min-width:24px!important;
-  text-align:right!important;
-}
