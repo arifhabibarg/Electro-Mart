@@ -2913,6 +2913,9 @@ function printReplacementRecord(id){
 .ap-category-buttons .admin-inline-taxonomy-list{max-height:244px;overflow-y:auto;overscroll-behavior:contain}
 @keyframes adminCategoryOverlayOpen{0%{opacity:0;transform:translateY(-8px) scaleY(.94)}100%{opacity:1;transform:translateY(0) scaleY(1)}}
 @media(prefers-reduced-motion:reduce){.ap-category-buttons .admin-inline-taxonomy-menu{animation:none!important}}
+
+/* Keep the logged-out profile fallback visible; never render a hidden avatar image. */
+.nav-inner>.profile-header-group .profile-header-avatar[hidden]{display:none!important}
 </style><div class="head"><h1>ElectroMart</h1><b>পণ্য রিপ্লেসমেন্ট ডকুমেন্ট</b><div class="muted">রেকর্ড আইডি: '+esc(r.id)+'</div></div><table>'+rows.map(([a,b])=>'<tr><td class="label">'+esc(a)+'</td><td>'+esc(b)+'</td></tr>').join('')+'</table><div class="foot">এই ডকুমেন্ট ElectroMart-এর সংরক্ষিত রিপ্লেসমেন্ট রেকর্ড থেকে তৈরি।</div><script>window.onload=()=>window.print()<\/script></html>');
  w.document.close();
 }
