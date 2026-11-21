@@ -878,6 +878,9 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible),[role="button"]:foc
 .profile-location-picker-inline .checkout-location-option{width:100%;min-height:40px;padding:9px 10px;border:0;border-bottom:1px solid #eee;border-radius:0;background:#fff;color:#222!important;-webkit-text-fill-color:#222!important;text-align:left;font:inherit;font-size:13px;display:flex;align-items:center;justify-content:space-between}
 .profile-location-picker-inline .checkout-location-option:hover,.profile-location-picker-inline .checkout-location-option.selected{background:#fff8d8!important;color:#111!important;-webkit-text-fill-color:#111!important}
 .profile-location-picker-inline .checkout-location-option.selected:after{content:'✓';color:#9b7900;font-weight:900}
+
+/* Logged-out state: hidden avatar must override the desktop forced image display. */
+.nav-inner>.profile-header-group .profile-header-avatar[hidden]{display:none!important}
 </style>
 
 <link rel="manifest" href="/manifest.webmanifest">
@@ -2914,8 +2917,6 @@ function printReplacementRecord(id){
 @keyframes adminCategoryOverlayOpen{0%{opacity:0;transform:translateY(-8px) scaleY(.94)}100%{opacity:1;transform:translateY(0) scaleY(1)}}
 @media(prefers-reduced-motion:reduce){.ap-category-buttons .admin-inline-taxonomy-menu{animation:none!important}}
 
-/* Keep the logged-out profile fallback visible; never render a hidden avatar image. */
-.nav-inner>.profile-header-group .profile-header-avatar[hidden]{display:none!important}
 </style><div class="head"><h1>ElectroMart</h1><b>পণ্য রিপ্লেসমেন্ট ডকুমেন্ট</b><div class="muted">রেকর্ড আইডি: '+esc(r.id)+'</div></div><table>'+rows.map(([a,b])=>'<tr><td class="label">'+esc(a)+'</td><td>'+esc(b)+'</td></tr>').join('')+'</table><div class="foot">এই ডকুমেন্ট ElectroMart-এর সংরক্ষিত রিপ্লেসমেন্ট রেকর্ড থেকে তৈরি।</div><script>window.onload=()=>window.print()<\/script></html>');
  w.document.close();
 }
