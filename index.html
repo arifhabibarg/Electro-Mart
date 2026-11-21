@@ -859,6 +859,14 @@ button:focus:not(:focus-visible),a:focus:not(:focus-visible),[role="button"]:foc
   font-variant-numeric:tabular-nums!important;
 }
 </style>
+
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ElectroMart">
+<link rel="icon" type="image/svg+xml" href="/icons/electromart.svg">
+<link rel="apple-touch-icon" href="/icons/electromart.svg">
 </head>
 <body>
 
@@ -2872,4 +2880,12 @@ const originalElectroToggleAdminPanel=toggleAdminPanel;
 toggleAdminPanel=async function(){await originalElectroToggleAdminPanel();const panel=document.getElementById('adminPanel'),nav=document.getElementById('adminReturnsMenuBtn'),recordsNav=document.getElementById('adminReplacementRecordsMenuBtn'),profilesNav=document.getElementById('adminCustomerProfilesMenuBtn');if(nav)nav.style.display=isAdminRole()?'':'none';if(recordsNav)recordsNav.style.display=isAdminRole()?'':'none';if(profilesNav)profilesNav.style.display=isAdminRole()?'':'none';if(panel?.classList.contains('show')&&isAdminRole()){await loadAdminReturnRequests();await loadCustomerProfiles();}};
 </script>
 
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(err => console.warn('ElectroMart offline support unavailable:', err));
+  });
+}
+</script>
 </body></html>
