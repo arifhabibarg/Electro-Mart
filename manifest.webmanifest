@@ -1,0 +1,19 @@
+{
+  "id": "/",
+  "name": "ElectroMart — Mobile & Electronics Store",
+  "short_name": "ElectroMart",
+  "description": "ElectroMart online mobile and electronics store in Bangladesh.",
+  "lang": "bn-BD",
+  "dir": "ltr",
+  "start_url": "/?source=installed-app",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#111111",
+  "categories": ["shopping"],
+  "icons": [
+    { "src": "/icons/electromart.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
