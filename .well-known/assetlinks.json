@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "bd.com.electromart.app",
+      "sha256_cert_fingerprints": [
+        "DC:EB:5A:41:77:16:DA:A4:23:A8:5A:02:FE:E7:4E:18:8B:14:7B:E0:7C:A2:EE:8F:5A:C5:A5:84:E6:FE:50:C9"
+      ]
+    }
+  }
+]
